@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from datetime import timedelta
+import re
 
 
 # =============================================================================
@@ -26,12 +27,43 @@ def max_normalize(x):
 
 # Population
 # -----------------------------------------------------------------------------
+def parse_dsm(coord):
+    deg, min, sec, dir = re.split('[°\'"]', coord)
+    dd = float(deg) + (float(min)/60) + (float(sec)/60/60)
+    if (dir == 'W') | (dir == 'S'):
+        dd *= -1
+    return dd
+# =============================================================================
+# Data
+# =============================================================================
 print('Population ... ', flush=True, end='')
-population  = pd.read_csv('./data/pop/fr/population_2020.csv')
+population  = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
+population.columns = ['dep_num', 'name', 'region', 'capital', 'area', 'total', 'density']
+population['dep_num'] = population['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
+population = population.sort_values('dep_num')
+population = population[:-5]
+
+
+dep_centre = pd.read_excel(
+    '../data/train/pop/fr/Centre_departement.xlsx',
+    engine='openpyxl', header=1, usecols=[0,1,2,3,4])
+dep_centre.columns = ['dep_num','name','area', 'lon', 'lat']
+dep_centre['dep_num'] = dep_centre['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
+dep_centre = dep_centre.sort_values('dep_num')
+dep_centre['lon'] = dep_centre['lon'].apply(lambda x: parse_dsm(x))
+dep_centre['lat'] = dep_centre['lat'].apply(lambda x: parse_dsm(x))
+dep_centre = dep_centre.merge(population, on=['dep_num'], how='outer')
+dep_centre = dep_centre.drop(columns=['name_x', 'area_x', 'region'])
+dep_centre.columns = ['dep_num','lon','lat','name','captial','area','total','density']
+
+dep_centre.to_csv('../data/train/pop/fr/population_2020.csv', index=False)
+
+population  = pd.read_csv('../data/train/pop/fr/population_2020.csv')
 
 # Population Index
 # Min-Max-normalized values of the log10 transformation
-population['idx'] = max_normalize(np.log10(population['total']))
+#population['idx'] = max_normalize(np.log10(population['total']))
+population['idx'] = population['total']
 population.reset_index(inplace = True, drop=True)
 print('OK', flush=True)
 
@@ -39,7 +71,7 @@ print('OK', flush=True)
 # Covid #%%
 # -----------------------------------------------------------------------------
 print('Covid ... ', flush=True, end='')
-filePath = 'data/'
+filePath = '../data/train/covid/fr/'
 fileName = 'Covid_data_history.csv'
 covid = pd.read_csv(filePath + fileName, sep=',').dropna()
 covid['date'] = pd.to_datetime(covid['date'])
@@ -64,9 +96,9 @@ start_date, end_date = ['2020-01-01','2021-04-01']
 dates = pd.date_range(start_date, end_date, freq='h')[:-1]
 
 print('CAMS ... ', flush=True, end='')
-filePath = './data/train/cams/reanalysis/'
+filePath = '../data/train/cams/fr/reanalysis/'
 cams = xr.open_mfdataset(
-    './data/train/cams/reanalysis/*',
+    '../data/train/cams/fr/reanalysis/*',
     combine='nested', concat_dim='time',
     parallel=True)
 # n_time_steps = cams.coords['time'].size
@@ -136,6 +168,7 @@ pm10 = xr.DataArray(
 # recreate Dataset (without dask)
 cams = xr.Dataset({'pm25': pm25, 'no2': no2, 'o3': o3, 'co':co, 'pm10':pm10})
 # interpolate CAMS data to lon/lat of departments
+print("Interpolate CAMS data to lon/lat of departments ...")
 lons = xr.DataArray(
     population['lon'],
     dims='dep_num',
@@ -156,10 +189,12 @@ covid = covid.rename(columns = {'date':'time'})
 covid = covid.merge(cams, how='inner', on=['time','dep_num'])
 
 # Compute the engineered features: 7 trailing day averages of gas' concentrations
+print("Computing the engineered features: 7 trailing day averages of gas' concentrations ...")
 df = covid
 df["time"]=pd.to_datetime(df["time"])
 print (df)
 print (df.columns)
+print (df.numero.unique())
 avgpm25 = []
 avgno2 = []
 avgo3 = []
@@ -264,7 +299,7 @@ avgpm10df.columns=["pm107davg"]
 
 avgcodf = pd.DataFrame(avgco)
 avgcodf.columns=["co7davg"]
-
+print("Merging data...")
 df["hospiprevday"]=tothospi["hospiprevday"]
 df["pm257davg"]=avgpm25df["pm257davg"]
 df["no27davg"]=avgno2df["no27davg"]
@@ -273,15 +308,16 @@ df["pm107davg"]=avgpm10df["pm107davg"]
 df["co7davg"]=avgcodf["co7davg"]
 print(df)
 
-df.to_csv("Enriched_Covid_history_data.csv", index = False)
+df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 
 # Get Mobility indices historical data and merge it by time & region with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 
-df = pd.read_csv("mouvement-range-FRA-final.csv", sep = ';')
-df2 = pd.read_csv("Enriched_Covid_history_data.csv", sep = ",")
+print("Mobility indices ...")
+df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep = ';')
+df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",")
 df2 = df2.dropna()
 
-df3 = pd.read_csv("regions_departements.csv", sep = ";")
+df3 = pd.read_csv("../data/train/pop/fr/regions_departements.csv", sep = ";")
 
 mdlist = []
 
@@ -298,16 +334,18 @@ print(df2)
 print(df3)
 df3['depnum'] = df3['depnum'].replace({'2A':'201','2B':'202'}).astype(int)
 df2 = df2.merge(df3,left_on = "numero", right_on = "depnum")
+print(df2)
 df2 = df2.merge(df, left_on = ["time","Region"], right_on = ["ds","polygon_name"])
-df2.to_csv("Enriched_Covid_history_data.csv", index = False)
+print(df2)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print(df2)
 print('OK')
 
 # Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 
-print("")
-df = pd.read_csv ("data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
-df2 = pd.read_csv("Enriched_Covid_history_data.csv", sep = ",") 
+print("Covid Positive Tests (Previous day) ...")
+df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
+df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
 df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
 df["jour"]=pd.to_datetime(df["jour"])
 df2["time"]=pd.to_datetime(df2["time"])
@@ -330,6 +368,6 @@ covidposttest.columns =["covidpostestprevday"]
 
 df["covidpostestprevday"]=covidposttest["covidpostestprevday"]
 df2 = df2.merge(df, left_on = ["time","numero"], right_on = ["jour","dep"])
-df2.to_csv("Enriched_Covid_history_data.csv", index = False)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print(df2)
 print('OK')

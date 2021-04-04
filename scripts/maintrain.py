@@ -34,7 +34,7 @@ def mse(ground_truth, predictions):
     diff = (ground_truth - predictions)**2
     return diff.mean()
 
-df = pd.read_csv("Enriched_Covid_history_data.csv")
+df = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
 df = df.dropna()
 df["all_day_bing_tiles_visited_relative_change"]=df["all_day_bing_tiles_visited_relative_change"].astype(float)
 df["all_day_ratio_single_tile_users"]=df["all_day_ratio_single_tile_users"].astype(float)
@@ -54,14 +54,9 @@ X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33,ra
 
 print("T-Pot exported current best pipeline")
 # Average CV score on the training set was: -94.5319545151712
-exported_pipeline = make_pipeline(
-    make_union(
-        FunctionTransformer(copy),
-        FastICA(tol=0.0)
-    ),
-    ExtraTreesRegressor(bootstrap=False, max_features=0.8500000000000001, min_samples_leaf=1, min_samples_split=4, n_estimators=100)
-)
-# Fix random state for all the steps in exported pipeline
+exported_pipeline = ExtraTreesRegressor(bootstrap=False, max_features=0.7000000000000001, min_samples_leaf=1, min_samples_split=4, n_estimators=100)
+
+#Fix random state for all the steps in exported pipeline
 #set_param_recursive(exported_pipeline.steps, 'random_state', 42)
 
 exported_pipeline.fit(X_train2, y_train2)
