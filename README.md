@@ -16,5 +16,14 @@ chmod +x update_data.sh
 ```
 ## Download Historical Data
 python download_covid_hist_data.py
-python download_pm25_hist_data.py
-python concatenate_all_files_in_dir.py
+python download_cams_reanalysis.py
+python downlaod_era5_reanalysis.py
+
+## Merge the data in one CSV for training the ML algorithm
+python maintraindata.py
+
+## Train the model/Search for the best model with the T-POT optimizer +exporting the tpot_covid_pipeline.py file + generating Feature importance reports
+python maintrain.py
+
+# Download Daily Data
+download_covid_daily_data.py
