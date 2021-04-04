@@ -27,7 +27,7 @@ population = population[:-5]
 
 
 dep_centre = pd.read_excel(
-    './Centre_departement.xlsx',
+    './data/train/pop/fr/Centre_departement.xlsx',
     engine='openpyxl', header=1, usecols=[0,1,2,3,4])
 dep_centre.columns = ['dep_num','name','area', 'lon', 'lat']
 dep_centre['dep_num'] = dep_centre['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)

@@ -12,7 +12,7 @@ from tqdm import tqdm
 #     hospi.append((nom, numero, response["allLiveFranceData"][counter]["hospitalises"]))
 #     counter+=1
 
-departements = pd.read_csv("data/pop/fr/departements-francais.csv", sep = ";")
+departements = pd.read_csv("../data/train/pop/fr/departements-francais.csv", sep = ";")
 hospi = []
 url = "https://coronavirusapi-france.now.sh/AllDataByDepartement?Departement="
 
@@ -38,5 +38,5 @@ for nom in tqdm(departements.NOM):
 
 dfcolumns = ['nom', 'numero','date','hospi','reanim','newhospi','newreanim','deces','gueris']
 df = pd.DataFrame(datapointlist, columns = dfcolumns)
-df.to_csv('data/Covid_data_history.csv', index = False)
+df.to_csv('../data/train/covid/fr/Covid_data_history.csv', index = False)
 print(df)
