@@ -18,8 +18,8 @@ NUMÉRO;NOM;REGION;CHEF LIEU;SUPERFICIE (km²);POPULATION;DENSITE (habitants/km2
 17;Charente-Maritime;Nouvelle-Aquitaine;La Rochelle;6864;639938;93.2
 18;Cher;Centre-Val de Loire;Bourges;7235;308992;42.7
 19;Corrèze;Nouvelle-Aquitaine;Tulle;5857;241871;41.3
-2A;Corse-du-Sud;Corse;Ajaccio;4014;152730;38
-2B;Haute-Corse;Corse;Bastia;4666;174553;37.4
+201;Corse-du-Sud;Corse;Ajaccio;4014;152730;38
+202;Haute-Corse;Corse;Bastia;4666;174553;37.4
 21;Côte-d'Or;Bourgogne-Franche-Comté;Dijon;8763;533147;60.8
 22;Côtes-d'Armor;Bretagne;Saint-Brieuc;6878;598357;87
 23;Creuse;Nouvelle-Aquitaine;Guéret;5565;120365;21.6
@@ -90,11 +90,11 @@ NUMÉRO;NOM;REGION;CHEF LIEU;SUPERFICIE (km²);POPULATION;DENSITE (habitants/km2
 88;Vosges;Grand Est;Épinal;5874;372016;63.3
 89;Yonne;Bourgogne-Franche-Comté;Auxerre;7427;340903;45.9
 90;Territoire de Belfort;Bourgogne-Franche-Comté;Belfort;609;144483;237.1
-91;Essonne;Ile-de-France;Évry;1804;1276233;707.3
-92;Hauts-de-Seine;Ile-de-France;Nanterre;176;1601569;9120.6
-93;Seine-St-Denis;Ile-de-France;Bobigny;236;1592663;6742.9
-94;Val-de-Marne;Ile-de-France;Créteil;245;1372389;5601.6
-95;Val-d'Oise;Ile-de-France;Pontoise;1246;1215390;975.5
+91;Essonne;Île-de-France;Évry;1804;1276233;707.3
+92;Hauts-de-Seine;Île-de-France;Nanterre;176;1601569;9120.6
+93;Seine-St-Denis;Île-de-France;Bobigny;236;1592663;6742.9
+94;Val-de-Marne;Île-de-France;Créteil;245;1372389;5601.6
+95;Val-d'Oise;Île-de-France;Pontoise;1246;1215390;975.5
 971;Guadeloupe;Guadeloupe;Basse-Terre;1628;397990;244.4
 972;Martinique;Martinique;Fort-de-France;1128;380877;337.7
 973;Guyane;Guyane;Cayenne;83534;259865;3.1

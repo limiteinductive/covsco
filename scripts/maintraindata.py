@@ -12,7 +12,7 @@ import pandas as pd
 import xarray as xr
 from datetime import timedelta
 import re
-
+from tqdm import tqdm
 
 # =============================================================================
 # Functions #%%
@@ -39,7 +39,7 @@ def parse_dsm(coord):
 print('Population ... ', flush=True, end='')
 population  = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
 population.columns = ['dep_num', 'name', 'region', 'capital', 'area', 'total', 'density']
-population['dep_num'] = population['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
+#population['dep_num'] = population['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
 population = population.sort_values('dep_num')
 population = population[:-5]
 
@@ -67,7 +67,7 @@ population['idx'] = population['total']
 population.reset_index(inplace = True, drop=True)
 print('OK', flush=True)
 
-
+print("\n")
 # Covid #%%
 # -----------------------------------------------------------------------------
 print('Covid ... ', flush=True, end='')
@@ -77,7 +77,6 @@ covid = pd.read_csv(filePath + fileName, sep=',').dropna()
 covid['date'] = pd.to_datetime(covid['date'])
 # rename departments of la Corse to assure integer
 covid['numero'] = covid['numero'].replace({'2A':'201','2B':'202'}).astype(int)
-covid['numero'] = covid['numero'].astype(int)
 
 # remove oversea departments
 covid = covid[covid['numero']<203]
@@ -89,7 +88,7 @@ covid = covid[covid['numero']<203]
 # add lon/lat + population index to covid dataframe
 covid = covid.merge(population, how='inner', left_on='numero', right_on='dep_num')
 print('OK', flush=True)
-
+print("\n")
 # CAMS #%%
 # -----------------------------------------------------------------------------
 start_date, end_date = ['2020-01-01','2021-04-01']
@@ -168,6 +167,7 @@ pm10 = xr.DataArray(
 # recreate Dataset (without dask)
 cams = xr.Dataset({'pm25': pm25, 'no2': no2, 'o3': o3, 'co':co, 'pm10':pm10})
 # interpolate CAMS data to lon/lat of departments
+print("\n")
 print("Interpolate CAMS data to lon/lat of departments ...")
 lons = xr.DataArray(
     population['lon'],
@@ -187,10 +187,76 @@ cams = cams.reset_index()
 cams.columns
 covid = covid.rename(columns = {'date':'time'})
 covid = covid.merge(cams, how='inner', on=['time','dep_num'])
+covid.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print("\n")
+
+# Get Mobility indices historical data and merge it by time & region with the rest of the data
+#  and export it to the Enriched_Covid_history_data.csv 
+print("Mobility indices ...")
+df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep = ';')
+df["ds"]=pd.to_datetime(df["ds"], dayfirst = True)
+df = df[df["ds"]<=pd.to_datetime("31/03/2021",dayfirst=True)]
+print(df)
+df2 = covid
+
+df3 = pd.read_csv("../data/train/pop/fr/regions_departements.csv", sep = ";")
+
+mdlist = []
+
+df.reset_index(inplace=  True)
+df2.reset_index(inplace = True)
+df3.reset_index(inplace = True)
+df.drop(columns = ["index"],inplace = True)
+df2.drop(columns = ["index"],inplace = True)
+df3.drop(columns = ["index"],inplace = True)
+
+print("TRUTH")
+print(df["polygon_name"].unique().sort()==df3["Region"].unique().sort())
+
+#df3['depnum'] = df3['depnum'].replace({'2A':'201','2B':'202'}).astype(int)
+df2 = df2.merge(df3, how='inner', left_on = "numero", right_on = "depnum")
+#df2 = df2.merge(df, on = ["time, numero"])
+df2 = df2.merge(df, how ="outer", left_on = ["Region","time"], right_on = ["polygon_name","ds"]).dropna()
+
+print(df2)
+
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print('OK')
+
+# Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
+#  and export it to the Enriched_Covid_history_data.csv 
+print("Covid Positive Tests (Previous day) ...")
+df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
+df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
+df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
+df["jour"]=pd.to_datetime(df["jour"], dayfirst = True)
+df2["time"]=pd.to_datetime(df2["time"])
+df = df.groupby(["dep","jour"]).sum().reset_index()
+print(df)
+df = df[["dep","jour","P"]]
+covidpostestdayminus1list = []
+for i in tqdm(df.index):
+    date0 = df.loc[i,"jour"]
+    depnum = df.loc[i,"dep"]
+    date1 = date0 -pd.Timedelta("1 days")
+    dayminus1covidpostest  = df[(df["jour"]== date1) & (df["dep"]==depnum)].reset_index()["P"]
+    if list(dayminus1covidpostest)==[]: 
+        covidpostestdayminus1list.append("NaN") 
+    else:
+        covidpostestdayminus1list.append(list(dayminus1covidpostest)[0])
+
+covidposttest = pd.DataFrame(covidpostestdayminus1list)
+covidposttest.columns =["covidpostestprevday"]
+
+df["covidpostestprevday"]=covidposttest["covidpostestprevday"]
+df2 = df2.merge(df, left_on = ["time","numero"], right_on = ["jour","dep"])
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print(df2)
+print('OK')
 
 # Compute the engineered features: 7 trailing day averages of gas' concentrations
 print("Computing the engineered features: 7 trailing day averages of gas' concentrations ...")
-df = covid
+df = df2
 df["time"]=pd.to_datetime(df["time"])
 print (df)
 print (df.columns)
@@ -201,7 +267,8 @@ avgo3 = []
 avgco = []
 avgpm10 = []
 hospi = []
-for i in df.index:
+print("\n")
+for i in tqdm(df.index):
     date0 = df.loc[i,"time"]
     depnum = df.loc[i,"numero"]
     date1 = date0 -pd.Timedelta("1 days")
@@ -310,64 +377,5 @@ print(df)
 
 df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 
-# Get Mobility indices historical data and merge it by time & region with the rest of the data
-#  and export it to the Enriched_Covid_history_data.csv 
-print("Mobility indices ...")
-df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep = ';')
-df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",")
-df2 = df2.dropna()
 
-df3 = pd.read_csv("../data/train/pop/fr/regions_departements.csv", sep = ";")
 
-mdlist = []
-
-df.reset_index(inplace=  True)
-df2.reset_index(inplace = True)
-df3.reset_index(inplace = True)
-df.drop(columns = ["index"],inplace = True)
-df2.drop(columns = ["index"],inplace = True)
-df3.drop(columns = ["index"],inplace = True)
-df["ds"]=pd.to_datetime(df["ds"])
-df2["time"]=pd.to_datetime(df2["time"])
-print(df)
-print(df2)
-print(df3)
-df3['depnum'] = df3['depnum'].replace({'2A':'201','2B':'202'}).astype(int)
-df2 = df2.merge(df3,left_on = "numero", right_on = "depnum")
-print(df2)
-df2 = df2.merge(df, left_on = ["time","Region"], right_on = ["ds","polygon_name"])
-print(df2)
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print(df2)
-print('OK')
-
-# Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
-#  and export it to the Enriched_Covid_history_data.csv 
-print("Covid Positive Tests (Previous day) ...")
-df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
-df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
-df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
-df["jour"]=pd.to_datetime(df["jour"])
-df2["time"]=pd.to_datetime(df2["time"])
-df = df.groupby(["dep","jour"]).sum().reset_index()
-print(df)
-df = df[["dep","jour","P"]]
-covidpostestdayminus1list = []
-for i in df.index:
-    date0 = df.loc[i,"jour"]
-    depnum = df.loc[i,"dep"]
-    date1 = date0 -pd.Timedelta("1 days")
-    dayminus1covidpostest  = df[(df["jour"]== date1) & (df["dep"]==depnum)].reset_index()["P"]
-    if list(dayminus1covidpostest)==[]: 
-        covidpostestdayminus1list.append("NaN") 
-    else:
-        covidpostestdayminus1list.append(list(dayminus1covidpostest)[0])
-
-covidposttest = pd.DataFrame(covidpostestdayminus1list)
-covidposttest.columns =["covidpostestprevday"]
-
-df["covidpostestprevday"]=covidposttest["covidpostestprevday"]
-df2 = df2.merge(df, left_on = ["time","numero"], right_on = ["jour","dep"])
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print(df2)
-print('OK')
