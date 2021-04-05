@@ -1,11 +1,12 @@
 import pandas as pd
 import datetime as dt
+from tqdm import tqdm
 
 print("Vaccinnation data")
 df = pd.read_csv ("../data/train/vaccination/fr/vaccination_hist_data.csv", sep =";")
 df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
-df = df[df['numero']<203]
-df["date_debut_semaine"]=pd.to_datetime(df["date_debut_semaine"]) 
+df = df[df['departement']<203]
+df["date_debut_semaine"]=pd.to_datetime(df["date_debut_semaine"], dayfirst = True) 
 df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",")
 print(df)
 print(df2)
@@ -19,8 +20,6 @@ referencedate = "2021-01-18"
 referencedate=pd.to_datetime(referencedate)
 referencedate2 = "2021-01-25"
 referencedate2=pd.to_datetime(referencedate2)
-
-
 df2["time"]=pd.to_datetime(df2["time"])
 #df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
 
@@ -33,7 +32,7 @@ cum2 = dfvac2.groupby(['departement', 'date_debut_semaine']).sum().groupby(level
 print(cum1)
 print(cum2)
 
-for i in df2.index:
+for i in tqdm(df2.index):
     date = df2.loc[i,"time"]
     depnum = df2.loc[i,"numero"]
     datefound = False
@@ -88,7 +87,7 @@ print(dfvac2)
 df2["vac1nb"]=dfvac1["vac1nb"]
 df2["vac2nb"]=dfvac2["vac2nb"]
 df2.dropna(inplace = True)
-#df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print(df2)
 
 
