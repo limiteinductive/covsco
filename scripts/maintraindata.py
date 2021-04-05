@@ -190,73 +190,9 @@ covid = covid.merge(cams, how='inner', on=['time','dep_num'])
 covid.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print("\n")
 
-# Get Mobility indices historical data and merge it by time & region with the rest of the data
-#  and export it to the Enriched_Covid_history_data.csv 
-print("Mobility indices ...")
-df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep = ';')
-df["ds"]=pd.to_datetime(df["ds"], dayfirst = True)
-df = df[df["ds"]<=pd.to_datetime("31/03/2021",dayfirst=True)]
-print(df)
-df2 = covid
-
-df3 = pd.read_csv("../data/train/pop/fr/regions_departements.csv", sep = ";")
-
-mdlist = []
-
-df.reset_index(inplace=  True)
-df2.reset_index(inplace = True)
-df3.reset_index(inplace = True)
-df.drop(columns = ["index"],inplace = True)
-df2.drop(columns = ["index"],inplace = True)
-df3.drop(columns = ["index"],inplace = True)
-
-print("TRUTH")
-print(df["polygon_name"].unique().sort()==df3["Region"].unique().sort())
-
-#df3['depnum'] = df3['depnum'].replace({'2A':'201','2B':'202'}).astype(int)
-df2 = df2.merge(df3, how='inner', left_on = "numero", right_on = "depnum")
-#df2 = df2.merge(df, on = ["time, numero"])
-df2 = df2.merge(df, how ="outer", left_on = ["Region","time"], right_on = ["polygon_name","ds"]).dropna()
-
-print(df2)
-
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print('OK')
-
-# Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
-#  and export it to the Enriched_Covid_history_data.csv 
-print("Covid Positive Tests (Previous day) ...")
-df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
-df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
-df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
-df["jour"]=pd.to_datetime(df["jour"], dayfirst = True)
-df2["time"]=pd.to_datetime(df2["time"])
-df = df.groupby(["dep","jour"]).sum().reset_index()
-print(df)
-df = df[["dep","jour","P"]]
-covidpostestdayminus1list = []
-for i in tqdm(df.index):
-    date0 = df.loc[i,"jour"]
-    depnum = df.loc[i,"dep"]
-    date1 = date0 -pd.Timedelta("1 days")
-    dayminus1covidpostest  = df[(df["jour"]== date1) & (df["dep"]==depnum)].reset_index()["P"]
-    if list(dayminus1covidpostest)==[]: 
-        covidpostestdayminus1list.append("NaN") 
-    else:
-        covidpostestdayminus1list.append(list(dayminus1covidpostest)[0])
-
-covidposttest = pd.DataFrame(covidpostestdayminus1list)
-covidposttest.columns =["covidpostestprevday"]
-
-df["covidpostestprevday"]=covidposttest["covidpostestprevday"]
-df2 = df2.merge(df, left_on = ["time","numero"], right_on = ["jour","dep"])
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print(df2)
-print('OK')
-
 # Compute the engineered features: 7 trailing day averages of gas' concentrations
 print("Computing the engineered features: 7 trailing day averages of gas' concentrations ...")
-df = df2
+df = covid
 df["time"]=pd.to_datetime(df["time"])
 print (df)
 print (df.columns)
@@ -376,6 +312,72 @@ df["co7davg"]=avgcodf["co7davg"]
 print(df)
 
 df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+
+# Get Mobility indices historical data and merge it by time & region with the rest of the data
+#  and export it to the Enriched_Covid_history_data.csv 
+print("Mobility indices ...")
+df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep = ';')
+df["ds"]=pd.to_datetime(df["ds"], dayfirst = True)
+df = df[df["ds"]<=pd.to_datetime("31/03/2021",dayfirst=True)]
+print(df)
+df2 = covid
+
+df3 = pd.read_csv("../data/train/pop/fr/regions_departements.csv", sep = ";")
+
+mdlist = []
+
+df.reset_index(inplace=  True)
+df2.reset_index(inplace = True)
+df3.reset_index(inplace = True)
+df.drop(columns = ["index"],inplace = True)
+df2.drop(columns = ["index"],inplace = True)
+df3.drop(columns = ["index"],inplace = True)
+
+print("TRUTH")
+print(df["polygon_name"].unique().sort()==df3["Region"].unique().sort())
+
+#df3['depnum'] = df3['depnum'].replace({'2A':'201','2B':'202'}).astype(int)
+df2 = df2.merge(df3, how='inner', left_on = "numero", right_on = "depnum")
+#df2 = df2.merge(df, on = ["time, numero"])
+df2 = df2.merge(df, how ="outer", left_on = ["Region","time"], right_on = ["polygon_name","ds"]).dropna()
+
+print(df2)
+
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print('OK')
+
+# Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
+#  and export it to the Enriched_Covid_history_data.csv 
+print("Covid Positive Tests (Previous day) ...")
+df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
+df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
+df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
+df["jour"]=pd.to_datetime(df["jour"], dayfirst = True)
+df2["time"]=pd.to_datetime(df2["time"])
+df = df.groupby(["dep","jour"]).sum().reset_index()
+print(df)
+df = df[["dep","jour","P"]]
+covidpostestdayminus1list = []
+for i in tqdm(df.index):
+    date0 = df.loc[i,"jour"]
+    depnum = df.loc[i,"dep"]
+    date1 = date0 -pd.Timedelta("1 days")
+    dayminus1covidpostest  = df[(df["jour"]== date1) & (df["dep"]==depnum)].reset_index()["P"]
+    if list(dayminus1covidpostest)==[]: 
+        covidpostestdayminus1list.append("NaN") 
+    else:
+        covidpostestdayminus1list.append(list(dayminus1covidpostest)[0])
+
+covidposttest = pd.DataFrame(covidpostestdayminus1list)
+covidposttest.columns =["covidpostestprevday"]
+
+df["covidpostestprevday"]=covidposttest["covidpostestprevday"]
+df2 = df2.merge(df, left_on = ["time","numero"], right_on = ["jour","dep"])
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print(df2)
+print('OK')
+
+
 
 print("\n")
 print("Vaccinnation data...")
