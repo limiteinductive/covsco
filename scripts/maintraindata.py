@@ -476,3 +476,5 @@ df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.
 df2 = df2.merge(df, how ="inner", left_on = "numero", right_on = "Code département")
 print(df2)
 df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+
+print("Processing Smokers Data...")

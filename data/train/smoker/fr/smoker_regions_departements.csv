@@ -1,0 +1,97 @@
+Region;Departement;depnum;Smokers
+Auvergne-Rhône-Alpes;Ain;1;0.262
+Auvergne-Rhône-Alpes;Allier;3;0.262
+Auvergne-Rhône-Alpes;Ardèche;7;0.262
+Auvergne-Rhône-Alpes;Cantal;15;0.262
+Auvergne-Rhône-Alpes;Drôme;26;0.262
+Auvergne-Rhône-Alpes;Isère;38;0.262
+Auvergne-Rhône-Alpes;Loire;42;0.262
+Auvergne-Rhône-Alpes;Haute-Loire;43;0.262
+Auvergne-Rhône-Alpes;Puy-de-Dôme;63;0.262
+Auvergne-Rhône-Alpes;Rhône;69;0.262
+Auvergne-Rhône-Alpes;Savoie;73;0.262
+Auvergne-Rhône-Alpes;Haute-Savoie;74;0.262
+Île-de-France;Paris;75;0.213
+Île-de-France;Seine-et-Marne;77;0.213
+Île-de-France;Yvelines;78;0.213
+Île-de-France;Essonne;91;0.213
+Île-de-France;Hauts-de-Seine;92;0.213
+Île-de-France;Seine-St-Denis;93;0.213
+Île-de-France;Val-de-Marne;94;0.213
+Île-de-France;Val-d'Oise;95;0.213
+Bourgogne-Franche-Comté;Côte-d'Or;21;0.286
+Bourgogne-Franche-Comté;Doubs;25;0.286
+Bourgogne-Franche-Comté;Jura;39;0.286
+Bourgogne-Franche-Comté;Nièvre;58;0.286
+Bourgogne-Franche-Comté;Haute-Saône;70;0.286
+Bourgogne-Franche-Comté;Saône-et-Loire;71;0.286
+Bourgogne-Franche-Comté;Yonne;89;0.286
+Bourgogne-Franche-Comté;Territoire de Belfort;90;0.286
+Bretagne;Côtes-d'Armor;22;0.265
+Bretagne;Finistère;29;0.265
+Bretagne;Ille-et-Vilaine;35;0.265
+Bretagne;Morbihan;56;0.265
+Centre-Val de Loire;Cher;18;0.28
+Centre-Val de Loire;Eure-et-Loir;28;0.28
+Centre-Val de Loire;Indre;36;0.28
+Centre-Val de Loire;Indre-et-Loire;37;0.28
+Centre-Val de Loire;Loir-et-Cher;41;0.28
+Centre-Val de Loire;Loiret;45;0.28
+Corse;Corse-du-Sud;201;0.32
+Corse;Haute-Corse;202;0.32
+Grand Est;Ardennes;8;0.301
+Grand Est;Aube;10;0.301
+Grand Est;Marne;51;0.301
+Grand Est;Haute-Marne;52;0.301
+Grand Est;Meurthe-et-Moselle;54;0.301
+Grand Est;Meuse;55;0.301
+Grand Est;Moselle;57;0.301
+Grand Est;Bas-Rhin;67;0.301
+Grand Est;Haut-Rhin;68;0.301
+Grand Est;Vosges;88;0.301
+Hauts-de-France;Aisne;2;0.305
+Hauts-de-France;Nord;59;0.305
+Hauts-de-France;Oise;60;0.305
+Hauts-de-France;Pas-de-Calais;62;0.305
+Hauts-de-France;Somme;80;0.305
+Normandie;Calvados;14;0.256
+Normandie;Eure;27;0.256
+Normandie;Manche;50;0.256
+Normandie;Orne;61;0.256
+Normandie;Seine-Maritime;76;0.256
+Nouvelle-Aquitaine;Charente;16;0.281
+Nouvelle-Aquitaine;Charente-Maritime;17;0.281
+Nouvelle-Aquitaine;Corrèze;19;0.281
+Nouvelle-Aquitaine;Creuse;23;0.281
+Nouvelle-Aquitaine;Dordogne;24;0.281
+Nouvelle-Aquitaine;Gironde;33;0.281
+Nouvelle-Aquitaine;Landes;40;0.281
+Nouvelle-Aquitaine;Lot-et-Garonne;47;0.281
+Nouvelle-Aquitaine;Pyrénées-Atlantiques;64;0.281
+Nouvelle-Aquitaine;Deux-Sèvres;79;0.281
+Nouvelle-Aquitaine;Vienne;86;0.281
+Nouvelle-Aquitaine;Haute-Vienne;87;0.281
+Occitanie;Ariège;9;0.303
+Occitanie;Aude;11;0.303
+Occitanie;Aveyron;12;0.303
+Occitanie;Gard;30;0.303
+Occitanie;Haute-Garonne;31;0.303
+Occitanie;Gers;32;0.303
+Occitanie;Hérault;34;0.303
+Occitanie;Lot;46;0.303
+Occitanie;Lozère;48;0.303
+Occitanie;Hautes-Pyrénées;65;0.303
+Occitanie;Pyrénées-Orientales;66;0.303
+Occitanie;Tarn;81;0.303
+Occitanie;Tarn-et-Garonne;82;0.303
+Pays de la Loire;Loire-Atlantique;44;0.23
+Pays de la Loire;Maine-et-Loire;49;0.23
+Pays de la Loire;Mayenne;53;0.23
+Pays de la Loire;Sarthe;72;0.23
+Pays de la Loire;Vendée;85;0.23
+Provence-Alpes-Côte d'Azur;Alpes-de-Haute-Provence;4;0.321
+Provence-Alpes-Côte d'Azur;Hautes-Alpes;5;0.321
+Provence-Alpes-Côte d'Azur;Alpes-Maritimes;6;0.321
+Provence-Alpes-Côte d'Azur;Bouches-du-Rhône;13;0.321
+Provence-Alpes-Côte d'Azur;Var;83;0.321
+Provence-Alpes-Côte d'Azur;Vaucluse;84;0.321
