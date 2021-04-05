@@ -38,16 +38,20 @@ df = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.c
 df = df.dropna()
 df["all_day_bing_tiles_visited_relative_change"]=df["all_day_bing_tiles_visited_relative_change"].astype(float)
 df["all_day_ratio_single_tile_users"]=df["all_day_ratio_single_tile_users"].astype(float)
-
 print(df)
-print(np.sort(df["numero"].unique()))
+
 X1=df[['idx', 'pm25', 'no2']]
 X2=df[['idx', 'pm25', 'no2','o3','pm10','co',\
     'pm257davg','no27davg','o37davg','co7davg', 'pm107davg',\
         'hospiprevday','covidpostestprevday',\
-            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb']]
+            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
+                 'Insuffisance respiratoire chronique grave (ALD14)', \
+                     'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)'\
+                         ]]
 
 y= df['newhospi']
+
+print("Average number of new hospitalisations",df['newhospi'].mean())
 
 # Hold-out
 X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33,random_state = 84)
@@ -66,6 +70,7 @@ TPOTMSE = mse(y_test2, predictions)
 print(TPOTMSE)
 print("Average error on new number of hospitalizations per day:", round(TPOTMSE ** 0.5,0))
 print("\n")
+
 # print("Scikit Learn RandomForestRegressor without feature engineering")
 # regr = RandomForestRegressor()
 # regr.fit(X_train, y_train)
@@ -73,6 +78,7 @@ print("\n")
 # RFRMSE = mse(y_test, pred)
 # print(RFRMSE)
 # print("Average error on new number of hospitalizations per day:", round(RFRMSE ** 0.5,0))
+#print("\n")
 
 print(" Scikit Learn RandomForestRegressor with feature engineering")
 regr2 = RandomForestRegressor()
@@ -121,7 +127,7 @@ print(RFRMSE3)
 print("\n")
 print("VotingRegressor")
 ensemble = VotingRegressor(
-    estimators = [("TP", exported_pipeline),("xgbr",xgb_model)],
+    estimators = [("ET",ETregr),("xgbr",xgb_model)],
    )
 
 ensemble.fit(X_train2, y_train2)
@@ -131,17 +137,17 @@ print("Average error on new number of hospitalizations per day:", round(MSE5 ** 
 print(MSE5)
 
 print("\n")
-print("VotingRegressor2")
-ensemble2 = VotingRegressor(
-    estimators = [("xgb", xgb_model),("et", ETregr)],
-   )
+# print("VotingRegressor2")
+# ensemble2 = VotingRegressor(
+#     estimators = [("rf", regr),("gbr", model)],
+#    )
 
-ensemble2.fit(X_train2, y_train2)
-predvot2 = ensemble2.predict(X_test2).round(0)
-MSE6 = mse(y_test2,predvot2)
-print("Average error on new number of hospitalizations per day:", round(MSE6 ** 0.5,0))
-print(MSE6)
-print('OK')
+# ensemble2.fit(X_train2, y_train2)
+# predvot2 = ensemble2.predict(X_test2).round(0)
+# MSE6 = mse(y_test2,predvot2)
+# print("Average error on new number of hospitalizations per day:", round(MSE6 ** 0.5,0))
+# print(MSE6)
+# print('OK')
 
 
 

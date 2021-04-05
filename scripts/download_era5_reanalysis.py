@@ -12,17 +12,35 @@ import os
 import numpy as np
 import datetime as dt
 import cdsapi
+import yaml
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
-save_to = os.path.join(work_dir, 'data/train/era5/fr/reanalysis')
+save_to = os.path.join(work_dir, '../data/train/era5/fr/reanalysis')
 if not os.path.exists(save_to):
     os.makedirs(save_to)
 
+# get personal directory of cdsapi
+try:
+    with open('.cdsapirc_dir', 'r') as file:
+        dir_cams_api = file.readline().rstrip()
+except FileNotFoundError:
+    raise FileNotFoundError("""cdsapirc file cannot be found. Write the
+        directory of your personal .cdsapirc file in a local file called
+        `.cdsapirc_dir` and place it in this git directory.""")
+
+# Download CAMS
+# -----------------------------------------------------------------------------
+print('Download data from ERA ...', flush=True)
+
+with open(dir_cams_api, 'r') as f:
+    credentials = yaml.safe_load(f)
+
+c = cdsapi.Client(url=credentials['url'], key=credentials['key'])
 
 # =============================================================================
 # Choose Download Parameters
 # =============================================================================
-dataset 	= 'reanalysis-era5-land'
+dataset 	= 'cams-global-reanalysis-eac4'
 # reanalysis-era5-land,
 # reanalysis-era5-land-monthly-means,
 # reanalysis-era5-single-levels,
@@ -52,11 +70,11 @@ variable 	= [
 ]
 
 productType = 'reanalysis'
-"""
-monthly_averaged_reanalysis,
-reanalysis
-reanalysis-monthly-means-of-daily-means
-"""
+# """
+# monthly_averaged_reanalysis,
+# reanalysis
+# reanalysis-monthly-means-of-daily-means
+# """
 years 		= np.arange(2020,2022).tolist()
 months 		= np.arange(1,13).tolist()
 days 		= np.arange(1,32).tolist()
@@ -76,13 +94,18 @@ output    	= os.path.join(save_to, file_name)
 # =============================================================================
 #%%
 
+import cdsapi
+
+c = cdsapi.Client()
+
+
+
 c = cdsapi.Client()
 c.retrieve(
     dataset,
     {
         'format'		: 'netcdf',
         'variable'		: variable,
-        'product_type' 	: productType,
         'year'			: years,
         'month'         : months,
         'day' 			: days,
