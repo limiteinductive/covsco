@@ -40,24 +40,62 @@ df["all_day_bing_tiles_visited_relative_change"]=df["all_day_bing_tiles_visited_
 df["all_day_ratio_single_tile_users"]=df["all_day_ratio_single_tile_users"].astype(float)
 print(df)
 
-X1=df[['idx', 'pm25', 'no2']]
-X2=df[['idx', 'pm25', 'no2','o3','pm10','co',\
-    'pm257davg','no27davg','o37davg','co7davg', 'pm107davg',\
+featuresandtarget = ['idx', 'pm25', 'no2',
+#'o3','pm10','co',\
+    'pm257davg','no27davg',\
+    'o37davg','co7davg', 'pm107davg',\
+        'hospiprevday','covidpostestprevday',\
+            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
+                 'Insuffisance respiratoire chronique grave (ALD14)', \
+                     'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                         'Smokers', 'newhospi']
+                        
+features = ['idx', 'pm25', 'no2',
+#'o3','pm10','co',\
+    'pm257davg','no27davg',\
+    'o37davg','co7davg', 'pm107davg',\
         'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                          'Smokers'
-                         ]]
+                         ]
+
+X1=df[['idx', 'pm25', 'no2']]
+X2=df[features]
 
 y= df['newhospi']
-
+stats = df[["newhospi"]]
 print("Average number of new hospitalisations",df['newhospi'].mean())
-
+print(stats.describe())
 # Hold-out
 X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33,random_state = 84)
 X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33,random_state = 84)
 print("\n")
+
+print(" Scikit Learn ExtratreesRegressor with feature engineering")
+ETregr = ExtraTreesRegressor()
+ETregr.fit(X_train2, y_train2)
+predET = ETregr.predict(X_test2).round(0)
+predETdf = pd.DataFrame(predET)
+predETdf.columns = ["prednewhospi"]
+featuresandtargetdf = X_test2.merge(y_test2, left_on = X_test2.index, right_on = y_test2.index)
+featuresandtargetdf["prednewhospi"]=predETdf["prednewhospi"].round(0)
+featuresandtargetdf.to_csv("../predictions/fr/new_hospi_predictions.csv", index = False)
+ETMSE = mse(y_test2, predET)
+print("Average error on new number of hospitalizations per day:", round(ETMSE** 0.5,0))
+print(ETMSE)
+print("Feature importance report:", ETregr.feature_importances_)
+FIlist = ETregr.feature_importances_.tolist()
+FIlistdf = pd.DataFrame(FIlist)
+FIlistdf = FIlistdf.T
+FIlistdf.columns = features
+FIlistdf = FIlistdf.T
+FIlistdf.columns = ["feature_importance"]
+FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
+print(FIlistdf)
+print("\n")
+
 print("T-Pot exported current best pipeline")
 # Average CV score on the training set was: -94.5319545151712
 exported_pipeline = ExtraTreesRegressor(bootstrap=False, max_features=0.7000000000000001, min_samples_leaf=1, min_samples_split=4, n_estimators=100)
@@ -68,8 +106,8 @@ exported_pipeline = ExtraTreesRegressor(bootstrap=False, max_features=0.70000000
 exported_pipeline.fit(X_train2, y_train2)
 predictions = exported_pipeline.predict(X_test2)
 TPOTMSE = mse(y_test2, predictions)
+print("MSE:")
 print(TPOTMSE)
-print("Average error on new number of hospitalizations per day:", round(TPOTMSE ** 0.5,0))
 print("\n")
 
 # print("Scikit Learn RandomForestRegressor without feature engineering")
@@ -86,17 +124,10 @@ regr2 = RandomForestRegressor()
 regr2.fit(X_train2, y_train2)
 pred2 = regr2.predict(X_test2).round(0)
 RFRMSE2 = mse(y_test2, pred2)
-print("Average error on new number of hospitalizations per day:", round(RFRMSE2 ** 0.5,0))
+print("MSE:")
 print(RFRMSE2)
 print("\n")
-print(" Scikit Learn ExtratreesRegressor with feature engineering")
-ETregr = ExtraTreesRegressor()
-ETregr.fit(X_train2, y_train2)
-predET = ETregr.predict(X_test2).round(0)
-ETMSE = mse(y_test2, pred2)
-print("Average error on new number of hospitalizations per day:", round(ETMSE** 0.5,0))
-print(ETMSE)
-print("\n")
+
 print("GradientBoostingRegressor Model")
 model = GradientBoostingRegressor(
     n_estimators=100, 
@@ -105,8 +136,9 @@ model = GradientBoostingRegressor(
 model.fit(X_train2,y_train2)
 pred4 = model.predict(X_test2).round(0)
 MSE4 = mse(y_test2, pred4)
+print("MSE:")
 print(MSE4)
-print("Average error on new number of hospitalizations per day:", round(MSE4 ** 0.5,0))
+
 
 
 # print("\n")
@@ -123,7 +155,7 @@ print("XGBoost Regressor Model")
 xgb_model = xgb.XGBRegressor(n_jobs=1).fit(X_train2, y_train2)
 pred3 = xgb_model.predict(X_test2).round(0)
 RFRMSE3 = mse(y_test2, pred3)
-print("Average error on new number of hospitalizations per day:", round(RFRMSE3 ** 0.5,0))
+print("MSE:")
 print(RFRMSE3)
 print("\n")
 print("VotingRegressor")
@@ -134,7 +166,7 @@ ensemble = VotingRegressor(
 ensemble.fit(X_train2, y_train2)
 predvot = ensemble.predict(X_test2).round(0)
 MSE5 = mse(y_test2,predvot)
-print("Average error on new number of hospitalizations per day:", round(MSE5 ** 0.5,0))
+print("MSE:")
 print(MSE5)
 
 print("\n")
@@ -183,8 +215,8 @@ NNmodel.fit(X_trainNN, y_trainNN,
          epochs=100, verbose=1,callbacks=[es])
 
 # The prediction
+print("MSE:")
 print(NNmodel.evaluate(X_testNN, y_testNN, verbose=0))
-print("Average error on new number of hospitalizations per day:", round(NNmodel.evaluate(X_testNN, y_testNN, verbose=0)** 0.5,0))
 
 #print('validation loss (MSE):', val_loss, '\n validation MAE:', val_mae)
 #print("Average error on new number of hospitalizations per day:", round(val_mae ** 0.5,0))
