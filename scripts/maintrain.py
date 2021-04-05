@@ -46,7 +46,8 @@ X2=df[['idx', 'pm25', 'no2','o3','pm10','co',\
         'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
-                     'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)'\
+                     'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                         'Smokers'
                          ]]
 
 y= df['newhospi']
