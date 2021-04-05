@@ -44,14 +44,14 @@ X1=df[['idx', 'pm25', 'no2']]
 X2=df[['idx', 'pm25', 'no2','o3','pm10','co',\
     'pm257davg','no27davg','o37davg','co7davg', 'pm107davg',\
         'hospiprevday','covidpostestprevday',\
-            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users']]
+            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb']]
 
 y= df['newhospi']
 
 # Hold-out
 X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33,random_state = 84)
 X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33,random_state = 84)
-
+print("\n")
 print("T-Pot exported current best pipeline")
 # Average CV score on the training set was: -94.5319545151712
 exported_pipeline = ExtraTreesRegressor(bootstrap=False, max_features=0.7000000000000001, min_samples_leaf=1, min_samples_split=4, n_estimators=100)
@@ -64,7 +64,7 @@ predictions = exported_pipeline.predict(X_test2)
 TPOTMSE = mse(y_test2, predictions)
 print(TPOTMSE)
 print("Average error on new number of hospitalizations per day:", round(TPOTMSE ** 0.5,0))
-
+print("\n")
 print("Scikit Learn RandomForestRegressor without feature engineering")
 regr = RandomForestRegressor()
 regr.fit(X_train, y_train)
@@ -74,7 +74,7 @@ print(RFRMSE)
 print("Average error on new number of hospitalizations per day:", round(RFRMSE ** 0.5,0))
 
 
-
+print("\n")
 print(" Scikit Learn RandomForestRegressor with feature engineering")
 regr2 = RandomForestRegressor()
 regr2.fit(X_train2, y_train2)
@@ -82,7 +82,7 @@ pred2 = regr2.predict(X_test2).round(0)
 RFRMSE2 = mse(y_test2, pred2)
 print("Average error on new number of hospitalizations per day:", round(RFRMSE2 ** 0.5,0))
 print(RFRMSE2)
-
+print("\n")
 print(" Scikit Learn ExtratreesRegressor with feature engineering")
 ETregr = ExtraTreesRegressor()
 ETregr.fit(X_train2, y_train2)
@@ -90,7 +90,7 @@ predET = ETregr.predict(X_test2).round(0)
 ETMSE = mse(y_test2, pred2)
 print("Average error on new number of hospitalizations per day:", round(ETMSE** 0.5,0))
 print(ETMSE)
-
+print("\n")
 print("GradientBoostingRegressor Model")
 model = GradientBoostingRegressor(
     n_estimators=100, 
@@ -103,7 +103,7 @@ print(MSE4)
 print("Average error on new number of hospitalizations per day:", round(MSE4 ** 0.5,0))
 
 
-
+print("\n")
 print("DecisionTreeRegressor Model")
 regr2 = DecisionTreeRegressor()
 regr2.fit(X_train2, y_train2)
@@ -112,14 +112,14 @@ RFRMSE2 = mse(y_test2, pred2)
 print(RFRMSE2)
 print("Average error on new number of hospitalizations per day:", round(RFRMSE2 ** 0.5,0))
 
-
+print("\n")
 print("XGBoost Regressor Model")
 xgb_model = xgb.XGBRegressor(n_jobs=1).fit(X_train2, y_train2)
 pred3 = xgb_model.predict(X_test2).round(0)
 RFRMSE3 = mse(y_test2, pred3)
 print("Average error on new number of hospitalizations per day:", round(RFRMSE3 ** 0.5,0))
 print(RFRMSE3)
-
+print("\n")
 print("VotingRegressor")
 ensemble = VotingRegressor(
     estimators = [("rf", regr2),("gbr", model),("dtr",ETregr),("xgbr",xgb_model)],
@@ -131,6 +131,7 @@ MSE5 = mse(y_test2,predvot)
 print("Average error on new number of hospitalizations per day:", round(MSE5 ** 0.5,0))
 print(MSE5)
 
+print("\n")
 print("VotingRegressor2")
 ensemble2 = VotingRegressor(
     estimators = [("rf", regr),("gbr", model)],
@@ -145,13 +146,14 @@ print('OK')
 
 
 
-
+print("\n")
 print("TPOTRegressor")
 tpot = TPOTRegressor(generations=50, population_size=50, verbosity=2, random_state=42)
 tpot.fit(X_train2, y_train2)
 print(tpot.score(X_test2, y_test2))
 tpot.export('tpot_covid_pipeline.py')
 
+print("\n")
 print("Neural Network")
 X_trainNN = X_train2.values.reshape(X_train2.shape[0], X_train2.shape[1], 1)
 y_trainNN = y_train2.values
