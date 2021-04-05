@@ -36,7 +36,7 @@ def parse_dsm(coord):
 # =============================================================================
 # Data
 # =============================================================================
-print('Population ... ', flush=True, end='')
+print('Processing Population data ... ', flush=True, end='')
 population  = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
 population.columns = ['dep_num', 'name', 'region', 'capital', 'area', 'total', 'density']
 #population['dep_num'] = population['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
@@ -70,7 +70,7 @@ print('OK', flush=True)
 print("\n")
 # Covid #%%
 # -----------------------------------------------------------------------------
-print('Covid ... ', flush=True, end='')
+print('Processing Covid data ... ', flush=True, end='')
 filePath = '../data/train/covid/fr/'
 fileName = 'Covid_data_history.csv'
 covid = pd.read_csv(filePath + fileName, sep=',').dropna()
@@ -94,7 +94,7 @@ print("\n")
 start_date, end_date = ['2020-01-01','2021-04-01']
 dates = pd.date_range(start_date, end_date, freq='h')[:-1]
 
-print('CAMS ... ', flush=True, end='')
+print('Processing CAMS data ... ', flush=True, end='')
 filePath = '../data/train/cams/fr/reanalysis/'
 cams = xr.open_mfdataset(
     '../data/train/cams/fr/reanalysis/*',
@@ -315,7 +315,7 @@ df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", in
 
 # Get Mobility indices historical data and merge it by time & region with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 
-print("Mobility indices ...")
+print("Processing Mobility indices data ...")
 df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep = ';')
 df["ds"]=pd.to_datetime(df["ds"], dayfirst = True)
 df = df[df["ds"]<=pd.to_datetime("31/03/2021",dayfirst=True)]
@@ -348,7 +348,7 @@ print('OK')
 
 # Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 
-print("Covid Positive Tests (Previous day) ...")
+print("Processing Covid Positive Tests (Previous day) ...")
 df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
 df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
 df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
@@ -380,7 +380,7 @@ print('OK')
 
 
 print("\n")
-print("Vaccinnation data...")
+print("Processing Vaccinnation data...")
 df = pd.read_csv ("../data/train/vaccination/fr/vaccination_hist_data.csv", sep =";")
 df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
 df = df[df['departement']<203]
@@ -465,3 +465,14 @@ df2.dropna(inplace = True)
 df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print(df2)
 
+print("Processing Comorbidities Data...")
+df = pd.read_excel("../data/train/comorbidities/fr/2019_ALD-prevalentes-par-departement_serie-annuelle.xls", skiprows = 1)
+df['Code département']=df['Code département'].astype(int)
+df= df[df['Code département']<203]
+df = df[["Code département", 'Insuffisance respiratoire chronique grave (ALD14)','Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)']]
+print(df)
+print(df.columns)
+df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+df2 = df2.merge(df, how ="inner", left_on = "numero", right_on = "Code département")
+print(df2)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)

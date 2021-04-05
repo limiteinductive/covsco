@@ -19,7 +19,7 @@ def parse_dsm(coord):
 # =============================================================================
 # Data
 # =============================================================================
-population  = pd.read_csv('./departements-francais.csv', sep=';')
+population  = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
 population.columns = ['dep_num', 'name', 'region', 'capital', 'area', 'total', 'density']
 population['dep_num'] = population['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
 population = population.sort_values('dep_num')
@@ -27,7 +27,7 @@ population = population[:-5]
 
 
 dep_centre = pd.read_excel(
-    './data/train/pop/fr/Centre_departement.xlsx',
+    '../data/train/pop/fr/Centre_departement.xlsx',
     engine='openpyxl', header=1, usecols=[0,1,2,3,4])
 dep_centre.columns = ['dep_num','name','area', 'lon', 'lat']
 dep_centre['dep_num'] = dep_centre['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
@@ -38,4 +38,4 @@ dep_centre = dep_centre.merge(population, on=['dep_num'], how='outer')
 dep_centre = dep_centre.drop(columns=['name_x', 'area_x', 'region'])
 dep_centre.columns = ['dep_num','lon','lat','name','captial','area','total','density']
 
-dep_centre.to_csv('./population_2020.csv', index=False)
+dep_centre.to_csv('../data/train/pop/fr/population_2020.csv', index=False)
