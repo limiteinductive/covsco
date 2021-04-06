@@ -54,7 +54,7 @@ for i in tqdm(df2.index):
             if (counter == 1):
                 break
     if datefound == False:
-        dfvac2list.append((date, cumvac1))
+        dfvac1list.append((date, cumvac1))
 
     for k in cum2.index:
         counter = 0
