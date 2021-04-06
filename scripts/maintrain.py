@@ -29,9 +29,13 @@ from sklearn.pipeline import make_pipeline, make_union
 from tpot.builtins import StackingEstimator
 from sklearn.preprocessing import FunctionTransformer
 from copy import copy
-
+import joblib as joblib
 def mse(ground_truth, predictions):
     diff = (ground_truth - predictions)**2
+    return diff.mean()
+
+def mae(ground_truth, predictions):
+    diff = abs(ground_truth - predictions)
     return diff.mean()
 
 df = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
@@ -41,25 +45,31 @@ df["all_day_ratio_single_tile_users"]=df["all_day_ratio_single_tile_users"].asty
 print(df)
 
 featuresandtarget = ['idx', 'pm25', 'no2',
-#'o3','pm10','co',\
+'o3','pm10','co',\
     'pm257davg','no27davg',\
     'o37davg','co7davg', 'pm107davg',\
         'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                         'Smokers', 'newhospi']
+                         'Smokers',\
+                             "minority",\
+                              'newhospi',\
+                                  "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                            ]
                         
 features = ['idx', 'pm25', 'no2',
-#'o3','pm10','co',\
+'o3','pm10','co',\
     'pm257davg','no27davg',\
     'o37davg','co7davg', 'pm107davg',\
         'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                         'Smokers'
-                         ]
+                         'Smokers',\
+                         "minority",\
+                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                            ]
 
 X1=df[['idx', 'pm25', 'no2']]
 X2=df[features]
@@ -68,6 +78,7 @@ y= df['newhospi']
 stats = df[["newhospi"]]
 print("Average number of new hospitalisations",df['newhospi'].mean())
 print(stats.describe())
+
 # Hold-out
 X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33,random_state = 84)
 X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33,random_state = 84)
@@ -83,8 +94,14 @@ featuresandtargetdf = X_test2.merge(y_test2, left_on = X_test2.index, right_on =
 featuresandtargetdf["prednewhospi"]=predETdf["prednewhospi"].round(0)
 featuresandtargetdf.to_csv("../predictions/fr/new_hospi_predictions.csv", index = False)
 ETMSE = mse(y_test2, predET)
-print("Average error on new number of hospitalizations per day:", round(ETMSE** 0.5,0))
+ETMAE = mae(y_test2, predET)
+
+print("MSE")
 print(ETMSE)
+print("MAE")
+print(ETMAE)
+print("\n")
+
 print("Feature importance report:", ETregr.feature_importances_)
 FIlist = ETregr.feature_importances_.tolist()
 FIlistdf = pd.DataFrame(FIlist)
@@ -106,8 +123,11 @@ exported_pipeline = ExtraTreesRegressor(bootstrap=False, max_features=0.70000000
 exported_pipeline.fit(X_train2, y_train2)
 predictions = exported_pipeline.predict(X_test2)
 TPOTMSE = mse(y_test2, predictions)
+TPOTMAE = mae (y_test2, predictions)
 print("MSE:")
 print(TPOTMSE)
+print("MAE:")
+print(TPOTMAE)
 print("\n")
 
 # print("Scikit Learn RandomForestRegressor without feature engineering")
@@ -124,8 +144,11 @@ regr2 = RandomForestRegressor()
 regr2.fit(X_train2, y_train2)
 pred2 = regr2.predict(X_test2).round(0)
 RFRMSE2 = mse(y_test2, pred2)
+RFMAE2 = mae(y_test2, pred2)
 print("MSE:")
 print(RFRMSE2)
+print("MAE")
+print(RFMAE2)
 print("\n")
 
 print("GradientBoostingRegressor Model")
@@ -136,8 +159,11 @@ model = GradientBoostingRegressor(
 model.fit(X_train2,y_train2)
 pred4 = model.predict(X_test2).round(0)
 MSE4 = mse(y_test2, pred4)
+MAE4 = mae(y_test2, pred4)
 print("MSE:")
 print(MSE4)
+print("MAE:")
+print(MAE4)
 
 
 
@@ -155,32 +181,40 @@ print("XGBoost Regressor Model")
 xgb_model = xgb.XGBRegressor(n_jobs=1).fit(X_train2, y_train2)
 pred3 = xgb_model.predict(X_test2).round(0)
 RFRMSE3 = mse(y_test2, pred3)
+XGBMAE = mae(y_test2, pred3)
 print("MSE:")
 print(RFRMSE3)
+print("MAE:")
+print(XGBMAE)
 print("\n")
+
 print("VotingRegressor")
 ensemble = VotingRegressor(
-    estimators = [("ET",ETregr),("xgbr",xgb_model)],
+    estimators = [("TPET",exported_pipeline),("xgbr",xgb_model)],
    )
 
 ensemble.fit(X_train2, y_train2)
 predvot = ensemble.predict(X_test2).round(0)
 MSE5 = mse(y_test2,predvot)
+MAE5 = mae(y_test2,predvot)
 print("MSE:")
 print(MSE5)
+print("MAE:")
+print(MAE5)
 
 print("\n")
-# print("VotingRegressor2")
-# ensemble2 = VotingRegressor(
-#     estimators = [("rf", regr),("gbr", model)],
-#    )
 
-# ensemble2.fit(X_train2, y_train2)
-# predvot2 = ensemble2.predict(X_test2).round(0)
-# MSE6 = mse(y_test2,predvot2)
-# print("Average error on new number of hospitalizations per day:", round(MSE6 ** 0.5,0))
-# print(MSE6)
-# print('OK')
+#Save model to .joblib file
+# save the model to disk
+filename = '../models/model.joblib'
+joblib.dump(ensemble, filename)
+ 
+# # some time later...
+ 
+# # load the model from disk
+# loaded_model = joblib.load(filename)
+# result = loaded_model.score(X_test, Y_test)
+# print(result)
 
 
 
