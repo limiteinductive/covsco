@@ -19,7 +19,8 @@ def rectify_pop(row):
 
 
 data['total'] = data.apply(rectify_pop, axis=1)
+data['idx'] = data.apply(rectify_pop, axis=1)
 data.to_csv(
-    '../data/train/all_data_merged/fr/Enriched_Covid_history_data_popmodified.csv',
+    '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv',
     index=False)
 print(data)

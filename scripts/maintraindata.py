@@ -548,3 +548,60 @@ df2["Nb_susp_501Y_V2_3"]=dfvar["V2"]
 
 print(df2)
 df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+
+print("\n")
+print("Processing minority data...")
+data = pd.read_csv('../data/train/pop/fr/minority.csv', sep=';')
+data.rename(columns={
+    'Corse du sud': 'Corse-du-Sud',
+    'Haute Corse': 'Haute-Corse',
+    "Côtes d'Armor": "Côtes-d'Armor"
+},
+            inplace=True)
+df = pd.read_csv(
+    '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+depts = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
+depts_list = [element for element in depts['NOM']]
+dic = {
+    k: ('Unknown' if data[k][0] == 'nd' else
+        float(data[k][0].replace("\u202f", '')) if k in depts_list else 'todo')
+    for k in data.columns
+}
+
+
+def add_minority(row):
+    return dic[row['nom']]
+
+
+df['minority'] = df.apply(add_minority, axis=1)
+print(df)
+df.to_csv(
+    "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+    index=False)
+
+print("\n")
+print("Reprocessing population data...")
+data = pd.read_csv(
+    '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+pop2020 = pd.read_excel('../data/train/pop/fr/popfr.xls', sheet_name='2020')
+pop2021 = pd.read_excel('../data/train/pop/fr/popfr.xls', sheet_name='2021')
+
+dic2020 = {k: v for k, v in zip(pop2020['depname'], pop2020['pop'])}
+dic2021 = {k: v for k, v in zip(pop2021['depname'], pop2021['pop'])}
+
+
+def rectify_pop(row):
+    #print(row['jour'][:4])
+    if row['jour'][:4] == '2020':
+        ans = dic2020[row['name']]
+    elif row['jour'][:4] == '2021':
+        ans = dic2021[row['name']]
+    return ans
+
+
+data['total'] = data.apply(rectify_pop, axis=1)
+data['idx'] = data.apply(rectify_pop, axis=1)
+data.to_csv(
+    '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv',
+    index=False)
+print(data)
