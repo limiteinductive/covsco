@@ -206,7 +206,7 @@ print("\n")
 
 #Save model to .joblib file
 # save the model to disk
-filename = '../models/model.joblib'
+filename = '../model/model.joblib'
 joblib.dump(ensemble, filename)
  
 # # some time later...
