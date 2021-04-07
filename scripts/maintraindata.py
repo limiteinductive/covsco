@@ -13,6 +13,8 @@ import xarray as xr
 from datetime import timedelta
 import re
 from tqdm import tqdm
+from operator import itemgetter
+import time
 
 # =============================================================================
 # Functions #%%
@@ -24,6 +26,19 @@ def max_normalize(x):
 # =============================================================================
 # Merge data #%%
 # =============================================================================
+
+def simple_time_tracker(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int(te - ts)
+        else:
+            print(method.__name__, round(te - ts, 2))
+        return result
+    return timed
 
 # Population
 # -----------------------------------------------------------------------------
@@ -190,128 +205,154 @@ covid = covid.merge(cams, how='inner', on=['time','dep_num'])
 covid.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print("\n")
 
-# Compute the engineered features: 7 trailing day averages of gas' concentrations
-print("Computing the engineered features: 7 trailing day averages of gas' concentrations ...")
-df = covid
-df["time"]=pd.to_datetime(df["time"])
-print (df)
-print (df.columns)
-print (df.numero.unique())
-avgpm25 = []
-avgno2 = []
-avgo3 = []
-avgco = []
-avgpm10 = []
-hospi = []
+#Computing maximal pollution concentrations over the last trailing month...
+print("Computing maximal pollution concentrations over the last trailing month... ")
+data = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+
+data["time"]=pd.to_datetime(data["time"])
+
+pm25tuple = (data['numero'], data['time'], data["pm25"])
+no2tuple = (data['numero'], data['time'], data["no2"])
+o3tuple = (data['numero'], data['time'], data["o3"])
+pm10tuple = (data['numero'], data['time'], data["pm10"])
+cotuple = (data['numero'], data['time'], data["co"])
+
+dicpm25 = {(i, j) : k for (i, j, k) in zip(*pm25tuple)}
+dicno2 = {(i, j) : k for (i, j, k) in zip(*no2tuple)}
+dico3 = {(i, j) : k for (i, j, k) in zip(*o3tuple)}
+dicpm10 = {(i, j) : k for (i, j, k) in zip(*pm10tuple)}
+dicco = {(i, j) : k for (i, j, k) in zip(*cotuple)}
+
+referencedate = pd.to_datetime("2020-05-14")
+def compute_1M_Max_conc(row):
+    datalist = []
+    date2 = row['time'] - pd.Timedelta("30 days")
+
+
+    dates = pd.date_range(start = date2, periods=31).tolist()
+
+    for valuedate in dates:
+        if(valuedate < referencedate):
+            datalist.append(('NaN','NaN','NaN','NaN','NaN'))
+        
+        else:
+            datalist.append((dicpm25[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dicno2[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dico3[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
+                            dicco[(row['numero'], pd.to_datetime(str(valuedate)))]))
+    
+    cleanedList = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
+
+    return (max(cleanedList,key=itemgetter(1))[0],\
+            max(cleanedList,key=itemgetter(1))[1],\
+            max(cleanedList,key=itemgetter(1))[2],\
+            max(cleanedList,key=itemgetter(1))[3],\
+            max(cleanedList,key=itemgetter(1))[4])
+
+data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco']] = data.apply(compute_1M_Max_conc, axis=1).apply(pd.Series)
 print("\n")
-for i in tqdm(df.index):
-    date0 = df.loc[i,"time"]
-    depnum = df.loc[i,"numero"]
-    date1 = date0 -pd.Timedelta("1 days")
-    date2 = date0 -pd.Timedelta("2 days")
-    date3 = date0 -pd.Timedelta("3 days")
-    date4 = date0 -pd.Timedelta("4 days")
-    date5 = date0 -pd.Timedelta("5 days")
-    date6 = date0 -pd.Timedelta("6 days")
-    dayminus1tothospi  = df[(df["time"]== date1) & (df["numero"]==depnum)].reset_index()["hospi"]
 
-    if list(dayminus1tothospi)==[]: 
-        hospi.append("NaN") 
-    else:
-        hospi.append(list(dayminus1tothospi)[0])
+print(data)
 
-    day0data = df.loc[i]
-    day1data = df[(df["time"]== date1) & (df["numero"]==depnum)].reset_index()
-    day2data = df[(df["time"]== date2) & (df["numero"]==depnum)].reset_index()
-    day3data = df[(df["time"]== date3) & (df["numero"]==depnum)].reset_index()
-    day4data = df[(df["time"]== date4) & (df["numero"]==depnum)].reset_index()
-    day5data = df[(df["time"]== date5) & (df["numero"]==depnum)].reset_index()
-    day6data = df[(df["time"]== date6) & (df["numero"]==depnum)].reset_index()
+data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
 
-    avgPM25 = ((day0data["pm25"] + day1data["pm25"]\
-                               + day1data["pm25"]\
-                               + day2data["pm25"]\
-                               + day3data["pm25"]\
-                               + day4data["pm25"]\
-                               + day5data["pm25"])/7)
-    avgNO2 = ((day0data["no2"] + day1data["no2"]\
-                               + day1data["no2"]\
-                               + day2data["no2"]\
-                               + day3data["no2"]\
-                               + day4data["no2"]\
-                               + day5data["no2"])/7)
-    avgO3 = ((day0data["o3"] + day1data["o3"]\
-                               + day1data["o3"]\
-                               + day2data["o3"]\
-                               + day3data["o3"]\
-                               + day4data["o3"]\
-                               + day5data["o3"])/7)
-    avgCO = ((day0data["co"] + day1data["co"]\
-                               + day1data["co"]\
-                               + day2data["co"]\
-                               + day3data["co"]\
-                               + day4data["co"]\
-                               + day5data["co"])/7)
-    avgPM10 = ((day0data["pm10"] + day1data["pm10"]\
-                               + day1data["pm10"]\
-                               + day2data["pm10"]\
-                               + day3data["pm10"]\
-                               + day4data["pm10"]\
-                               + day5data["pm10"])/7)
-    if list(avgPM25)==[]: 
-        avgpm25.append("NaN") 
-    else:
-        avgpm25.append(list(avgPM25)[0])
+# Compute the engineered features: 7 trailing day averages of gas' concentrations
+# and the previous' day total hospitalizations
+print("Computing the engineered features: 7D and 1M trailing  averages of gas' concentrations \
+    and the previous' day total hospitalizations...")
+
+
+data = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+
+data["time"]=pd.to_datetime(data["time"])
+
+print(data)
+
+pm25tuple = (data['numero'], data['time'], data["pm25"])
+no2tuple = (data['numero'], data['time'], data["no2"])
+o3tuple = (data['numero'], data['time'], data["o3"])
+pm10tuple = (data['numero'], data['time'], data["pm10"])
+cotuple = (data['numero'], data['time'], data["co"])
+tothospituple = (data['numero'], data['time'], data["hospi"])
+
+dicpm25 = {(i, j) : k for (i, j, k) in zip(*pm25tuple)}
+dicno2 = {(i, j) : k for (i, j, k) in zip(*no2tuple)}
+dico3 = {(i, j) : k for (i, j, k) in zip(*o3tuple)}
+dicpm10 = {(i, j) : k for (i, j, k) in zip(*pm10tuple)}
+dicco = {(i, j) : k for (i, j, k) in zip(*cotuple)}
+dictothospi = {(i, j) : k for (i, j, k) in zip(*tothospituple)}
+
+referencedate = pd.to_datetime("2020-05-14")
+
+def compute_avg_conc(row):
+    datalist = []
+    datalist2 = []
+    date = row['time'] - pd.Timedelta("30 days")
+    date2 = row['time'] - pd.Timedelta("6 days")
+    dateprevday = row['time'] - pd.Timedelta("1 days") 
+    dates = pd.date_range(start = date2, periods=7).tolist()
+    dates2 = pd.date_range(start = date, periods=31).tolist()
     
-    if list(avgNO2)==[]: 
-        avgno2.append("NaN") 
-    else:
-        avgno2.append(list(avgNO2)[0])
-    
-    if list(avgO3)==[]: 
-        avgo3.append("NaN") 
-    else:
-        avgo3.append(list(avgO3)[0])
-    
-    if list(avgPM10)==[]: 
-        avgpm10.append("NaN") 
-    else:
-        avgpm10.append(list(avgPM10)[0])
-    
-    if list(avgCO)==[]: 
-        avgco.append("NaN") 
-    else:
-        avgco.append(list(avgCO)[0])
+    for valuedate in dates:
+        if(valuedate < referencedate):
+            datalist.append(('NaN','NaN','NaN','NaN','NaN'))
+        
+        else:
+            datalist.append((dicpm25[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dicno2[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dico3[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
+                            dicco[(row['numero'], pd.to_datetime(str(valuedate)))]),
+                            )
+        
+    for valuedate in dates2:
+        if(valuedate < referencedate):
+            datalist2.append(('NaN','NaN','NaN','NaN','NaN'))
+        
+        else:
+            datalist2.append((dicpm25[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dicno2[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dico3[(row['numero'], pd.to_datetime(str(valuedate)))], \
+                            dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
+                            dicco[(row['numero'], pd.to_datetime(str(valuedate)))]))
 
+        if (dateprevday < referencedate):
+            prevdaytothospi = "NaN"
+        else:
+            prevdaytothospi = dictothospi[(row['numero'], dateprevday)]
 
+    cleanedList = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
+    cleanedList2 = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist2 if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
+  
+    means = [sum(ele) / len(cleanedList) for ele in zip(*cleanedList) if ele != 'NaN']
+    means2 = [sum(ele) / len(cleanedList2) for ele in zip(*cleanedList2) if ele != 'NaN']
+    return (means[0],\
+            means[1],\
+            means[2],\
+            means[3],\
+            means[4],\
+            means2[0],\
+            means2[1],\
+            means2[2],\
+            means2[3],\
+            means2[4],
+            prevdaytothospi)
 
-tothospi = pd.DataFrame(hospi)
-tothospi.columns =["hospiprevday"]
+@simple_time_tracker
+def compute_trailing_avg_assign_to_df(dfpar):
+    print("Computing 7D & 1M trailing averages in pollution concentrations & the previous' day total hospitalisations.. ")
+    dfpar[['pm257davg','no27davg','o37davg', 'pm107davg','co7davg',\
+            'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg',"hospiprevday"]] = dfpar.apply(compute_avg_conc, axis=1).apply(pd.Series)
+    return dfpar
 
-avgpm25df = pd.DataFrame(avgpm25)
-avgpm25df.columns=["pm257davg"]
+print("\n")
 
-avgno2df = pd.DataFrame(avgno2)
-avgno2df.columns=["no27davg"]
+data = compute_trailing_avg_assign_to_df(data)
 
-avgo3df = pd.DataFrame(avgo3)
-avgo3df.columns=["o37davg"]
+data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
 
-avgpm10df = pd.DataFrame(avgpm10)
-avgpm10df.columns=["pm107davg"]
-
-avgcodf = pd.DataFrame(avgco)
-avgcodf.columns=["co7davg"]
-print("Merging data...")
-df["hospiprevday"]=tothospi["hospiprevday"]
-df["pm257davg"]=avgpm25df["pm257davg"]
-df["no27davg"]=avgno2df["no27davg"]
-df["o37davg"]=avgo3df["o37davg"]
-df["pm107davg"]=avgpm10df["pm107davg"]
-df["co7davg"]=avgcodf["co7davg"]
-print(df)
-
-df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print(data)
 
 # Get Mobility indices historical data and merge it by time & region with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 

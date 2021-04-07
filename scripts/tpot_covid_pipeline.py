@@ -9,8 +9,8 @@ features = tpot_data.drop('target', axis=1)
 training_features, testing_features, training_target, testing_target = \
             train_test_split(features, tpot_data['target'], random_state=42)
 
-# Average CV score on the training set was: -53.01150561452156
-exported_pipeline = RandomForestRegressor(bootstrap=False, max_features=0.7000000000000001, min_samples_leaf=9, min_samples_split=14, n_estimators=100)
+# Average CV score on the training set was: -48.621885052739714
+exported_pipeline = RandomForestRegressor(bootstrap=True, max_features=0.7500000000000001, min_samples_leaf=11, min_samples_split=9, n_estimators=100)
 # Fix random state in exported estimator
 if hasattr(exported_pipeline, 'random_state'):
     setattr(exported_pipeline, 'random_state', 42)
