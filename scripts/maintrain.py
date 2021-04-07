@@ -30,6 +30,13 @@ from tpot.builtins import StackingEstimator
 from sklearn.preprocessing import FunctionTransformer
 from copy import copy
 import joblib as joblib
+import matplotlib.pyplot as plt
+from sklearn.model_selection import cross_validate
+from sklearn.metrics import make_scorer
+
+def max_normalize(x):
+    return (x - x.min()) / (x.max() - x.min())
+
 def mse(ground_truth, predictions):
     diff = (ground_truth - predictions)**2
     return diff.mean()
@@ -43,12 +50,15 @@ df = df.dropna()
 df["all_day_bing_tiles_visited_relative_change"]=df["all_day_bing_tiles_visited_relative_change"].astype(float)
 df["all_day_ratio_single_tile_users"]=df["all_day_ratio_single_tile_users"].astype(float)
 print(df)
+columnstonormalize = ['pm25', 'no2','o3','pm10','co','pm257davg','no27davg','o37davg','co7davg', 'pm107davg','1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco']
+# for c in columnstonormalize:
+#     df[c]=max_normalize(df[c])
 
 featuresandtarget = ['idx', 'pm25', 'no2',
 'o3','pm10','co',\
     'pm257davg','no27davg',\
     'o37davg','co7davg', 'pm107davg',\
-        #'hospiprevday','covidpostestprevday',\
+        'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
@@ -56,6 +66,7 @@ featuresandtarget = ['idx', 'pm25', 'no2',
                              "minority",\
                                   "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
                                       '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco',\
+                                          'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg',\
                                            'newhospi'\
 
                             ]
@@ -64,15 +75,18 @@ features = ['idx', 'pm25', 'no2',
 'o3','pm10','co',\
     'pm257davg','no27davg',\
     'o37davg','co7davg', 'pm107davg',\
-        #'hospiprevday','covidpostestprevday',\
+        'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                          'Smokers',\
                          "minority",\
-                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
-                                 '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco'\
+                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",
+                                 '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco',\
+                                 'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg'\
+                                     \
                             ]
+
 
 X1=df[['idx', 'pm25', 'no2']]
 X2=df[features]
@@ -105,16 +119,6 @@ print("MAE")
 print(ETMAE)
 print("\n")
 
-print("Feature importance report:", ETregr.feature_importances_)
-FIlist = ETregr.feature_importances_.tolist()
-FIlistdf = pd.DataFrame(FIlist)
-FIlistdf = FIlistdf.T
-FIlistdf.columns = features
-FIlistdf = FIlistdf.T
-FIlistdf.columns = ["feature_importance"]
-FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
-print(FIlistdf)
-print("\n")
 
 print("T-Pot exported current best pipeline")
 # Average CV score on the training set was: -94.5319545151712
@@ -142,31 +146,31 @@ print("\n")
 # print("Average error on new number of hospitalizations per day:", round(RFRMSE ** 0.5,0))
 #print("\n")
 
-print(" Scikit Learn RandomForestRegressor")
-regr2 = RandomForestRegressor()
-regr2.fit(X_train2, y_train2)
-pred2 = regr2.predict(X_test2).round(0)
-RFRMSE2 = mse(y_test2, pred2)
-RFMAE2 = mae(y_test2, pred2)
-print("MSE:")
-print(RFRMSE2)
-print("MAE")
-print(RFMAE2)
-print("\n")
+# print(" Scikit Learn RandomForestRegressor")
+# regr2 = RandomForestRegressor()
+# regr2.fit(X_train2, y_train2)
+# pred2 = regr2.predict(X_test2).round(0)
+# RFRMSE2 = mse(y_test2, pred2)
+# RFMAE2 = mae(y_test2, pred2)
+# print("MSE:")
+# print(RFRMSE2)
+# print("MAE")
+# print(RFMAE2)
+# print("\n")
 
-print("GradientBoostingRegressor Model")
-model = GradientBoostingRegressor(
-    n_estimators=100, 
-    learning_rate=0.1
-)
-model.fit(X_train2,y_train2)
-pred4 = model.predict(X_test2).round(0)
-MSE4 = mse(y_test2, pred4)
-MAE4 = mae(y_test2, pred4)
-print("MSE:")
-print(MSE4)
-print("MAE:")
-print(MAE4)
+# print("GradientBoostingRegressor Model")
+# model = GradientBoostingRegressor(
+#     n_estimators=100, 
+#     learning_rate=0.1
+# )
+# model.fit(X_train2,y_train2)
+# pred4 = model.predict(X_test2).round(0)
+# MSE4 = mse(y_test2, pred4)
+# MAE4 = mae(y_test2, pred4)
+# print("MSE:")
+# print(MSE4)
+# print("MAE:")
+# print(MAE4)
 
 
 
@@ -181,7 +185,16 @@ print(MAE4)
 
 print("\n")
 print("XGBoost Regressor Model")
-xgb_model = xgb.XGBRegressor(n_jobs=1).fit(X_train2, y_train2)
+xgb_model = xgb.XGBRegressor(base_score=0.5, booster='gbtree', colsample_bylevel=1,
+             colsample_bynode=1, colsample_bytree=1, gamma=0, gpu_id=-1,
+             importance_type='gain', interaction_constraints='',
+             learning_rate=0.25, max_delta_step=0, max_depth=6,
+             min_child_weight=1, monotone_constraints='()',
+             n_estimators=100, n_jobs=1, num_parallel_tree=1, random_state=0,
+             reg_alpha=0, reg_lambda=1, scale_pos_weight=1, subsample=1,
+             tree_method='exact', validate_parameters=1, verbosity=None)
+
+xgb_model.fit(X_train2, y_train2)
 pred3 = xgb_model.predict(X_test2).round(0)
 RFRMSE3 = mse(y_test2, pred3)
 XGBMAE = mae(y_test2, pred3)
@@ -204,7 +217,27 @@ print("MSE:")
 print(MSE5)
 print("MAE:")
 print(MAE5)
+for alg in ensemble.named_estimators:
+    clf = ensemble.named_estimators[alg]
+    # extract feature importance for clf
+    # Note different algorithms have different 
+    # methods for feature importance
+    print(clf)
+print("\n")
 
+
+# plot
+plt.bar(range(len(xgb_model.feature_importances_)), xgb_model.feature_importances_)
+plt.show(block=True)
+print("Feature importance report:", ETregr.feature_importances_)
+FIlist = ETregr.feature_importances_.tolist()
+FIlistdf = pd.DataFrame(FIlist)
+FIlistdf = FIlistdf.T
+FIlistdf.columns = features
+FIlistdf = FIlistdf.T
+FIlistdf.columns = ["feature_importance"]
+FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
+print(FIlistdf)
 print("\n")
 
 #Save model to .joblib file
