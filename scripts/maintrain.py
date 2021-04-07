@@ -48,27 +48,30 @@ featuresandtarget = ['idx', 'pm25', 'no2',
 'o3','pm10','co',\
     'pm257davg','no27davg',\
     'o37davg','co7davg', 'pm107davg',\
-        'hospiprevday','covidpostestprevday',\
+        #'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                          'Smokers',\
                              "minority",\
-                              'newhospi',\
-                                  "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                  "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
+                                      '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco',\
+                                           'newhospi'\
+
                             ]
                         
 features = ['idx', 'pm25', 'no2',
 'o3','pm10','co',\
     'pm257davg','no27davg',\
     'o37davg','co7davg', 'pm107davg',\
-        'hospiprevday','covidpostestprevday',\
+        #'hospiprevday','covidpostestprevday',\
             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
                  'Insuffisance respiratoire chronique grave (ALD14)', \
                      'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                          'Smokers',\
                          "minority",\
-                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
+                                 '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco'\
                             ]
 
 X1=df[['idx', 'pm25', 'no2']]
@@ -84,7 +87,7 @@ X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33,random
 X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33,random_state = 84)
 print("\n")
 
-print(" Scikit Learn ExtratreesRegressor with feature engineering")
+print(" Scikit Learn ExtratreesRegressor")
 ETregr = ExtraTreesRegressor()
 ETregr.fit(X_train2, y_train2)
 predET = ETregr.predict(X_test2).round(0)
@@ -139,7 +142,7 @@ print("\n")
 # print("Average error on new number of hospitalizations per day:", round(RFRMSE ** 0.5,0))
 #print("\n")
 
-print(" Scikit Learn RandomForestRegressor with feature engineering")
+print(" Scikit Learn RandomForestRegressor")
 regr2 = RandomForestRegressor()
 regr2.fit(X_train2, y_train2)
 pred2 = regr2.predict(X_test2).round(0)
