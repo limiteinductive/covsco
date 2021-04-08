@@ -29,32 +29,32 @@ cum2 = dfvac2.groupby(['departement', 'date_debut_semaine']).sum().groupby(
         columns="index")
 
 
-def create_possibilities(row):
+def create_week(row):
     return pd.date_range(start=row['date_debut_semaine'], periods=7).tolist()
 
 
-cum1['7_days'] = cum1.apply(create_possibilities, axis=1)
-cum2['7_days'] = cum2.apply(create_possibilities, axis=1)
+cum1['7_days'] = cum1.apply(create_week, axis=1)
+cum2['7_days'] = cum2.apply(create_week, axis=1)
 
 
-def check_variant(v_row, date):
+def check_vaccin(v_row, date):
     if date in v_row['7_days']:
         return v_row['nb']
 
 
-def enriched_variant(row):
+def enriched_vaccin(row):
     date = row['time']
     depnum = row['numero']
     if date < referencedate1:
         row['vac1nb'], row['vac2nb'] = 0, 0
     else:
         cum1_dep = cum1[cum1['departement'] == depnum]
-        res1 = cum1_dep.apply(check_variant, date=date, axis=1)
+        res1 = cum1_dep.apply(check_vaccin, date=date, axis=1)
         first1 = [el for el in res1
                   if el == el][0]  #get the first non null element of res
 
         cum2_dep = cum2[cum2['departement'] == depnum]
-        res2 = cum2_dep.apply(check_variant, date=date, axis=1)
+        res2 = cum2_dep.apply(check_vaccin, date=date, axis=1)
         first2 = next((el for el in res2 if el == el),
                       None)  #get the first non null element of res
         if first2 is None:
@@ -65,7 +65,7 @@ def enriched_variant(row):
     return None
 
 
-df2.apply(enriched_variant, axis=1)
+df2.apply(enriched_vaccin, axis=1)
 print(df2)
 df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
            index=False)
