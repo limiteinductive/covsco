@@ -1,96 +1,71 @@
 import pandas as pd
-import datetime as dt
-from tqdm import tqdm
 
-print("Vaccinnation data")
-df = pd.read_csv ("../data/train/vaccination/fr/vaccination_hist_data.csv", sep =";")
-df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
-df = df[df['departement']<203]
-df["date_debut_semaine"]=pd.to_datetime(df["date_debut_semaine"], dayfirst = True) 
-df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",")
-print(df)
+df = pd.read_csv("../data/train/vaccination/fr/vaccination_hist_data.csv",
+                 sep=";")
+df['departement'] = df['departement'].replace({
+    '2A': '201',
+    '2B': '202'
+}).astype(int)
+df = df[df['departement'] < 203]
+df["date_debut_semaine"] = pd.to_datetime(df["date_debut_semaine"],
+                                          dayfirst=True)
+
+df2 = pd.read_csv(
+    "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+    sep=",")
+df2["time"] = pd.to_datetime(df2["time"])
+
+dfvac1 = df[df["rang_vaccinal"] == 1].reset_index()
+dfvac2 = df[df["rang_vaccinal"] == 2].reset_index()
+
+referencedate1 = dfvac1['date_debut_semaine'].min()
+referencedate2 = dfvac2['date_debut_semaine'].min()
+
+cum1 = dfvac1.groupby(['departement', 'date_debut_semaine']).sum().groupby(
+    level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(
+        columns="index")
+cum2 = dfvac2.groupby(['departement', 'date_debut_semaine']).sum().groupby(
+    level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(
+        columns="index")
+
+
+def create_possibilities(row):
+    return pd.date_range(start=row['date_debut_semaine'], periods=7).tolist()
+
+
+cum1['7_days'] = cum1.apply(create_possibilities, axis=1)
+cum2['7_days'] = cum2.apply(create_possibilities, axis=1)
+
+
+def check_variant(v_row, date):
+    if date in v_row['7_days']:
+        return v_row['nb']
+
+
+def enriched_variant(row):
+    date = row['time']
+    depnum = row['numero']
+    if date < referencedate1:
+        row['vac1nb'], row['vac2nb'] = 0, 0
+    else:
+        cum1_dep = cum1[cum1['departement'] == depnum]
+        res1 = cum1_dep.apply(check_variant, date=date, axis=1)
+        first1 = [el for el in res1
+                  if el == el][0]  #get the first non null element of res
+
+        cum2_dep = cum2[cum2['departement'] == depnum]
+        res2 = cum2_dep.apply(check_variant, date=date, axis=1)
+        first2 = next((el for el in res2 if el == el),
+                      None)  #get the first non null element of res
+        if first2 is None:
+            first2 = 0
+
+        row['vac1nb'] = first1
+        row['vac2nb'] = first2
+    return None
+
+
+df2.apply(enriched_variant, axis=1)
 print(df2)
-dfvac1 = df[df["rang_vaccinal"]==1].reset_index()
-dfvac2 = df[df["rang_vaccinal"]==2].reset_index()
-print(dfvac1)
-print(dfvac2)
-dfvac1list = []
-dfvac2list = []
-referencedate = "2021-01-18"
-referencedate=pd.to_datetime(referencedate)
-referencedate2 = "2021-01-25"
-referencedate2=pd.to_datetime(referencedate2)
-df2["time"]=pd.to_datetime(df2["time"])
-#df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
-
-
-cumvac1list = []
-cumvac2list = []
-cum1 = dfvac1.groupby(['departement', 'date_debut_semaine']).sum().groupby(level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(columns = "index")
-cum2 = dfvac2.groupby(['departement', 'date_debut_semaine']).sum().groupby(level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(columns = "index")
-
-print(cum1)
-print(cum2)
-
-for i in tqdm(df2.index):
-    date = df2.loc[i,"time"]
-    depnum = df2.loc[i,"numero"]
-    datefound = False
-    datefound2 = False
-    for j in cum1.index:
-        counter = 0
-        if cum1.loc[j,"departement"]==depnum: 
-            date1 = cum1.loc[j,"date_debut_semaine"]
-            if (date < referencedate):
-                dfvac1list.append((date,0))
-                counter +=1
-                datefound = True
-
-            elif ((date >= referencedate) & (date1 <= date) & (date < (date1 + pd.Timedelta("7 days")))):
-                cumvac1 = cum1.loc[j,"nb"]
-                dfvac1list.append((date,cumvac1))
-                counter += 1
-                datefound = True
-            if (counter == 1):
-                break
-    if datefound == False:
-        dfvac1list.append((date, cumvac1))
-
-    for k in cum2.index:
-        counter = 0
-        if cum2.loc[k,"departement"]==depnum: 
-            date2 = cum2.loc[k,"date_debut_semaine"]
-            if (date < referencedate2):
-                dfvac2list.append((date,0))
-                counter +=1
-                datefound2 = True
-            elif ((date >= referencedate2) & (date2 <= date) & (date < (date2 + pd.Timedelta("7 days")))):
-                cumvac2 = cum2.loc[k,"nb"]
-                dfvac2list.append((date, cumvac2))
-                counter +=1
-                datefound2 = True
-            if (counter == 1):
-                break
-    if datefound2 == False:
-        dfvac2list.append((date, cumvac2))
-                
-            
-           
-
-dfvac1 = pd.DataFrame(dfvac1list)
-dfvac1.columns=["date", "vac1nb"]
-print(dfvac1)
-dfvac2 = pd.DataFrame(dfvac2list)
-dfvac2.columns=["date", "vac2nb"]
-print(dfvac2)
-
-df2["vac1nb"]=dfvac1["vac1nb"]
-df2["vac2nb"]=dfvac2["vac2nb"]
-df2.dropna(inplace = True)
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print(df2)
-
-
-
-
-
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+           index=False)
