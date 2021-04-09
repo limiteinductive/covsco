@@ -33,6 +33,9 @@ import joblib as joblib
 import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import make_scorer
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 
 def max_normalize(x):
     return (x - x.min()) / (x.max() - x.min())
@@ -117,22 +120,27 @@ print("MSE")
 print(ETMSE)
 print("MAE")
 print(ETMAE)
-print("\n")
 print("Cross Validation")
 scores = cross_validate(ETregr, X2, y, cv=10,
                         scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
                          return_train_score=True)
+print("MSE")
 print(scores["test_neg_mean_squared_error"].mean())
+print("MAE")
 print(scores["test_neg_mean_absolute_error"].mean())
-
-
+print(scores)
+print("\n")
 print("T-Pot exported current best pipeline")
 # Average CV score on the training set was: -94.5319545151712
-exported_pipeline = ExtraTreesRegressor(bootstrap=False, max_features=0.7000000000000001, min_samples_leaf=1, min_samples_split=4, n_estimators=100)
 
+GBR1 =  GradientBoostingRegressor(alpha=0.75, learning_rate=0.1, loss="ls", max_depth=8, max_features=0.33, min_samples_leaf=14, min_samples_split=18, n_estimators=100, subsample=0.9500000000000001)
+
+exported_pipeline = make_pipeline(
+    StandardScaler(),
+    RobustScaler(),
+    GBR1)
 #Fix random state for all the steps in exported pipeline
 #set_param_recursive(exported_pipeline.steps, 'random_state', 42)
-
 exported_pipeline.fit(X_train2, y_train2)
 predictions = exported_pipeline.predict(X_test2)
 TPOTMSE = mse(y_test2, predictions)
@@ -141,13 +149,16 @@ print("MSE:")
 print(TPOTMSE)
 print("MAE:")
 print(TPOTMAE)
-print("\n")
 print("Cross Validation")
 scores = cross_validate(exported_pipeline, X2, y, cv=10,
                         scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
                          return_train_score=True)
+print("MSE")
 print(scores["test_neg_mean_squared_error"].mean())
+print("MAE")
 print(scores["test_neg_mean_absolute_error"].mean())
+print(scores)
+print("\n")
 
 # print("Scikit Learn RandomForestRegressor without feature engineering")
 # regr = RandomForestRegressor()
@@ -168,13 +179,17 @@ print("MSE:")
 print(RFRMSE2)
 print("MAE")
 print(RFMAE2)
-print("\n")
 print("Cross Validation")
-scores = cross_validate(regr2, X2, y, cv=5,
+scores = cross_validate(regr2, X2, y, cv=10,
                         scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
                          return_train_score=True)
+print("MSE")
 print(scores["test_neg_mean_squared_error"].mean())
+print("MAE")
 print(scores["test_neg_mean_absolute_error"].mean())
+print(scores)
+print("\n")
+
 # print("GradientBoostingRegressor Model")
 # model = GradientBoostingRegressor(
 #     n_estimators=100, 
@@ -188,7 +203,16 @@ print(scores["test_neg_mean_absolute_error"].mean())
 # print(MSE4)
 # print("MAE:")
 # print(MAE4)
-
+# print("Cross Validation")
+# scores = cross_validate(regr2, X2, y, cv=10,
+#                         scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+#                          return_train_score=True)
+# print("MSE")
+# print(scores["test_neg_mean_squared_error"].mean())
+# print("MAE")
+# print(scores["test_neg_mean_absolute_error"].mean())
+# print(scores)
+# print("\n")
 
 
 # print("\n")
@@ -219,13 +243,21 @@ print("MSE:")
 print(RFRMSE3)
 print("MAE:")
 print(XGBMAE)
+print("Cross Validation")
+scores = cross_validate(xgb_model, X2, y, cv=5,
+                        scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+                         return_train_score=True)
+print("MSE")
+print(scores["test_neg_mean_squared_error"].mean())
+print("MAE")
+print(scores["test_neg_mean_absolute_error"].mean())
+print(scores)
 print("\n")
 
-print("VotingRegressor")
+print("VotingRegressor: The Votes of an XGBoost (Extreme Gradient) Regressor VS the votes of a Gradient Boosting Regressor")
 ensemble = VotingRegressor(
     estimators = [("TPET",exported_pipeline),("xgbr",xgb_model)],
    )
-
 ensemble.fit(X_train2, y_train2)
 predvot = ensemble.predict(X_test2).round(0)
 MSE5 = mse(y_test2,predvot)
@@ -234,20 +266,38 @@ print("MSE:")
 print(MSE5)
 print("MAE:")
 print(MAE5)
-for alg in ensemble.named_estimators:
-    clf = ensemble.named_estimators[alg]
-    # extract feature importance for clf
-    # Note different algorithms have different 
-    # methods for feature importance
-    print(clf)
+print("Cross Validation")
+scores = cross_validate(ensemble, X2, y, cv=5,
+                        scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+                         return_train_score=True)
+print("MSE:")
+print(scores["test_neg_mean_squared_error"].mean())
+print("MAE:")
+print(scores["test_neg_mean_absolute_error"].mean())
+print("Cross-val Scores")
+print(scores)
 print("\n")
-
-
 # plot
 plt.bar(range(len(xgb_model.feature_importances_)), xgb_model.feature_importances_)
 plt.show(block=True)
-print("Feature importance report:", ETregr.feature_importances_)
-FIlist = ETregr.feature_importances_.tolist()
+print("XGBoost Feature importance report:", xgb_model.feature_importances_)
+FIlist = xgb_model.feature_importances_.tolist()
+FIlistdf = pd.DataFrame(FIlist)
+FIlistdf = FIlistdf.T
+FIlistdf.columns = features
+FIlistdf = FIlistdf.T
+FIlistdf.columns = ["feature_importance"]
+FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
+print(FIlistdf)
+FIlistdf.to_csv("../feature_importance/XGBoost Regressor Feature importance report.csv")
+print("\n")
+
+print("\n")
+# plot
+plt.bar(range(len(GBR1.feature_importances_)), GBR1.feature_importances_)
+plt.show(block=True)
+print("Gradient Boosting Regressor Feature importance report:", GBR1.feature_importances_)
+FIlist = GBR1.feature_importances_.tolist()
 FIlistdf = pd.DataFrame(FIlist)
 FIlistdf = FIlistdf.T
 FIlistdf.columns = features
@@ -256,7 +306,7 @@ FIlistdf.columns = ["feature_importance"]
 FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
 print(FIlistdf)
 print("\n")
-
+FIlistdf.to_csv("../feature_importance/XGBoost Regressor Feature importance report.csv")
 #Save model to .joblib file
 # save the model to disk
 filename = '../model/model.joblib'
