@@ -41,7 +41,7 @@ dicpm10 = {(i, j) : k for (i, j, k) in zip(*pm10tuple)}
 dicco = {(i, j) : k for (i, j, k) in zip(*cotuple)}
 dictothospi = {(i, j) : k for (i, j, k) in zip(*tothospituple)}
 
-referencedate = pd.to_datetime("2020-05-14")
+referencedate = data["time"].min()
 
 def compute_avg_conc(row):
     datalist = []

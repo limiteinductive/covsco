@@ -206,7 +206,7 @@ covid.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
 print("\n")
 
 #Computing maximal pollution concentrations over the last trailing month...
-print("Computing maximal pollution concentrations over the last trailing month... ")
+print("Computing 1M trailing maximal pollution concentrations.. ")
 data = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
 
 data["time"]=pd.to_datetime(data["time"])
@@ -223,7 +223,7 @@ dico3 = {(i, j) : k for (i, j, k) in zip(*o3tuple)}
 dicpm10 = {(i, j) : k for (i, j, k) in zip(*pm10tuple)}
 dicco = {(i, j) : k for (i, j, k) in zip(*cotuple)}
 
-referencedate = pd.to_datetime("2020-05-14")
+referencedate = data["time"].min()
 def compute_1M_Max_conc(row):
     datalist = []
     date2 = row['time'] - pd.Timedelta("30 days")
@@ -242,17 +242,22 @@ def compute_1M_Max_conc(row):
                             dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
                             dicco[(row['numero'], pd.to_datetime(str(valuedate)))]))
     
-    cleanedList = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
+    cleanedList = [(x,y,z,w,v) for (x,y,z,w,v) in datalist if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
 
-    return (max(cleanedList,key=itemgetter(1))[0],\
+    return (max(cleanedList,key=itemgetter(0))[0],\
             max(cleanedList,key=itemgetter(1))[1],\
-            max(cleanedList,key=itemgetter(1))[2],\
-            max(cleanedList,key=itemgetter(1))[3],\
-            max(cleanedList,key=itemgetter(1))[4])
+            max(cleanedList,key=itemgetter(2))[2],\
+            max(cleanedList,key=itemgetter(3))[3],\
+            max(cleanedList,key=itemgetter(4))[4])
 
-data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco']] = data.apply(compute_1M_Max_conc, axis=1).apply(pd.Series)
-print("\n")
+@simple_time_tracker
+def compute_1M_MCs_assign_to_df(data):
+    print("Computing maximal pollution concentrations.. ")
+    data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco']] = data.apply(compute_1M_Max_conc, axis=1).apply(pd.Series)
+    print("\n")
+    return data
 
+data =  compute_1M_MCs_assign_to_df(data)
 print(data)
 
 data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
@@ -283,7 +288,7 @@ dicpm10 = {(i, j) : k for (i, j, k) in zip(*pm10tuple)}
 dicco = {(i, j) : k for (i, j, k) in zip(*cotuple)}
 dictothospi = {(i, j) : k for (i, j, k) in zip(*tothospituple)}
 
-referencedate = pd.to_datetime("2020-05-14")
+referencedate = data["time"].min()
 
 def compute_avg_conc(row):
     datalist = []
@@ -361,8 +366,8 @@ df = pd.read_csv("../data/train/mobility/fr/mouvement-range-FRA-final.csv", sep 
 df["ds"]=pd.to_datetime(df["ds"], dayfirst = True)
 df = df[df["ds"]<=pd.to_datetime("31/03/2021",dayfirst=True)]
 print(df)
-df2 = covid
-
+df2 = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+df2["time"]=pd.to_datetime(df2["time"])
 df3 = pd.read_csv("../data/train/pop/fr/regions_departements.csv", sep = ";")
 
 mdlist = []
@@ -421,90 +426,77 @@ print('OK')
 
 
 print("\n")
-print("Processing Vaccinnation data...")
-df = pd.read_csv ("../data/train/vaccination/fr/vaccination_hist_data.csv", sep =";")
-df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
-df = df[df['departement']<203]
-df["date_debut_semaine"]=pd.to_datetime(df["date_debut_semaine"], dayfirst = True) 
-df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",")
-print(df)
+
+print("Processing Vaccination historical data ...")
+df = pd.read_csv("../data/train/vaccination/fr/vaccination_hist_data.csv",
+                 sep=";")
+df['departement'] = df['departement'].replace({
+    '2A': '201',
+    '2B': '202'
+}).astype(int)
+df = df[df['departement'] < 203]
+df["date_debut_semaine"] = pd.to_datetime(df["date_debut_semaine"],
+                                          dayfirst=True)
+
+df2 = pd.read_csv(
+    "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+    sep=",")
+df2['vac1nb']=0
+df2['vac2nb']=0
+df2["time"] = pd.to_datetime(df2["time"])
+
+dfvac1 = df[df["rang_vaccinal"] == 1].reset_index()
+dfvac2 = df[df["rang_vaccinal"] == 2].reset_index()
+
+referencedate1 = dfvac1['date_debut_semaine'].min()
+referencedate2 = dfvac2['date_debut_semaine'].min()
+
+cum1 = dfvac1.groupby(['departement', 'date_debut_semaine']).sum().groupby(
+    level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(
+        columns="index")
+cum2 = dfvac2.groupby(['departement', 'date_debut_semaine']).sum().groupby(
+    level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(
+        columns="index")
+
+
+def create_week(row):
+    return pd.date_range(start=row['date_debut_semaine'], periods=7).tolist()
+
+
+cum1['7_days'] = cum1.apply(create_week, axis=1)
+cum2['7_days'] = cum2.apply(create_week, axis=1)
+
+
+def check_vaccin(v_row, date):
+    if date in v_row['7_days']:
+        return v_row['nb']
+
+
+def enriched_vaccin(row):
+    date = row['time']
+    depnum = row['numero']
+    if date < referencedate1:
+        (first1, first2) = (0, 0)
+    else:
+        cum1_dep = cum1[cum1['departement'] == depnum]
+        res1 = cum1_dep.apply(check_vaccin, date=date, axis=1)
+        first1 = [el for el in res1
+                  if el == el][0]  #get the first non null element of res
+
+        cum2_dep = cum2[cum2['departement'] == depnum]
+        res2 = cum2_dep.apply(check_vaccin, date=date, axis=1)
+        first2 = next((el for el in res2 if el == el),
+                      None)  #get the first non null element of res
+        if first2 is None:
+            first2 = 0
+
+    return ((first1, first2))
+
+
+df2[['vac1nb','vac2nb' ]] = df2.apply(enriched_vaccin, axis=1).apply(pd.Series)
 print(df2)
-dfvac1 = df[df["rang_vaccinal"]==1].reset_index()
-dfvac2 = df[df["rang_vaccinal"]==2].reset_index()
-print(dfvac1)
-print(dfvac2)
-dfvac1list = []
-dfvac2list = []
-referencedate = "2021-01-18"
-referencedate=pd.to_datetime(referencedate)
-referencedate2 = "2021-01-25"
-referencedate2=pd.to_datetime(referencedate2)
-df2["time"]=pd.to_datetime(df2["time"])
-#df['departement'] = df['departement'].replace({'2A':'201','2B':'202'}).astype(int)
-
-
-cumvac1list = []
-cumvac2list = []
-cum1 = dfvac1.groupby(['departement', 'date_debut_semaine']).sum().groupby(level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(columns = "index")
-cum2 = dfvac2.groupby(['departement', 'date_debut_semaine']).sum().groupby(level=0).cumsum().sort_values("date_debut_semaine").reset_index().drop(columns = "index")
-
-print(cum1)
-print(cum2)
-
-for i in tqdm(df2.index):
-    date = df2.loc[i,"time"]
-    depnum = df2.loc[i,"numero"]
-    datefound = False
-    datefound2 = False
-    for j in cum1.index:
-        counter = 0
-        if cum1.loc[j,"departement"]==depnum: 
-            date1 = cum1.loc[j,"date_debut_semaine"]
-            if (date < referencedate):
-                dfvac1list.append((date,0))
-                counter +=1
-                datefound = True
-
-            elif ((date >= referencedate) & (date1 <= date) & (date < (date1 + pd.Timedelta("7 days")))):
-                cumvac1 = cum1.loc[j,"nb"]
-                dfvac1list.append((date,cumvac1))
-                counter += 1
-                datefound = True
-            if (counter == 1):
-                break
-    if datefound == False:
-        dfvac1list.append((date, cumvac1))
-
-    for k in cum2.index:
-        counter = 0
-        if cum2.loc[k,"departement"]==depnum: 
-            date2 = cum2.loc[k,"date_debut_semaine"]
-            if (date < referencedate2):
-                dfvac2list.append((date,0))
-                counter +=1
-                datefound2 = True
-            elif ((date >= referencedate2) & (date2 <= date) & (date < (date2 + pd.Timedelta("7 days")))):
-                cumvac2 = cum2.loc[k,"nb"]
-                dfvac2list.append((date, cumvac2))
-                counter +=1
-                datefound2 = True
-            if (counter == 1):
-                break
-    if datefound2 == False:
-        dfvac2list.append((date, cumvac2))
-                
-dfvac1 = pd.DataFrame(dfvac1list)
-dfvac1.columns=["date", "vac1nb"]
-print(dfvac1)
-dfvac2 = pd.DataFrame(dfvac2list)
-dfvac2.columns=["date", "vac2nb"]
-print(dfvac2)
-
-df2["vac1nb"]=dfvac1["vac1nb"]
-df2["vac2nb"]=dfvac2["vac2nb"]
-df2.dropna(inplace = True)
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print(df2)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+           index=False)
 
 print("Processing Comorbidities Data...")
 df = pd.read_excel("../data/train/comorbidities/fr/2019_ALD-prevalentes-par-departement_serie-annuelle.xls", skiprows = 1)
@@ -529,66 +521,66 @@ df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", i
 print(df2)
 print("\n")
 
-print("Processing Variants Data...")
-df = pd.read_csv("../data/train/variants/fr/variants_hist_data.csv", sep =';')
-df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+print("Processing Variants data ...")
+df = pd.read_csv("../data/train/variants/fr/variants_hist_data.csv", sep=';')
+df2 = pd.read_csv(
+    "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
 df2["time"] = pd.to_datetime(df2["time"])
-df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
-df = df[df['dep']<203]
-
+df['dep'] = df['dep'].replace({'2A': '201', '2B': '202'}).astype(int)
+df = df[df['dep'] < 203]
 #df = df.groupby(["dep","semaine"], level = -1).sum()["dep","semaine","Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"]
-df= df.groupby(['dep', 'semaine'])[["dep","semaine","Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"]].sum().drop(columns = ["dep"]).reset_index()
+df = df.groupby(['dep', 'semaine'
+                 ])[["dep", "semaine", "Nb_susp_501Y_V1", "Nb_susp_501Y_V2_3"
+                     ]].sum().drop(columns=["dep"]).reset_index()
 
 
-print(df)
-datalist = []
-referencedate = pd.to_datetime("2021-02-12")
-
-for i in tqdm(df.index):
-    date = pd.to_datetime(df.loc[i,"semaine"][0:10], yearfirst = True)
-    datalist.append((date, df.loc[i,"dep"], df.loc[i,"Nb_susp_501Y_V1"],df.loc[i,"Nb_susp_501Y_V2_3"]))
-
-datalistdf = pd.DataFrame(datalist)
-datalistdf.columns=["semaine","dep", "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"]
-print(datalistdf)
-
-datalist2 = []
-for i in tqdm(df2.index):
-    date = df2.loc[i,"time"]
-    depnum = df2.loc[i,"numero"]
-    datefound = False
-
-    for j in datalistdf.index:
-        counter = 0
-        if datalistdf.loc[j,"dep"]==depnum: 
-            date1 = datalistdf.loc[j,"semaine"]
-            if (date < referencedate):
-                datalist2.append((date,0,0))
-                counter +=1
-                datefound = True
-
-            elif ((date >= referencedate) & (date1 <= date) & (date < (date1 + pd.Timedelta("7 days")))):
-                V1 = datalistdf.loc[j,"Nb_susp_501Y_V1"]
-                V2 = datalistdf.loc[j,"Nb_susp_501Y_V2_3"]
-                datalist2.append((date,V1,V2))
-                counter += 1
-                datefound = True
-            if (counter == 1):
-                break
-    if datefound == False:
-        datalist.append((date, V1,V2))  
-          
-
-dfvar = pd.DataFrame(datalist2)
-dfvar.columns=["date", "V1","V2"]
-print(dfvar)
+def to_datalist(row):
+    date = pd.to_datetime(row["semaine"][0:10], yearfirst=True)
+    return date
 
 
-df2["Nb_susp_501Y_V1"]=dfvar["V1"]
-df2["Nb_susp_501Y_V2_3"]=dfvar["V2"]
+df['jour'] = df.apply(to_datalist, axis=1)
+df.drop(columns='semaine', inplace=True)
+df.rename(columns={'jour': 'semaine'}, inplace=True)
+
+
+def create_possibilities(row):
+    return pd.date_range(start=row['semaine'], periods=7).tolist()
+
+
+df['7_days'] = df.apply(create_possibilities, axis=1)
+
+referencedate = df['semaine'].min()
+
+
+def check_variant(v_row, date):
+    if date in v_row['7_days']:
+        return (v_row['Nb_susp_501Y_V1'], v_row['Nb_susp_501Y_V2_3'])
+
+
+def enriched_variant(row):
+    date = row['time']
+    depnum = row['numero']
+    if date < referencedate:
+        return (0, 0)
+    else:
+        df_dep = df[df['dep'] == depnum]
+        ans = []
+        res = df_dep.apply(check_variant, date=date, axis=1)
+        ans.append(next((el for el in res if el is not None),
+                        None))  #get the first non null element of res
+    return ((ans[0][0],ans[0][1] ))
+
+
+df2[['Nb_susp_501Y_V1','Nb_susp_501Y_V2_3']] = df2.apply(enriched_variant, axis=1).apply(pd.Series)
 
 print(df2)
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",\
+           index=False)
+
+print(df2)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+           index=False)
 
 print("\n")
 print("Processing minority data...")
