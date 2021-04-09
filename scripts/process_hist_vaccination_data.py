@@ -1,5 +1,6 @@
 import pandas as pd
 
+print("Processing Vaccination historical data ...")
 df = pd.read_csv("../data/train/vaccination/fr/vaccination_hist_data.csv",
                  sep=";")
 df['departement'] = df['departement'].replace({
@@ -13,6 +14,8 @@ df["date_debut_semaine"] = pd.to_datetime(df["date_debut_semaine"],
 df2 = pd.read_csv(
     "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
     sep=",")
+df2['vac1nb']=0
+df2['vac2nb']=0
 df2["time"] = pd.to_datetime(df2["time"])
 
 dfvac1 = df[df["rang_vaccinal"] == 1].reset_index()
@@ -46,7 +49,7 @@ def enriched_vaccin(row):
     date = row['time']
     depnum = row['numero']
     if date < referencedate1:
-        row['vac1nb'], row['vac2nb'] = 0, 0
+        (first1, first2) = (0, 0)
     else:
         cum1_dep = cum1[cum1['departement'] == depnum]
         res1 = cum1_dep.apply(check_vaccin, date=date, axis=1)
@@ -60,12 +63,10 @@ def enriched_vaccin(row):
         if first2 is None:
             first2 = 0
 
-        row['vac1nb'] = first1
-        row['vac2nb'] = first2
-    return None
+    return ((first1, first2))
 
 
-df2.apply(enriched_vaccin, axis=1)
+df2[['vac1nb','vac2nb' ]] = df2.apply(enriched_vaccin, axis=1).apply(pd.Series)
 print(df2)
 df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
            index=False)

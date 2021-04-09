@@ -86,8 +86,8 @@ features = ['idx', 'pm25', 'no2',
                                  'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg'\
                                      \
                             ]
-
-
+df["time"]=pd.to_datetime(df["time"])
+#df=df[df["time"]>pd.to_datetime("2020-10-20")]
 X1=df[['idx', 'pm25', 'no2']]
 X2=df[features]
 
@@ -97,8 +97,8 @@ print("Average number of new hospitalisations",df['newhospi'].mean())
 print(stats.describe())
 
 # Hold-out
-X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33,random_state = 84)
-X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33,random_state = 84)
+X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33)
+X_train2, X_test2, y_train2, y_test2 = train_test_split(X2, y, test_size=0.33)
 print("\n")
 
 print(" Scikit Learn ExtratreesRegressor")
@@ -118,6 +118,12 @@ print(ETMSE)
 print("MAE")
 print(ETMAE)
 print("\n")
+print("Cross Validation")
+scores = cross_validate(ETregr, X2, y, cv=10,
+                        scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+                         return_train_score=True)
+print(scores["test_neg_mean_squared_error"].mean())
+print(scores["test_neg_mean_absolute_error"].mean())
 
 
 print("T-Pot exported current best pipeline")
@@ -136,6 +142,12 @@ print(TPOTMSE)
 print("MAE:")
 print(TPOTMAE)
 print("\n")
+print("Cross Validation")
+scores = cross_validate(exported_pipeline, X2, y, cv=10,
+                        scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+                         return_train_score=True)
+print(scores["test_neg_mean_squared_error"].mean())
+print(scores["test_neg_mean_absolute_error"].mean())
 
 # print("Scikit Learn RandomForestRegressor without feature engineering")
 # regr = RandomForestRegressor()
@@ -146,18 +158,23 @@ print("\n")
 # print("Average error on new number of hospitalizations per day:", round(RFRMSE ** 0.5,0))
 #print("\n")
 
-# print(" Scikit Learn RandomForestRegressor")
-# regr2 = RandomForestRegressor()
-# regr2.fit(X_train2, y_train2)
-# pred2 = regr2.predict(X_test2).round(0)
-# RFRMSE2 = mse(y_test2, pred2)
-# RFMAE2 = mae(y_test2, pred2)
-# print("MSE:")
-# print(RFRMSE2)
-# print("MAE")
-# print(RFMAE2)
-# print("\n")
-
+print(" Scikit Learn RandomForestRegressor")
+regr2 = RandomForestRegressor()
+regr2.fit(X_train2, y_train2)
+pred2 = regr2.predict(X_test2).round(0)
+RFRMSE2 = mse(y_test2, pred2)
+RFMAE2 = mae(y_test2, pred2)
+print("MSE:")
+print(RFRMSE2)
+print("MAE")
+print(RFMAE2)
+print("\n")
+print("Cross Validation")
+scores = cross_validate(regr2, X2, y, cv=5,
+                        scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+                         return_train_score=True)
+print(scores["test_neg_mean_squared_error"].mean())
+print(scores["test_neg_mean_absolute_error"].mean())
 # print("GradientBoostingRegressor Model")
 # model = GradientBoostingRegressor(
 #     n_estimators=100, 
@@ -257,8 +274,8 @@ joblib.dump(ensemble, filename)
 print("\n")
 print("TPOTRegressor")
 tpot = TPOTRegressor(generations=50, population_size=50, verbosity=2, random_state=42)
-tpot.fit(X_train2, y_train2)
-print(tpot.score(X_test2, y_test2))
+tpot.fit(X2, y)
+#print(tpot.score(X, y_test2))
 tpot.export('tpot_covid_pipeline.py')
 
 print("\n")
