@@ -75,10 +75,10 @@ def compute_avg_conc(row):
                             dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
                             dicco[(row['numero'], pd.to_datetime(str(valuedate)))]))
 
-        if (dateprevday < referencedate):
-            prevdaytothospi = "NaN"
-        else:
-            prevdaytothospi = dictothospi[(row['numero'], dateprevday)]
+    if (dateprevday < referencedate):
+        prevdaytothospi = "NaN"
+    else:
+        prevdaytothospi = dictothospi[(row['numero'], dateprevday)]
 
     cleanedList = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
     cleanedList2 = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist2 if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
