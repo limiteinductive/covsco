@@ -343,7 +343,7 @@ joblib.dump(ensemble, filename)
 
 print("\n")
 print("TPOTRegressor")
-tpot = TPOTRegressor(generations=50, population_size=50, verbosity=2, random_state=42)
+tpot = TPOTRegressor(generations=1, population_size=50, verbosity=2, random_state=42)
 tpot.fit(X2, y)
 #print(tpot.score(X, y_test2))
 tpot.export('tpot_covid_pipeline.py')
