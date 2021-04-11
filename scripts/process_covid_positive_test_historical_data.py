@@ -1,32 +1,63 @@
 import pandas as pd
 from tqdm import tqdm
+import time
+
+def simple_time_tracker(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int(te - ts)
+        else:
+            print(method.__name__, round(te - ts, 2))
+        return result
+    return timed
 # Get Covid Positive Test historical data and merge it by time & departement with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 
 print("Processing Covid Positive Tests (Previous day) ...")
 df = pd.read_csv ("../data/train/covidpostest/fr/covid_pos_test_hist_data.csv", sep =";")
 df2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", sep = ",") 
 df['dep'] = df['dep'].replace({'2A':'201','2B':'202'}).astype(int)
+df= df[df["dep"]<203]
 df["jour"]=pd.to_datetime(df["jour"], dayfirst = True)
 df2["time"]=pd.to_datetime(df2["time"])
-df = df.groupby(["dep","jour"]).sum().reset_index()
-print(df)
+df = df.groupby(["dep","jour"]).sum().sort_values(["dep","jour"]).reset_index()
+dftotalcovidcasescumulated = df.groupby(['dep', 'jour']).sum().groupby(level=0).cumsum().sort_values(["dep","jour"]).reset_index()
+print(dftotalcovidcasescumulated)
 df = df[["dep","jour","P"]]
-covidpostestdayminus1list = []
-for i in tqdm(df.index):
-    date0 = df.loc[i,"jour"]
-    depnum = df.loc[i,"dep"]
-    date1 = date0 -pd.Timedelta("1 days")
-    dayminus1covidpostest  = df[(df["jour"]== date1) & (df["dep"]==depnum)].reset_index()["P"]
-    if list(dayminus1covidpostest)==[]: 
-        covidpostestdayminus1list.append("NaN") 
+df["totalcovidcasescumulated"]=dftotalcovidcasescumulated["P"]
+
+covpostesttuple = (df['dep'], df['jour'], df["P"], df["totalcovidcasescumulated"] )
+diccovpostest = {(i, j) : (k,l) for (i, j, k, l) in zip(*covpostesttuple)}
+
+referencedate = df["jour"].min()
+
+def CovidPosTest(row):
+    date = row['time']
+    date2 = row['time'] - pd.Timedelta("1 days")
+    if (date < referencedate):
+        datatuple = ("NaN","NaN")
     else:
-        covidpostestdayminus1list.append(list(dayminus1covidpostest)[0])
+        datatuple = diccovpostest[(row["numero"],row["time"])]
 
-covidposttest = pd.DataFrame(covidpostestdayminus1list)
-covidposttest.columns =["covidpostestprevday"]
+    if (date2 < referencedate):
+        prevdaycovidpostest = "NaN"
 
-df["covidpostestprevday"]=covidposttest["covidpostestprevday"]
-df2 = df2.merge(df, left_on = ["time","numero"], right_on = ["jour","dep"])
-df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+    else:   
+        prevdaycovidpostest = diccovpostest[(row["numero"], date2)][0]
+
+    return (datatuple[0], datatuple[1], prevdaycovidpostest)
+
+@simple_time_tracker
+def CovidPosTest_to_df(data):
+    data[['CovidPosTest','TotalCovidCasesCumulated','covidpostestprevday']] \
+                = data.apply(CovidPosTest, axis=1).apply(pd.Series)
+    print("\n")
+    return data
+
+df2 =  CovidPosTest_to_df(df2)
 print(df2)
+df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print('OK')
