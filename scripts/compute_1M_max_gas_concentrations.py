@@ -101,8 +101,8 @@ def compute_Engineered_Features(row):
             if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e))) \
                  != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'))]
 
-    avg = [tuple(sum(j) for j in zip(*i)) for i in zip(*cleanedList)]
-    avg2 = [tuple(sum(j) for j in zip(*i)) for i in zip(*cleanedList2)]
+    avg = [tuple(sum(j)/len(cleanedList) for j in zip(*i)) for i in zip(*cleanedList)]
+    avg2 = [tuple(sum(j)/len(cleanedList2) for j in zip(*i)) for i in zip(*cleanedList2)]
     
     return (max(cleanedList,key=itemgetter(0))[0][0],\
             max(cleanedList,key=itemgetter(1))[1][0],\
