@@ -46,9 +46,11 @@ variables = [
     'particulate_matter_10um',
 ]
 
+area = [51.75, -5.83, 41.67,11.03]
+
 
 for date in tqdm(dates):
-    file_name = 'cams-analysis-{:}.nc'.format(date)
+    file_name = 'cams-forecast-{:}.nc'.format(date)
     output_file = os.path.join(save_to,file_name)
     if not os.path.exists(output_file):
         c = cdsapi.Client(url=credentials['url'], key=credentials['key'])
@@ -63,6 +65,7 @@ for date in tqdm(dates):
                 'type': 'analysis',
                 'time': times,
                 'leadtime_hour': '0',
+                'area'          : area
             },
             output_file
         )
