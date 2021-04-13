@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('low_income.csv', sep=';')
+df = pd.read_csv('../data/train/low_income/fr/low_income.csv', sep=';')
 
 df.rename(columns={
     'Corse du sud': 'Corse-du-Sud',
