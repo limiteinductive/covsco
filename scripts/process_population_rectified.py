@@ -11,9 +11,9 @@ dic2021 = {k: v for k, v in zip(pop2021['depname'], pop2021['pop'])}
 
 def rectify_pop(row):
     #print(row['jour'][:4])
-    if row['jour'][:4] == '2020':
+    if row['time'][:4] == '2020':
         ans = dic2020[row['name']]
-    elif row['jour'][:4] == '2021':
+    elif row['time'][:4] == '2021':
         ans = dic2021[row['name']]
     return ans
 

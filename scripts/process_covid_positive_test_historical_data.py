@@ -28,6 +28,7 @@ dftotalcovidcasescumulated = df.groupby(['dep', 'jour']).sum().groupby(level=0).
 print(dftotalcovidcasescumulated)
 df = df[["dep","jour","P"]]
 df["totalcovidcasescumulated"]=dftotalcovidcasescumulated["P"]
+df.to_csv("test.csv", sep =';')
 
 covpostesttuple = (df['dep'], df['jour'], df["P"], df["totalcovidcasescumulated"] )
 diccovpostest = {(i, j) : (k,l) for (i, j, k, l) in zip(*covpostesttuple)}
@@ -40,19 +41,20 @@ def CovidPosTest(row):
     if (date < referencedate):
         datatuple = ("NaN","NaN")
     else:
-        datatuple = diccovpostest[(row["numero"],row["time"])]
+        datatuple = diccovpostest[(row["numero"],date)]
 
     if (date2 < referencedate):
         prevdaycovidpostest = "NaN"
+        prevdaytotalcovidcasescumulated ="Nan"
 
     else:   
         prevdaycovidpostest = diccovpostest[(row["numero"], date2)][0]
-
-    return (datatuple[0], datatuple[1], prevdaycovidpostest)
+        prevdaytotalcovidcasescumulated = diccovpostest[(row["numero"], date2)][1]
+    return (datatuple[0], datatuple[1], prevdaycovidpostest, prevdaytotalcovidcasescumulated)
 
 @simple_time_tracker
 def CovidPosTest_to_df(data):
-    data[['CovidPosTest','TotalCovidCasesCumulated','covidpostestprevday']] \
+    data[['CovidPosTest','totalcovidcasescumulated','covidpostestprevday',"prevdaytotalcovidcasescumulated"]] \
                 = data.apply(CovidPosTest, axis=1).apply(pd.Series)
     print("\n")
     return data
