@@ -1,4 +1,5 @@
 import os
+from datetime import date
 import datetime as dt
 import cdsapi
 import yaml
@@ -6,7 +7,10 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from tqdm import tqdm
+from os import listdir
+from os.path import isfile, join
 import urllib3
+
 urllib3.disable_warnings()
 
 
@@ -31,9 +35,25 @@ print('Download data from CAMS ...', flush=True)
 with open(cams_api, 'r') as f:
     credentials = yaml.safe_load(f)
 
+mypath = "../data/train/cams/analysis/"
+
+def findlatestdateofcamsdata(mypath):
+    dates = []
+    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    for filename in onlyfiles:
+        dates.append(pd.to_datetime(filename[14:24]))
+    print(max(dates))
+    if dates != []:
+        return max(dates)
+    else:
+        return pd.to_datetime("2018-04-12")
+
+prevday = date.today() - pd.Timedelta("1 days")
+startdate =findlatestdateofcamsdata(mypath)
+
 dates = pd.date_range(
-    start="2018-04-12",
-    end='2021-04-11'
+    start=startdate,
+    end= prevday
     ).strftime("%Y-%m-%d").tolist()
 
 times 		= [dt.time(i).strftime('%H:00') for i in range(24)]
