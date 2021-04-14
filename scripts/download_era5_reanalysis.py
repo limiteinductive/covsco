@@ -82,7 +82,7 @@ days 		= np.arange(1,32).tolist()
 times 		= [dt.time(i).strftime('%H:00') for i in range(24)]
 grid 		= [0.01, 0.01]
 # options: eg. 0.25, 0.5, 1.0
-area 		= [70, -15, 30, 40] # choose entire region of Europe
+area = [51.75, -5.83, 41.67,11.03] # choose entire region of Europe
 # full globe: [90, -180, -90, 180]
 
 grid_str    	= 'x'.join([str(r) for r in grid])
