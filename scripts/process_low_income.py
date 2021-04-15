@@ -40,6 +40,6 @@ data['pauvrete'] = data.apply(add_feature, axis=1, feature=pauvrete_dic)
 data['rsa'] = data.apply(add_feature, axis=1, feature=rsa_dic)
 data['ouvriers'] = data.apply(add_feature, axis=1, feature=ouvriers_dic)
 
-print(df)
-df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+print(data)
+data.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
           index=False)

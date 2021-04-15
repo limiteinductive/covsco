@@ -16,6 +16,7 @@ from tqdm import tqdm
 from operator import itemgetter
 import time
 import itertools
+from datetime import date
 
 itertools.imap = lambda *args, **kwargs: list(map(*args, **kwargs))
 # =============================================================================
@@ -108,7 +109,7 @@ print('OK', flush=True)
 print("\n")
 # CAMS #%%
 # -----------------------------------------------------------------------------
-start_date, end_date = ['2020-01-01','2021-04-01']
+start_date, end_date = ['2020-01-01', date.today() - pd.Timedelta("1 days")]
 dates = pd.date_range(start_date, end_date, freq='h')[:-1]
 
 print('Processing CAMS data ... ', flush=True, end='')
@@ -391,6 +392,7 @@ dftotalcovidcasescumulated = df.groupby(['dep', 'jour']).sum().groupby(level=0).
 print(dftotalcovidcasescumulated)
 df = df[["dep","jour","P"]]
 df["totalcovidcasescumulated"]=dftotalcovidcasescumulated["P"]
+df.to_csv("test.csv", sep =';')
 
 covpostesttuple = (df['dep'], df['jour'], df["P"], df["totalcovidcasescumulated"] )
 diccovpostest = {(i, j) : (k,l) for (i, j, k, l) in zip(*covpostesttuple)}
@@ -403,19 +405,20 @@ def CovidPosTest(row):
     if (date < referencedate):
         datatuple = ("NaN","NaN")
     else:
-        datatuple = diccovpostest[(row["numero"],row["time"])]
+        datatuple = diccovpostest[(row["numero"],date)]
 
     if (date2 < referencedate):
         prevdaycovidpostest = "NaN"
+        prevdaytotalcovidcasescumulated ="Nan"
 
     else:   
         prevdaycovidpostest = diccovpostest[(row["numero"], date2)][0]
-
-    return (datatuple[0], datatuple[1], prevdaycovidpostest)
+        prevdaytotalcovidcasescumulated = diccovpostest[(row["numero"], date2)][1]
+    return (datatuple[0], datatuple[1], prevdaycovidpostest, prevdaytotalcovidcasescumulated)
 
 @simple_time_tracker
 def CovidPosTest_to_df(data):
-    data[['CovidPosTest','TotalCovidCasesCumulated','covidpostestprevday']] \
+    data[['CovidPosTest','totalcovidcasescumulated','covidpostestprevday',"prevdaytotalcovidcasescumulated"]] \
                 = data.apply(CovidPosTest, axis=1).apply(pd.Series)
     print("\n")
     return data
@@ -424,6 +427,7 @@ df2 =  CovidPosTest_to_df(df2)
 print(df2)
 df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print('OK')
+
 
 
 
@@ -587,7 +591,7 @@ df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
 
 print("\n")
 print("Processing minority data...")
-data = pd.read_csv('../data/train/pop/fr/minority.csv', sep=';')
+data = pd.read_csv('../data/train/minority/fr/minority.csv', sep=';')
 data.rename(columns={
     'Corse du sud': 'Corse-du-Sud',
     'Haute Corse': 'Haute-Corse',
@@ -611,9 +615,9 @@ def add_minority(row):
 
 df['minority'] = df.apply(add_minority, axis=1)
 print(df)
-df.to_csv(
-    "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
-    index=False)
+df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+          index=False)
+print(df)
 
 print("\n")
 print("Reprocessing population data...")
