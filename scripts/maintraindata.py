@@ -17,6 +17,8 @@ from operator import itemgetter
 import time
 import itertools
 from datetime import date
+from os import listdir
+from os.path import isfile, join
 
 itertools.imap = lambda *args, **kwargs: list(map(*args, **kwargs))
 # =============================================================================
@@ -109,18 +111,29 @@ print('OK', flush=True)
 print("\n")
 # CAMS #%%
 # -----------------------------------------------------------------------------
-start_date, end_date = ['2020-01-01', date.today() - pd.Timedelta("1 days")]
-dates = pd.date_range(start_date, end_date, freq='h')[:-1]
+def findmostancientdateofcamsdata(mypath):
+    dates = []
+    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    for filename in onlyfiles:
+        dates.append(pd.to_datetime(filename[14:24]))
+    if dates != []:
+        return min(dates)
+    else:
+        return "NaN"
+
+filePath = '../data/train/cams/fr/analysis/'
+start_date, end_date = [pd.to_datetime(findmostancientdateofcamsdata(filePath)), date.today()]
+dates = pd.date_range(start_date, end_date, freq='D')[:-1]
 
 print('Processing CAMS data ... ', flush=True, end='')
-filePath = '../data/train/cams/fr/reanalysis/'
+
 cams = xr.open_mfdataset(
-    '../data/train/cams/fr/reanalysis/*',
+    '../data/train/cams/fr/analysis/*.nc',
     combine='nested', concat_dim='time',
     parallel=True)
 # n_time_steps = cams.coords['time'].size
 # dates = dates[:-24]
-cams = cams.drop('level').squeeze()
+#cams = cams.drop('level').squeeze()
 cams = cams.assign_coords(time=dates)
 cams = cams.assign_coords(longitude=(((cams['longitude'] + 180) % 360) - 180))
 cams = cams.sel(longitude=slice(-10,10),latitude=slice(55,40))
@@ -644,3 +657,48 @@ data.to_csv(
     '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv',
     index=False)
 print(data)
+
+print("Computing pm2.5 Pollutions levels")
+df = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+df["time"]=pd.to_datetime(df["time"])
+minpm25 = df["pm25"].min()
+print(minpm25)
+maxpm25 = df["pm25"].max()
+print(maxpm25)
+
+increment = (maxpm25 - minpm25)/4
+pm25levelslist =[]
+for i in range(5):
+    pm25levelslist.append(minpm25 + i * increment)
+print(pm25levelslist)
+
+def pm25levels(row):
+    pm25 = row['pm25']
+    
+    if (pm25 <= pm25levelslist[1]):
+        level = 0
+        levelstring = "Low"
+    elif ((pm25levelslist[1] < pm25) & (pm25levelslist[2] >= pm25)):
+        level = 1
+        levelstring = "Medium"
+    elif ((pm25levelslist[2] < pm25) & (pm25levelslist[3] >= pm25)):
+        level = 2
+        levelstring = "High"
+    else:
+        level = 3
+        levelstring = "Very High"
+          
+    return (level, levelstring)
+
+@simple_time_tracker
+def pm25levels_to_df(data):
+    data[["pm25level","pm25levelstring"]] \
+                = data.apply(pm25levels, axis=1).apply(pd.Series)
+    print("\n")
+    return data
+
+df =  pm25levels_to_df(df)
+print(df)
+print(df[(df['time']==pd.to_datetime('2021-03-31')) & ((df["pm25levelstring"]=="High") | (df["pm25levelstring"]=="Very High"))][["nom","pm25levelstring"]])
+df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+print('OK')

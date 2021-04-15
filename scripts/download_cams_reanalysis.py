@@ -42,18 +42,24 @@ def findlatestdateofcamsdata(mypath):
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     for filename in onlyfiles:
         dates.append(pd.to_datetime(filename[14:24]))
+    
     if dates != []:
-        return max(dates)
+        return (dates, max(dates))
     else:
-        return date.today() - pd.Timedelta("3 years")
+        return (dates, date.today() - pd.Timedelta("3 years"))
 
 prevday = date.today() - pd.Timedelta("1 days")
-startdate =findlatestdateofcamsdata(mypath)
-
-dates = pd.date_range(
+startdate =findlatestdateofcamsdata(mypath)[1]
+#startdate = pd.to_datetime("2020-01-01")
+datesnotclean = pd.date_range(
     start=startdate,
     end= prevday
     ).strftime("%Y-%m-%d").tolist()
+dates = []
+
+for date in datesnotclean:
+    if date not in findlatestdateofcamsdata(mypath)[0]:
+        dates.append(date)
 
 print(dates)
 times 		= [dt.time(i).strftime('%H:00') for i in range(24)]
