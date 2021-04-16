@@ -5,8 +5,9 @@ import numpy as np
 import csv
 from zipfile import ZipFile
 import os
+from utilities import download_url
+import subprocess
 
-from scripts.utilities import download_url
 
 Configuration.create(hdx_site='prod',
                      user_agent='A_Quick_Example',
@@ -29,7 +30,13 @@ with ZipFile(file_mobility, 'r') as zip:
     zip.extract(mvt_range)
     print('Done!')
 
-with open(mvt_range) as f:
+os.system("""grep "FRA" """+ mvt_range + """ > mouvement-range-FRA.txt""")
+os.system("""head -n 1 """+ mvt_range + """ >> header.txt""")
+os.system("""cat header.txt mouvement-range-FRA.txt >mouvement-range-FRA-final.txt""")
+
+mvt_range_final = "mouvement-range-FRA-final.txt"
+
+with open(mvt_range_final) as f:
     reader = csv.reader(f, delimiter="\t")
     d = list(reader)
 
