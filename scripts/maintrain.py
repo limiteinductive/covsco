@@ -89,15 +89,27 @@ features = ['idx', 'pm25', 'no2',
                                  'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg'\
                                      \
                             ]
+
+featurespm25 = ['idx', 'pm25',\
+    'pm257davg',\
+        #"normpm25",\
+        #'hospiprevday','covidpostestprevday','prevdaytotalcovidcasescumulated',\
+            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
+                 'Insuffisance respiratoire chronique grave (ALD14)', \
+                     'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                         'Smokers',\
+                         "minority",\
+                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",
+                                 '1MMaxpm25',\
+                                 'pm251Mavg'\
+                            ]
+
 df["time"]=pd.to_datetime(df["time"])
 #df=df[df["time"]>pd.to_datetime("2020-10-20")]
 X1=df[['idx', 'pm25', 'no2']]
-X2=df[features]
+X2=df[featurespm25]
 
 y= df['newhospi']
-stats = df[["newhospi"]]
-print("Average number of new hospitalisations",df['newhospi'].mean())
-print(stats.describe())
 
 # Hold-out
 X_train, X_test, y_train, y_test = train_test_split(X1, y, test_size=0.33)
@@ -304,7 +316,7 @@ print("XGBoost Feature importance report:")
 FIlist = xgb_model.feature_importances_.tolist()
 FIlistdf = pd.DataFrame(FIlist)
 FIlistdf = FIlistdf.T
-FIlistdf.columns = features
+FIlistdf.columns = featurespm25
 FIlistdf = FIlistdf.T
 FIlistdf.columns = ["feature_importance"]
 FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
@@ -320,7 +332,7 @@ print("SCIKIT Learn's Gradient Boosting Regressor Feature Importance report:")
 FIlist = GBR1.feature_importances_.tolist()
 FIlistdf = pd.DataFrame(FIlist)
 FIlistdf = FIlistdf.T
-FIlistdf.columns = features
+FIlistdf.columns = featurespm25
 FIlistdf = FIlistdf.T
 FIlistdf.columns = ["feature_importance"]
 FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)

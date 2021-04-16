@@ -15,7 +15,7 @@ urllib3.disable_warnings()
 
 
 work_dir = os.path.dirname(os.path.abspath(__file__))
-save_to = os.path.join(work_dir, '../data/train/cams/analysis')
+save_to = os.path.join(work_dir, '../data/train/cams/fr/analysis')
 if not os.path.exists(save_to):
     os.makedirs(save_to)
 
@@ -35,27 +35,33 @@ print('Download data from CAMS ...', flush=True)
 with open(cams_api, 'r') as f:
     credentials = yaml.safe_load(f)
 
-mypath = "../data/train/cams/analysis/"
+mypath = "../data/train/cams/fr/analysis/"
 
 def findlatestdateofcamsdata(mypath):
     dates = []
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     for filename in onlyfiles:
         dates.append(pd.to_datetime(filename[14:24]))
-    print(max(dates))
+    
     if dates != []:
-        return max(dates)
+        return (dates, max(dates))
     else:
-        return pd.to_datetime("2018-04-12")
+        return (dates, date.today() - pd.Timedelta("3 years"))
 
 prevday = date.today() - pd.Timedelta("1 days")
-startdate =findlatestdateofcamsdata(mypath)
-
-dates = pd.date_range(
+startdate =findlatestdateofcamsdata(mypath)[1]
+#startdate = pd.to_datetime("2020-01-01")
+datesnotclean = pd.date_range(
     start=startdate,
     end= prevday
     ).strftime("%Y-%m-%d").tolist()
+dates = []
 
+for date in datesnotclean:
+    if date not in findlatestdateofcamsdata(mypath)[0]:
+        dates.append(date)
+
+print(dates)
 times 		= [dt.time(i).strftime('%H:00') for i in range(24)]
 
 variables = [
