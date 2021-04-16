@@ -238,19 +238,19 @@ loc='left', pad=-60)
 
 fig.subplots_adjust(bottom=.01, left=.01, right=.99, top=.99)
 plt.show()
-# buffer = io.BytesIO()
-# plt.savefig(buffer, format='png', dpi=70)
-# buffer.seek(0)
-# images.append(imageio.imread(buffer))
-# buffer.close()
-# plt.close()
+buffer = io.BytesIO()
+plt.savefig(buffer, format='png', dpi=70)
+buffer.seek(0)
+images.append(imageio.imread(buffer))
+buffer.close()
+plt.close()
 
 #endpart
 
-# print('Create gif ...', flush=True, end='')
-# gifPath = '../forecast/fr/'
-# gifName = 'covid-risk-fc-{:}.gif'.format(currentDate)
-# kargs = { 'duration': .2 }
-# imageio.mimwrite(gifPath + gifName, images, 'GIF', **kargs)
-# print('OK')
-# print('Finished.')
+print('Create gif ...', flush=True, end='')
+gifPath = '../forecast/fr/'
+gifName = 'covid-risk-fc-{:}.gif'.format(currentDate)
+kargs = { 'duration': .2 }
+imageio.mimwrite(gifPath + gifName, images, 'GIF', **kargs)
+print('OK')
+print('Finished.')
