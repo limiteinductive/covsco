@@ -1,0 +1,13 @@
+name: covsco
+dependencies:
+  - numpy
+  - pandas
+  - xgboost
+  - tpot
+  - tensorflow
+  - joblib
+  - matplotlib
+  - nbconvert
+  - pip
+  - cartopy
+
