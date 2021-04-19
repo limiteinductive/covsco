@@ -23,7 +23,7 @@ class InitialLive:
         return self
 
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     prediction = InitialLive()
     print(
         'Getting the initial_prediction file in "../data/preidction/prediction_data.csv"'
