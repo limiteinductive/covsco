@@ -42,4 +42,4 @@ def live_vacc_2(row):
 prediction_data = pd.read_csv('../data/prediction/prediction_data.csv')
 prediction_data['vacc_1'] = prediction_data.apply(live_vacc_1, axis=1)
 prediction_data['vacc_2'] = prediction_data.apply(live_vacc_2, axis=1)
-prediction_data.to_csv('../data/prediction/predictiondata.csv', index=False)
+prediction_data.to_csv('../data/prediction/prediction_data.csv', index=False)
