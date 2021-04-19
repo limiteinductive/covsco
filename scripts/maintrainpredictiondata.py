@@ -12,6 +12,7 @@ from utilities import download_url
 from download_initial_live_prediction import InitialLive
 from download_live_mobility_i import LiveMobility
 from download_live_vaccins_i import LiveVaccin
+from download_live_test_positive import LiveTest
 
 
 class PredictionData:
@@ -57,17 +58,31 @@ class PredictionData:
         self.data.to_csv('../data/prediction/prediction_data.csv', index=False)
         return self
 
+    def add_positive_test(self):
+        livetest = LiveTest()
+        print('Getting file')
+        livetest.get_data()
+        print('Preprocessing positive test')
+        livetest.preprocess_positive_test()
+        self.data['positive_test'] = self.data.apply(
+            livetest.add_positive_test, axis=1)
+        self.data.to_csv('../data/prediction/prediction_data.csv', index=False)
+        return self
+
 
 if __name__ == '__main__':
     prediction = PredictionData()
 
-    print('get initial data')
+    print('1.Get initial data')
     prediction.get_initial_file()
 
-    print('add mobility')
+    print('2.Add mobility')
     prediction.add_mobility()
 
-    print('add vaccination')
+    print('3.Add vaccination')
     prediction.add_vaccination()
+
+    print('4.Add positive_tests')
+    prediction.add_positive_test()
 
     print(prediction.data)
