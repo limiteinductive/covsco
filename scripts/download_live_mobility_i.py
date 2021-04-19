@@ -86,8 +86,8 @@ class LiveMobility:
         self.initial_data = pd.read_csv(
             '../data/prediction/prediction_data.csv')
 
-        self.initial_data['stay_put'] = 0.0
-        self.initial_data['go_out'] = 0.0
+        # self.initial_data['stay_put'] = 0.0
+        # self.initial_data['go_out'] = 0.0
 
         self.initial_data['go_out'] = self.initial_data.apply(self.add_go_out,
                                                               axis=1)
