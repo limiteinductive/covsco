@@ -10,7 +10,7 @@ from zipfile import ZipFile
 import os
 from utilities import download_url
 
-# ----------------
+# ----------------------------------------------------------------------------------------
 
 ### INITIATE PREDICTION FILE
 prediction_data = pd.read_csv('../data/train/pop/fr/departements-francais.csv',
@@ -25,7 +25,7 @@ prediction_data['region'] = prediction_data['region'].replace(
 
 prediction_data.to_csv('../data/prediction/prediction_data.csv')
 
-# -------------------------
+# ----------------------------------------------------------------------------------------
 
 ### ADD LIVE MOBILITY
 
@@ -94,7 +94,7 @@ prediction_data['stay_put'] = prediction_data.apply(add_stay_put, axis=1)
 
 prediction_data.to_csv('../data/prediction/prediction_data.csv', index=False)
 
-# -------------------------
+# ----------------------------------------------------------------------------------------
 
 ### ADD LIVE VACCINATION
 
@@ -137,3 +137,7 @@ def live_vacc_2(row):
 prediction_data['vacc_1'] = prediction_data.apply(live_vacc_1, axis=1)
 prediction_data['vacc_2'] = prediction_data.apply(live_vacc_2, axis=1)
 prediction_data.to_csv('../data/prediction/prediction_data.csv', index=False)
+
+# ----------------------------------------------------------------------------------------
+
+### ADD LIVE TEST POSITIVE

@@ -3,8 +3,8 @@ import numpy as np
 
 from utilities import download_url
 
-url_positive_test = 'https://www.data.gouv.fr/es/datasets/r/59aeab47-c364-462c-9087-ce233b6acbbc'
-download_url(url_positive_test, '../data/prediction/live_vaccins.csv')
+url_vacc = 'https://www.data.gouv.fr/es/datasets/r/59aeab47-c364-462c-9087-ce233b6acbbc'
+download_url(url_vacc, '../data/prediction/live_vaccins.csv')
 
 live_vacc = pd.read_csv('../data/prediction/live_vaccins.csv')
 live_vacc['date_debut_semaine'] = pd.to_datetime(
