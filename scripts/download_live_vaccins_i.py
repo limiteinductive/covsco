@@ -8,8 +8,8 @@ download_url(url_positive_test, '../data/prediction/live_vaccins.csv')
 
 live_vacc = pd.read_csv('../data/prediction/live_vaccins.csv')
 live_vacc['date_debut_semaine'] = pd.to_datetime(
-    vacc_1_reg['date_debut_semaine'])
-date_max = vacc_1_reg['date_debut_semaine'].max()
+    live_vacc['date_debut_semaine'])
+date_max = live_vacc['date_debut_semaine'].max()
 
 vacc_1 = live_vacc[live_vacc['rang_vaccinal'] == 1]
 vacc_2 = live_vacc[live_vacc['rang_vaccinal'] == 2]
