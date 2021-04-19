@@ -14,6 +14,7 @@ def simple_time_tracker(method):
         return result
     return timed
 
+print("Computing pm2.5 Pollutions levels")
 df = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
 df["time"]=pd.to_datetime(df["time"])
 minpm25 = df["pm25"].min()
@@ -54,6 +55,6 @@ def pm25levels_to_df(data):
 
 df =  pm25levels_to_df(df)
 print(df)
-print(df[(df['time']==pd.to_datetime('2021-03-31')) & ((df["pm25levelstring"]=="High") | (df["pm25levelstring"]=="Very High"))][["nom","pm25levelstring"]])
+print(df[(df['time']==df["time"].max()) & ((df["pm25levelstring"]=="High") | (df["pm25levelstring"]=="Very High"))][["nom","pm25levelstring"]])
 df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
 print('OK')

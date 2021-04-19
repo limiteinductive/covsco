@@ -17,24 +17,24 @@ resources = dataset.get_resources()
 dic = resources[1]
 url_mobility = dic['download_url']
 
-file_mobility = "mvt_range.zip"
+file_mobility = "../data/train/mobility/fr/mvt_range.zip"
 download_url(url_mobility, file_mobility)
 
-with ZipFile(file_mobility, 'r') as zip:
+with ZipFile(file_mobility, 'r') as zipf:
     # printing all the contents of the zip file
-    zip.printdir()
+    zipf.printdir()
 
     # extracting all the files
     print('Extracting mv_range file now...')
-    mvt_range = zip.namelist()[-1]
-    zip.extract(mvt_range)
+    mvt_range = zipf.namelist()[-1]
+    zipf.extract(mvt_range,"../data/train/mobility/fr/")
     print('Done!')
 
 os.system("""grep "FRA" """+ mvt_range + """ > mouvement-range-FRA.txt""")
 os.system("""head -n 1 """+ mvt_range + """ >> header.txt""")
-os.system("""cat header.txt mouvement-range-FRA.txt >mouvement-range-FRA-final.txt""")
+os.system("""cat header.txt mouvement-range-FRA.txt >mouvement-range-FRA-final.csv""")
 
-mvt_range_final = "mouvement-range-FRA-final.txt"
+mvt_range_final = "mouvement-range-FRA-final.csv"
 
 with open(mvt_range_final) as f:
     reader = csv.reader(f, delimiter="\t")
