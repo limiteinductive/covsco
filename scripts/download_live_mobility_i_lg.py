@@ -8,7 +8,6 @@ import os
 from utilities import download_url
 import subprocess
 
-
 Configuration.create(hdx_site='prod',
                      user_agent='A_Quick_Example',
                      hdx_read_only=True)
@@ -17,7 +16,7 @@ resources = dataset.get_resources()
 dic = resources[1]
 url_mobility = dic['download_url']
 
-file_mobility = "mvt_range.zip"
+file_mobility = "../data/prediction/mvt_range.zip"
 download_url(url_mobility, file_mobility)
 
 with ZipFile(file_mobility, 'r') as zip:
@@ -30,9 +29,11 @@ with ZipFile(file_mobility, 'r') as zip:
     zip.extract(mvt_range)
     print('Done!')
 
-os.system("""grep "FRA" """+ mvt_range + """ > mouvement-range-FRA.txt""")
-os.system("""head -n 1 """+ mvt_range + """ >> header.txt""")
-os.system("""cat header.txt mouvement-range-FRA.txt >mouvement-range-FRA-final.txt""")
+os.system("""grep "FRA" """ + mvt_range + """ > mouvement-range-FRA.txt""")
+os.system("""head -n 1 """ + mvt_range + """ >> header.txt""")
+os.system(
+    """cat header.txt mouvement-range-FRA.txt >mouvement-range-FRA-final.txt"""
+)
 
 mvt_range_final = "mouvement-range-FRA-final.txt"
 
@@ -80,5 +81,4 @@ def add_stay_put(row):
 prediction_data['go_out'] = prediction_data.apply(add_go_out, axis=1)
 prediction_data['stay_put'] = prediction_data.apply(add_stay_put, axis=1)
 
-prediction_data.to_csv('../data/train/all_data_merged/fr/prediction_data.csv',
-                       index=False)
+prediction_data.to_csv('../data/prediction/prediction_data.csv', index=False)
