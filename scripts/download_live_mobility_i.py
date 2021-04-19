@@ -6,7 +6,6 @@ import csv
 from zipfile import ZipFile
 import os
 from utilities import download_url
-from download_initial_prediction import InitialLive
 import subprocess
 
 

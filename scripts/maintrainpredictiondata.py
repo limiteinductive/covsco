@@ -9,7 +9,7 @@ import csv
 from zipfile import ZipFile
 import os
 from utilities import download_url
-from download_initial_prediction import InitialLive
+from download_initial_live_prediction import InitialLive
 from download_live_mobility_i import LiveMobility
 from download_live_vaccins_i import LiveVaccin
 
