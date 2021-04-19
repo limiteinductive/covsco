@@ -83,9 +83,8 @@ class LiveMobility:
         return float(list(stay_put)[0])
 
     def process_mobility(self):
-        initial = InitialLive()
-        initial.get_data()
-        self.initial_data = initial.data
+        self.initial_data = pd.read_csv(
+            '../data/prediction/prediction_data.csv')
 
         self.initial_data['stay_put'] = 0.0
         self.initial_data['go_out'] = 0.0
