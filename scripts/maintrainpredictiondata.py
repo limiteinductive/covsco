@@ -23,9 +23,12 @@ prediction_data = prediction_data[:-5]
 prediction_data['region'] = prediction_data['region'].replace(
     {'Ile-de-France': 'Île-de-France'})
 
-prediction_data.to_csv('../data/predictiondata.csv')
+prediction_data.to_csv('../data/prediction/prediction_data.csv')
+
+# -------------------------
 
 ### ADD LIVE MOBILITY
+
 Configuration.create(hdx_site='prod',
                      user_agent='A_Quick_Example',
                      hdx_read_only=True)
@@ -34,7 +37,7 @@ resources = dataset.get_resources()
 dic = resources[1]
 url_mobility = dic['download_url']
 
-file_mobility = "mvt_range.zip"
+file_mobility = "../data/prediction/mvt_range.zip"
 download_url(url_mobility, file_mobility)
 
 with ZipFile(file_mobility, 'r') as zip:
@@ -89,4 +92,48 @@ def add_stay_put(row):
 prediction_data['go_out'] = prediction_data.apply(add_go_out, axis=1)
 prediction_data['stay_put'] = prediction_data.apply(add_stay_put, axis=1)
 
-prediction_data.to_csv('../data/predictiondata.csv')
+prediction_data.to_csv('../data/prediction/prediction_data.csv', index=False)
+
+# -------------------------
+
+### ADD LIVE VACCINATION
+
+url_positive_test = 'https://www.data.gouv.fr/es/datasets/r/59aeab47-c364-462c-9087-ce233b6acbbc'
+download_url(url_positive_test, '../data/prediction/live_vaccins.csv')
+
+live_vacc = pd.read_csv('../data/prediction/live_vaccins.csv')
+live_vacc['date_debut_semaine'] = pd.to_datetime(
+    live_vacc['date_debut_semaine'])
+date_max = live_vacc['date_debut_semaine'].max()
+
+vacc_1 = live_vacc[live_vacc['rang_vaccinal'] == 1]
+vacc_2 = live_vacc[live_vacc['rang_vaccinal'] == 2]
+
+
+def live_vacc_1(row):
+    dep = row['dep_num']
+    vacc_1_reg = vacc_1[vacc_1['code_region'] == dep]
+    if vacc_1_reg.shape[0] != 0:
+        nb_series = vacc_1_reg[vacc_1_reg['date_debut_semaine'] ==
+                               date_max]['nb']
+        nb = list(nb_series)[0]
+    else:
+        nb = 0
+    return nb
+
+
+def live_vacc_2(row):
+    dep = row['dep_num']
+    vacc_2_reg = vacc_2[vacc_2['code_region'] == dep]
+    if vacc_2_reg.shape[0] != 0:
+        nb_series = vacc_2_reg[vacc_2_reg['date_debut_semaine'] ==
+                               date_max]['nb']
+        nb = list(nb_series)[0]
+    else:
+        nb = 0
+    return nb
+
+
+prediction_data['vacc_1'] = prediction_data.apply(live_vacc_1, axis=1)
+prediction_data['vacc_2'] = prediction_data.apply(live_vacc_2, axis=1)
+prediction_data.to_csv('../data/prediction/prediction_data.csv', index=False)
