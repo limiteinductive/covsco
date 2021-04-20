@@ -59,6 +59,12 @@ class LiveMobility:
 
         data_mob = pd.DataFrame(d[1:], columns=d[0])
         data_mob = data_mob[data_mob['country'] == 'FRA']
+        data_mob['polygon_name'] = data_mob['polygon_name'].replace(
+            {'Ile-de-France': 'Île-de-France',\
+        '-le-de-France': 'Île-de-France',\
+        "Auvergne-Rh-ne-Alpes":"Auvergne-Rhône-Alpes",\
+        "Bourgogne-Franche-Comt-":"Bourgogne-Franche-ComtÃ©",\
+        "Provence-Alpes-C-te d'Azur":"Provence-Alpes-Côte d'Azur"})
 
         #get df with latest data for all regions
         self.data = data_mob[data_mob['ds'] == list(data_mob.iloc[[-1]]['ds'])
