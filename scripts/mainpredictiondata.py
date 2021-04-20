@@ -13,6 +13,7 @@ from download_initial_live_prediction import InitialLive
 from download_live_mobility_i import LiveMobility
 from download_live_vaccins_i import LiveVaccin
 from download_live_test_positive import LiveTest
+from download_live_variants import LiveVariant
 
 
 class PredictionData:
@@ -47,8 +48,10 @@ class PredictionData:
     def add_vaccination(self):
         """ add live vaccination """
         live_vacc = LiveVaccin()
+
         print('Getting file')
         live_vacc.get_file()
+
         print('Preprocessing Mobility')
         live_vacc.preprocess_vaccin()
 
@@ -59,13 +62,31 @@ class PredictionData:
         return self
 
     def add_positive_test(self):
+        """ add positive tests"""
         livetest = LiveTest()
+
         print('Getting file')
         livetest.get_data()
+
         print('Preprocessing positive test')
         livetest.preprocess_positive_test()
+
+        print('Processing Vaccin with Prediction')
         self.data['positive_test'] = self.data.apply(
             livetest.add_positive_test, axis=1)
+        self.data.to_csv('../data/prediction/prediction_data.csv', index=False)
+        return self
+
+    def add_variant(self):
+        """ add variants """
+        live_variant = LiveVariant()
+        print('Getting file')
+        live_variant.get_file()
+        print('Preprocessing variants')
+        live_variant.preprocess_variant()
+        print('Processing variants')
+        self.data['variant_1'] = self.data.apply(live_variant.add_V1, axis=1)
+        self.data['variant_2'] = self.data.apply(live_variant.add_V2, axis=1)
         self.data.to_csv('../data/prediction/prediction_data.csv', index=False)
         return self
 
@@ -84,5 +105,8 @@ if __name__ == '__main__':
 
     print('4.Add positive_tests')
     prediction.add_positive_test()
+
+    print('5.Add variants')
+    prediction.add_variant()
 
     print(prediction.data)
