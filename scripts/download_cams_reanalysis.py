@@ -35,7 +35,7 @@ print('Download data from CAMS ...', flush=True)
 with open(cams_api, 'r') as f:
     credentials = yaml.safe_load(f)
 
-mypath = "../data/train/cams/fr/analysis/"
+mypath = "../data/train/cams/fr/forecast/"
 
 def findlatestdateofcamsdata(mypath):
     dates = []
@@ -46,9 +46,9 @@ def findlatestdateofcamsdata(mypath):
     if dates != []:
         return (dates, max(dates))
     else:
-        return (dates, date.today() - pd.Timedelta("3 years"))
+        return (dates, dt.date.today() - pd.Timedelta("3 Y"))
 
-prevday = date.today() - pd.Timedelta("1 days")
+prevday = dt.date.today() - pd.Timedelta("1 days")
 startdate =findlatestdateofcamsdata(mypath)[1]
 #startdate = pd.to_datetime("2020-01-01")
 datesnotclean = pd.date_range(
@@ -62,7 +62,7 @@ for date in datesnotclean:
         dates.append(date)
 
 print(dates)
-times 		= [dt.time(i).strftime('%H:00') for i in range(24)]
+#times 		= [dt.time(i).strftime('%H:00') for i in range(24)]
 
 variables = [
     'carbon_monoxide',
@@ -80,27 +80,47 @@ for date in tqdm(dates):
     output_file = os.path.join(save_to,file_name)
     if not os.path.exists(output_file):
         c = cdsapi.Client(url=credentials['url'], key=credentials['key'])
+        # c.retrieve(
+        #     'cams-europe-air-quality-forecasts',
+        #     {
+        #         'model': 'ensemble',
+        #         'date': date,
+        #         'format': 'netcdf',
+        #         'variable': variables,
+        #         'level': '0',
+        #         'type': 'analysis',
+        #         'time': times,
+        #         'leadtime_hour': '0',
+        #         'area'          : area
+        #     },
+        #     output_file
+        # )
         c.retrieve(
-            'cams-europe-air-quality-forecasts',
+            'cams-global-atmospheric-composition-forecasts',
             {
-                'model': 'ensemble',
                 'date': date,
+                'type': 'forecast',
+                #'format': 'netcdf_zip',
                 'format': 'netcdf',
-                'variable': variables,
-                'level': '0',
-                'type': 'analysis',
-                'time': times,
-                'leadtime_hour': '0',
-                'area'          : area
+                'variable': [
+                    'particulate_matter_10um', 'particulate_matter_2.5um', 'total_column_carbon_monoxide',
+                    'total_column_nitrogen_dioxide', 'total_column_ozone',
+                ],
+                'time': '12:00',
+                'leadtime_hour': [
+                    '0', '120', '24',
+                    '48', '72', '96',
+                ],
+                'area': area
             },
             output_file
         )
 
         ds = xr.open_dataset(output_file)
         ds.close()
-        ds= ds.mean('time').drop('level').squeeze()
-        xdates = xr.DataArray(dates, dims=['time'], coords={'time': dates}, name='time')
-        ds = ds.expand_dims(time=xdates).sel(time=date)
+        #ds= ds.mean('time').drop('level').squeeze()
+        #xdates = xr.DataArray(dates, dims=['time'], coords={'time': dates}, name='time')
+        #ds = ds.expand_dims(time=xdates).sel(time=date)
         ds.to_netcdf(output_file)
 
 print('Download finished.', flush=True)
