@@ -20,7 +20,7 @@ class LiveVariant:
         download_url(self.url, self.file_name)
         return self
 
-    def replace_dep(elf, row):
+    def replace_dep(self, row):
         if type(row['dep']) != int:
             return int(row['dep'].replace('2A', '201').replace('2B', '202'))
 
