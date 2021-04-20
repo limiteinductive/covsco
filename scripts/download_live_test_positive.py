@@ -22,17 +22,14 @@ class LiveTest:
         self.data = pd.DataFrame(my_list[1:], columns=my_list[0])
         return self
 
-    def replace_dep(self, row):
-        if type(row['dep']) != int:
-            row['dep'] = int(row['dep'].replace('2A',
-                                                '201').replace('2B', '202'))
-        return None
+    def replace_dep(self, row):  
+        return int(row['dep'].replace('2A','201').replace('2B', '202')) 
 
     def P_to_int(self, row):
         return int(row['P'])
 
     def preprocess_positive_test(self):
-        self.data.apply(self.replace_dep, axis=1)
+        self.data['dep'] = self.data.apply(self.replace_dep, axis=1)
         self.data['P'] = self.data.apply(self.P_to_int, axis=1)
 
         self.data = self.data[self.data["dep"] < 203]
