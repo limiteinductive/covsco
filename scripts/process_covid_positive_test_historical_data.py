@@ -20,29 +20,15 @@ class process_covid_positive_test_historical_data:
     def CovidPosTest(self, row):
         date = row['date']
         date2 = row['date'] - pd.Timedelta("1 days")
-        maxdate = self.df2["date"].max()
         referencedate = self.df["jour"].min()
-        now = datetime.now()
-        current_time_hour = int(now.strftime("%H"))
-        week_days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-        if(((date == maxdate)|
-            (date == maxdate - pd.Timedelta("1 days"))| 
-            (date == maxdate - pd.Timedelta("2 days"))|
-            (date == maxdate - pd.Timedelta("3 days"))) & ((week_days[date.weekday()]=="Saturday") |
-                                                        (week_days[date.weekday()]=="Sunday") |
-                                                        ((week_days[date.weekday()]=="Monday") & current_time_hour < 12))):
+        maxdatecovidpostest = self.df["jour"].max()
 
-            if week_days[date.weekday()]=="Saturday":
-                date = row['date'] - pd.Timedelta("2 days")
-                date2 = row['date'] - pd.Timedelta("3 days")
-            elif (week_days[date.weekday()]=="Sunday"):
-                date = row['date'] - pd.Timedelta("3 days")
-                date2 = row['date'] - pd.Timedelta("4 days")
-            elif ( (week_days[date.weekday()]=="Monday") & current_time_hour < 12):
-                date = row['date'] - pd.Timedelta("4 days")
-                date2 = row['date'] - pd.Timedelta("5 days")
+        if (date >= maxdatecovidpostest):
+            date = maxdatecovidpostest   
+
+        if (date2 >= maxdatecovidpostest):
+            date2 = maxdatecovidpostest   
             
-
         if (date < referencedate):
             datatuple = ("NaN","NaN")
         else:
