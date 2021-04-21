@@ -27,6 +27,12 @@ from zipfile import ZipFile
 from utilities import download_url
 import subprocess
 import time
+from compute_engineered_features import Compute_Engineered_Features_for_df
+from process_population_historical_data import process_population_hist
+from download_covid_hist_data import download_covid_hist_data
+from process_covid_historical_data import process_covid_historical_data
+from download_cams_forecast import download_cams_forecast
+
 itertools.imap = lambda *args, **kwargs: list(map(*args, **kwargs))
 # =============================================================================
 # Functions #%%
@@ -54,185 +60,27 @@ def simple_time_tracker(method):
 
 # Population
 # -----------------------------------------------------------------------------
-def parse_dsm(coord):
-    deg, min, sec, dir = re.split('[°\'"]', coord)
-    dd = float(deg) + (float(min)/60) + (float(sec)/60/60)
-    if (dir == 'W') | (dir == 'S'):
-        dd *= -1
-    return dd
+
 # =============================================================================
 # Data
 # =============================================================================
 print('Processing Population data ... ', flush=True, end='')
-population  = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
-population.columns = ['dep_num', 'name', 'region', 'capital', 'area', 'total', 'density']
-#population['dep_num'] = population['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
-population = population.sort_values('dep_num')
-population = population[:-5]
-
-
-dep_centre = pd.read_excel(
-    '../data/train/pop/fr/Centre_departement.xlsx',
-    engine='openpyxl', header=1, usecols=[0,1,2,3,4])
-dep_centre.columns = ['dep_num','name','area', 'lon', 'lat']
-dep_centre['dep_num'] = dep_centre['dep_num'].replace({'2A':'201','2B':'202'}).astype(int)
-dep_centre = dep_centre.sort_values('dep_num')
-dep_centre['lon'] = dep_centre['lon'].apply(lambda x: parse_dsm(x))
-dep_centre['lat'] = dep_centre['lat'].apply(lambda x: parse_dsm(x))
-dep_centre = dep_centre.merge(population, on=['dep_num'], how='outer')
-dep_centre = dep_centre.drop(columns=['name_x', 'area_x', 'region'])
-dep_centre.columns = ['dep_num','lon','lat','name','captial','area','total','density']
-
-dep_centre.to_csv('../data/train/pop/fr/population_2020.csv', index=False)
-
-population  = pd.read_csv('../data/train/pop/fr/population_2020.csv')
-
-# Population Index
-# Min-Max-normalized values of the log10 transformation
-#population['idx'] = max_normalize(np.log10(population['total']))
-population['idx'] = population['total']
-population.reset_index(inplace = True, drop=True)
-print('OK', flush=True)
-
-print("\n")
+GetPopulationData = process_population_hist()
+GetPopulationData.get_data()
 # Covid #%%
 # -----------------------------------------------------------------------------
 print('Processing Covid data ... ', flush=True, end='')
-filePath = '../data/train/covid/fr/'
-fileName = 'Covid_data_history.csv'
-os.system("""python download_covid_hist_data.py""")
-covid = pd.read_csv(filePath + fileName, sep=',').dropna()
-covid['date'] = pd.to_datetime(covid['date'])
-# rename departments of la Corse to assure integer
-#covid['numero'] = covid['numero'].replace({'2A':'201','2B':'202'}).astype(int)
-
-# remove oversea departments
-covid = covid[covid['numero']<203]
-
-# take 1-week moving average and take today's values
-# covid = covid.groupby('dep').rolling(window=7).mean()
-# covid = covid.groupby(level=0).tail(1).reset_index(drop=True)
-
-# add lon/lat + population index to covid dataframe
-covid = covid.merge(population, how='inner', left_on='numero', right_on='dep_num')
-print('OK', flush=True)
-print("\n")
+CovidHistData = download_covid_hist_data()
+CovidHistData.GetData()
+ProcessCovidHistoricalData = process_covid_historical_data()
+ProcessCovidHistoricalData.process_covid_hist_data()
 # CAMS #%%
 # -----------------------------------------------------------------------------
-def findmostancientdateofcamsdata(mypath):
-    dates = []
-    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    for filename in onlyfiles:
-        dates.append(pd.to_datetime(filename[14:24]))
-    if dates != []:
-        return min(dates)
-    else:
-        return "NaN"
+print('Downloading Cams Forecast Data')
+CamsHistForecasts = download_cams_forecast()
+CamsHistForecasts.download()
 
-os.system("""python download_cams_reanalysis.py""")
-filePath = '../data/train/cams/fr/analysis/'
-start_date, end_date = [pd.to_datetime(findmostancientdateofcamsdata(filePath)), date.today() -pd.Timedelta("1 Days")]
-dates = pd.date_range(start_date, end_date, freq='D')[:-1]
-
-print('Processing CAMS data ... ', flush=True, end='')
-
-cams = xr.open_mfdataset(
-    '../data/train/cams/fr/analysis/*.nc',
-    combine='nested', concat_dim='time',
-    parallel=True)
-# n_time_steps = cams.coords['time'].size
-# dates = dates[:-24]
-#cams = cams.drop('level').squeeze()
-cams = cams.assign_coords(time=dates)
-cams = cams.assign_coords(longitude=(((cams['longitude'] + 180) % 360) - 180))
-cams = cams.sel(longitude=slice(-10,10),latitude=slice(55,40))
-cams = cams.sortby('longitude')
-
-# CAMS is hourly ==> take daily means
-cams = cams.resample({'time':'D'}).mean()
-print(cams)
-# there seems to be a pretty annoying issue with dask.array
-# somehow I cannot manage to convert the dask.array to
-# a standard xarray.DataArray; unfortunately, xarray.interp()
-# seem not yet to work with dask.array; Therefore, as a workaround, I recreate
-# a DataArray from scratch to assure that is a standard DataArray and no
-# dask.array
-# another minor issue here is that this workaround is only possible for each
-# variable individually; really annoying....
-pm25 = xr.DataArray(
-    cams.pm2p5_conc.values,
-    dims=['time','latitude','longitude'],
-    coords = {
-        'time':dates.to_period('d').unique(),
-        'latitude':cams.coords['latitude'].values,
-        'longitude':cams.coords['longitude'].values
-    }
-)
-no2 = xr.DataArray(
-    cams.no2_conc.values,
-    dims=['time','latitude','longitude'],
-    coords = {
-        'time':dates.to_period('d').unique(),
-        'latitude':cams.coords['latitude'].values,
-        'longitude':cams.coords['longitude'].values
-    }
-)
-co = xr.DataArray(
-    cams.co_conc.values,
-    dims=['time','latitude','longitude'],
-    coords = {
-        'time':dates.to_period('d').unique(),
-        'latitude':cams.coords['latitude'].values,
-        'longitude':cams.coords['longitude'].values
-    }
-)
-o3 = xr.DataArray(
-    cams.o3_conc.values,
-    dims=['time','latitude','longitude'],
-    coords = {
-        'time':dates.to_period('d').unique(),
-        'latitude':cams.coords['latitude'].values,
-        'longitude':cams.coords['longitude'].values
-    }
-)
-pm10 = xr.DataArray(
-    cams.pm10_conc.values,
-    dims=['time','latitude','longitude'],
-    coords = {
-        'time':dates.to_period('d').unique(),
-        'latitude':cams.coords['latitude'].values,
-        'longitude':cams.coords['longitude'].values
-    }
-)
-# recreate Dataset (without dask)
-cams = xr.Dataset({'pm25': pm25, 'no2': no2, 'o3': o3, 'co':co, 'pm10':pm10})
-# interpolate CAMS data to lon/lat of departments
-print("\n")
-print("Interpolate CAMS data to lon/lat of departments ...")
-lons = xr.DataArray(
-    population['lon'],
-    dims='dep_num',
-    coords={'dep_num':population['dep_num']},
-    name='lon')
-lats = xr.DataArray(
-    population['lat'],
-    dims='dep_num',
-    coords={'dep_num':population['dep_num']},
-    name='lat')
-
-cams = cams.interp(longitude=lons, latitude=lats)
-cams = cams.to_dataframe().reset_index('dep_num')
-cams.index = cams.index.to_timestamp()
-cams = cams.reset_index()
-cams.columns
-covid = covid.rename(columns = {'date':'time'})
-covid = covid.merge(cams, how='inner', on=['time','dep_num'])
-covid.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
-print(covid)
-print("\n")
-
-
-print ("\n")
+print('Processing Cams Forecast Data')
 # Get Mobility indices historical data and merge it by time & region with the rest of the data
 #  and export it to the Enriched_Covid_history_data.csv 
 print("Processing Mobility indices data ...")
@@ -650,138 +498,12 @@ print(data)
 data.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
           index=False)
 
-print("Computing the engineered features: 1M Trailing Maximal Pollution Concentrations (1M-TMPCs),1M Trailing Average Pollution Concentrations (1M-TAPCs), 7D Trailing Average Pollution Concentrations (7D-TAPCs) and the previous day's total hospitalizations...")
-
-data = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
-
-data["normpm25"]=max_normalize(data["pm25"])
-data["normno2"]=max_normalize(data["no2"])
-data["normo3"]=max_normalize(data["o3"])
-data["normpm10"]=max_normalize(data["pm10"])
-data["normco"]=max_normalize(data["co"])
-
-data["time"]=pd.to_datetime(data["time"])
-
-pm25tuple = (data['numero'], data['time'], data["pm25"], data["normpm25"] )
-no2tuple = (data['numero'], data['time'], data["no2"], data["normno2"])
-o3tuple = (data['numero'], data['time'], data["o3"], data["normo3"])
-pm10tuple = (data['numero'], data['time'],data["pm10"], data["normpm10"])
-cotuple = (data['numero'], data['time'], data["co"], data["normco"])
-tothospituple = (data['numero'], data['time'], data["hospi"])
-
-dicpm25 = {(i, j) : (k,l) for (i, j, k, l) in zip(*pm25tuple)}
-dicno2 = {(i, j) : (k,l)  for (i, j, k, l) in zip(*no2tuple)}
-dico3 = {(i, j) : (k,l)  for (i, j, k, l) in zip(*o3tuple)}
-dicpm10 = {(i, j) : (k,l)  for (i, j, k, l) in zip(*pm10tuple)}
-dicco = {(i, j) : (k,l) for (i, j, k, l) in zip(*cotuple)}
-dictothospi = {(i, j) : k for (i, j, k) in zip(*tothospituple)}
-
-
-referencedate = data["time"].min()
-def compute_Engineered_Features(row):
-    datalist = []
-    datalist2 = []
-    date = row['time'] - pd.Timedelta("30 days")
-    date2 = row['time'] - pd.Timedelta("6 days")
-    dateprevday = row['time'] - pd.Timedelta("1 days")
-
-    dates = pd.date_range(start = date, periods=31).tolist()
-    dates2 = pd.date_range(start = date2, periods=7).tolist()
-
-    if (dateprevday < referencedate):
-        prevdaytothospi = "NaN"
-    else:
-        prevdaytothospi = dictothospi[(row['numero'], dateprevday)] 
-
-    for valuedate in dates:
-        if(valuedate < referencedate):
-            datalist.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan')))
-        
-        else:
-            datalist.append((dicpm25[(row['numero'], pd.to_datetime(str(valuedate)))], \
-                            dicno2[(row['numero'], pd.to_datetime(str(valuedate)))], \
-                            dico3[(row['numero'], pd.to_datetime(str(valuedate)))], \
-                            dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
-                            dicco[(row['numero'], pd.to_datetime(str(valuedate)))]))
-
-    if (dateprevday < referencedate):
-        prevdaytothospi = "NaN"
-    else:
-        prevdaytothospi = dictothospi[(row['numero'], dateprevday)]
-
-    for valuedate in dates2:
-        if(valuedate < referencedate):
-            datalist2.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan')))
-        
-        else:
-            datalist2.append((dicpm25[(row['numero'], pd.to_datetime(str(valuedate)))], \
-                            dicno2[(row['numero'], pd.to_datetime(str(valuedate)))], \
-                            dico3[(row['numero'], pd.to_datetime(str(valuedate)))], \
-                            dicpm10[(row['numero'], pd.to_datetime(str(valuedate)))],\
-                            dicco[(row['numero'], pd.to_datetime(str(valuedate)))]))
-    
-    cleanedList = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e))) \
-        for ((x,a),(y,b),(z,c),(w,d),(v,e)) in datalist \
-            if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e))) \
-                 != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'))]
-
-    cleanedList2 = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e))) \
-        for ((x,a),(y,b),(z,c),(w,d), (v,e)) in datalist2 \
-            if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e))) \
-                 != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'))]
-
-    avg = [tuple(sum(j)/len(cleanedList) for j in zip(*i)) for i in zip(*cleanedList)]
-    avg2 = [tuple(sum(j)/len(cleanedList2) for j in zip(*i)) for i in zip(*cleanedList2)]
-    
-    return (max(cleanedList,key=itemgetter(0))[0][0],\
-            max(cleanedList,key=itemgetter(1))[1][0],\
-            max(cleanedList,key=itemgetter(2))[2][0],\
-            max(cleanedList,key=itemgetter(3))[3][0],\
-            max(cleanedList,key=itemgetter(4))[4][0],\
-            max(cleanedList,key=itemgetter(0))[0][1],\
-            max(cleanedList,key=itemgetter(1))[1][1],\
-            max(cleanedList,key=itemgetter(2))[2][1],\
-            max(cleanedList,key=itemgetter(3))[3][1],\
-            max(cleanedList,key=itemgetter(4))[4][1],\
-            prevdaytothospi,\
-            avg[0][0],\
-            avg[1][0],\
-            avg[2][0],\
-            avg[3][0],\
-            avg[4][0],\
-            avg2[0][0],\
-            avg2[1][0],\
-            avg2[2][0],\
-            avg2[3][0],\
-            avg2[4][0],
-            avg[0][1],\
-            avg[1][1],\
-            avg[2][1],\
-            avg[3][1],\
-            avg[4][1],\
-            avg2[0][1],\
-            avg2[1][1],\
-            avg2[2][1],\
-            avg2[3][1],\
-            avg2[4][1])
-            
-@simple_time_tracker
-def compute_Engineered_features_assign_to_df(data):
-    data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco',\
-            '1MMaxnormpm25','1MMaxnormno2','1MMaxnormo3','1MMaxnormpm10','1MMaxnormco', 
-            'hospiprevday',
-            'pm257davg','no27davg','o37davg', 'pm107davg','co7davg',\
-            'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg',\
-            "normpm257davg","normno27davg","normo37davg","normpm107davg","normco7davg",\
-            "normpm251Mavg","normno21Mavg","normo31Mavg","normpm101Mavg","normco1Mavg"]] \
-                = data.apply(compute_Engineered_Features, axis=1).apply(pd.Series)
-    print("\n")
-    return data
-
-data =  compute_Engineered_features_assign_to_df(data)
-print(data)
-
-data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
+#Computing the Engineered Features
+Engineered_Features = Compute_Engineered_Features_for_df()
+Engineered_Features.get_data()
+Engineered_Features.max_normalize_data()
+Engineered_Features.compute_dictionnaries()
+Engineered_Features.compute_Engineered_features_assign_to_df()
 
 print("Computing pm2.5 Pollutions levels")
 df = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
