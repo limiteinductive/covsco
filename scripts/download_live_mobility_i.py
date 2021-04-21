@@ -63,7 +63,7 @@ class LiveMobility:
             {'Ile-de-France': 'Île-de-France',\
         '-le-de-France': 'Île-de-France',\
         "Auvergne-Rh-ne-Alpes":"Auvergne-Rhône-Alpes",\
-        "Bourgogne-Franche-Comt-":"Bourgogne-Franche-ComtÃ©",\
+        "Bourgogne-Franche-Comt-":"Bourgogne-Franche-Comté",\
         "Provence-Alpes-C-te d'Azur":"Provence-Alpes-Côte d'Azur"})
 
         #get df with latest data for all regions

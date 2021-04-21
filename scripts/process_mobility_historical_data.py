@@ -50,7 +50,7 @@ class process_mobility_historical_data:
             {'Ile-de-France': 'Île-de-France',\
             '-le-de-France': 'Île-de-France',\
             "Auvergne-Rh-ne-Alpes":"Auvergne-Rhône-Alpes",\
-            "Bourgogne-Franche-Comt-":"Bourgogne-Franche-ComtÃ©",\
+            "Bourgogne-Franche-Comt-":"Bourgogne-Franche-Comté",\
             "Provence-Alpes-C-te d'Azur":"Provence-Alpes-Côte d'Azur"})
 
         self.df2 = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')

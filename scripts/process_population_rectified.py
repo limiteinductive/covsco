@@ -9,9 +9,9 @@ class process_population_rectified:
 
     def rectify_pop(self, row):
         if row['date'][:4] == '2020':
-            ans = self.dic2020[row['name']]
+            ans = self.dic2020[row['nom']]
         elif row['date'][:4] == '2021':
-            ans = self.dic2021[row['name']]
+            ans = self.dic2021[row['nom']]
         return ans
 
     def process_population_rect(self):
