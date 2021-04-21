@@ -17,6 +17,7 @@ class Compute_Engineered_Features_for_df:
         self.o3tuple = None
         self.pm10tuple = None
         self.cotuple = None
+        self.so2tuple = None
         self.tothospituple = None
         self.newhospituple = None
         self.newreanim = None
@@ -25,6 +26,7 @@ class Compute_Engineered_Features_for_df:
         self.dico3 = None
         self.dicpm10 = None
         self.dicco = None
+        self.dicso2 = None
         self.dictothospi = None
         self.dicnewhospi = None
         self.dicnewreanim = None
@@ -43,6 +45,7 @@ class Compute_Engineered_Features_for_df:
         self.data["normo3"]=self.max_normalize(self.data["o3"])
         self.data["normpm10"]=self.max_normalize(self.data["pm10"])
         self.data["normco"]=self.max_normalize(self.data["co"])
+        self.data["normso2"]=self.max_normalize(self.data["so2"])
         self.data["date"]=pd.to_datetime(self.data["date"])
         return None
     
@@ -53,6 +56,7 @@ class Compute_Engineered_Features_for_df:
         self.o3tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["o3"], self.data["normo3"])
         self.pm10tuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["pm10"], self.data["normpm10"])
         self.cotuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["co"], self.data["normco"])
+        self.so2tuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["so2"], self.data["normso2"])
         self.tothospituple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["hospi"])
         self.newhospituple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"],self.data["newhospi"])
         self.newreanimtuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["newreanim"])
@@ -62,6 +66,7 @@ class Compute_Engineered_Features_for_df:
         self.dico3 = {(i, j, lh) : (k,l)  for (i, j, lh, k, l) in zip(*self.o3tuple)}
         self.dicpm10 = {(i, j, lh) : (k,l)  for (i, j, lh, k, l) in zip(*self.pm10tuple)}
         self.dicco = {(i, j, lh) : (k,l) for (i, j, lh, k, l) in zip(*self.cotuple)}
+        self.dicso2 = {(i, j, lh) : (k,l)  for (i, j, lh, k, l) in zip(*self.so2tuple)}
         self.dictothospi = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.tothospituple)}
         self.dicnewhospi = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.newhospituple)}
         self.dicnewreanim = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.newreanimtuple)}
@@ -100,7 +105,8 @@ class Compute_Engineered_Features_for_df:
                                 self.dicno2[(row['numero'], pd.to_datetime(str(valuedate)), 0)], \
                                 self.dico3[(row['numero'], pd.to_datetime(str(valuedate)), 0)], \
                                 self.dicpm10[(row['numero'], pd.to_datetime(str(valuedate)), 0)],\
-                                self.dicco[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
+                                self.dicco[(row['numero'], pd.to_datetime(str(valuedate)), 0)],
+                                self.dicso2[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
 
 
         for valuedate in dates2:
@@ -114,7 +120,8 @@ class Compute_Engineered_Features_for_df:
                                 self.dicno2[(row['numero'], pd.to_datetime(str(valuedate)), 0)], \
                                 self.dico3[(row['numero'], pd.to_datetime(str(valuedate)), 0)], \
                                 self.dicpm10[(row['numero'], pd.to_datetime(str(valuedate)), 0)],\
-                                self.dicco[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
+                                self.dicco[(row['numero'], pd.to_datetime(str(valuedate)), 0)],
+                                self.dicso2[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
                 datalist3.append(self.dicnewhospi[(row['numero'], pd.to_datetime(str(valuedate)), 0)])
                 datalist4.append(self.dicnewreanim[(row['numero'], pd.to_datetime(str(valuedate)), 0)])
         
@@ -128,15 +135,15 @@ class Compute_Engineered_Features_for_df:
                 datalist6.append(self.dicnewreanim[(row['numero'], pd.to_datetime(str(valuedate)), 0)])
 
         
-        cleanedList = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e))) \
-            for ((x,a),(y,b),(z,c),(w,d),(v,e)) in datalist \
-                if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e))) \
-                    != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'))]
+        cleanedList = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e)),(float(r),(float(s)))) \
+            for ((x,a),(y,b),(z,c),(w,d),(v,e),(r,s)) in datalist \
+                if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e)),(str(r),str(s))) \
+                    != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN'))]
 
-        cleanedList2 = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e))) \
-            for ((x,a),(y,b),(z,c),(w,d), (v,e)) in datalist2 \
-                if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e))) \
-                    != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'))]
+        cleanedList2 = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e)),(float(r),(float(s)))) \
+            for ((x,a),(y,b),(z,c),(w,d),(v,e),(r,s)) in datalist2 \
+                if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e)),(str(r),str(s))) \
+                    != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN'))]
 
         cleanedList3 = [int(x) for x in datalist3 if str(x) != 'NaN']
         cleanedList4 = [int(x) for x in datalist4 if str(x) != 'NaN']
@@ -154,12 +161,14 @@ class Compute_Engineered_Features_for_df:
                 max(cleanedList,key=itemgetter(1))[1][0],\
                 max(cleanedList,key=itemgetter(2))[2][0],\
                 max(cleanedList,key=itemgetter(3))[3][0],\
-                max(cleanedList,key=itemgetter(4))[4][0],\
+                max(cleanedList,key=itemgetter(4))[4][0],
+                max(cleanedList,key=itemgetter(5))[5][0],\
                 max(cleanedList,key=itemgetter(0))[0][1],\
                 max(cleanedList,key=itemgetter(1))[1][1],\
                 max(cleanedList,key=itemgetter(2))[2][1],\
                 max(cleanedList,key=itemgetter(3))[3][1],\
-                max(cleanedList,key=itemgetter(4))[4][1],\
+                max(cleanedList,key=itemgetter(4))[4][1],
+                max(cleanedList,key=itemgetter(5))[5][1],\
                 prevdaytothospi,\
                 avg[0][0],\
                 avg[1][0],\
@@ -187,8 +196,8 @@ class Compute_Engineered_Features_for_df:
                 avg6)
                 
     def compute_Engineered_features_assign_to_df(self):
-        self.data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco',\
-                '1MMaxnormpm25','1MMaxnormno2','1MMaxnormo3','1MMaxnormpm10','1MMaxnormco', 
+        self.data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco','1MMaxso2',\
+                '1MMaxnormpm25','1MMaxnormno2','1MMaxnormo3','1MMaxnormpm10','1MMaxnormco','1MMaxnormso2', 
                 'hospiprevday',
                 'pm257davg','no27davg','o37davg', 'pm107davg','co7davg',\
                 'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg',\

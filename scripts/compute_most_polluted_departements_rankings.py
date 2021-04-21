@@ -14,7 +14,7 @@ with pd.ExcelWriter("../research/Pollution study by departement 1Y Max 1M-TMCs.x
                         maximum_pollution_level["numero"].unique()[0],
                         maximum_pollution_level["date"].min(),\
                         maximum_pollution_level["1MMax"+pollutant].unique()[0],\
-                        df2[df2["numero"]== maximum_pollution_level["numero"].unique()[0]]['TotalCovidCasesCumulated'].max(),\
+                        df2[df2["numero"]== maximum_pollution_level["numero"].unique()[0]]['totalcovidcasescumulated'].max(),\
                         maximum_pollution_level["idx"].unique()[0]))
         alreadyseen = maximum_pollution_level["nom"].unique()[0]
         print(maximum_pollution_level["numero"].unique())
@@ -30,13 +30,13 @@ with pd.ExcelWriter("../research/Pollution study by departement 1Y Max 1M-TMCs.x
                             maximum_pollution_level["numero"].unique()[0],
                             maximum_pollution_level["date"].min(),\
                             maximum_pollution_level["1MMax"+pollutant].unique()[0],\
-                            df2[df2["nom"]==maximum_pollution_level["nom"].unique()[0]]['TotalCovidCasesCumulated'].max(),
+                            df2[df2["nom"]==maximum_pollution_level["nom"].unique()[0]]['totalcovidcasescumulated'].max(),
                             maximum_pollution_level["idx"].unique()[0]))
                             
             
             alreadyseen = maximum_pollution_level["nom"].unique()[0]
 
         dfexport = pd.DataFrame(datalist)
-        dfexport.columns=["Département","Numéro","Date of pollution peak","1MMax"+pollutant,'TotalCovidCasesCumulated',"Population Index"]
+        dfexport.columns=["Département","Numéro","Date of pollution peak","1MMax"+pollutant,'totalcovidcasescumulated',"Population Index"]
         print(dfexport)
         dfexport.to_excel(writer, sheet_name = pollutant, index = False)
