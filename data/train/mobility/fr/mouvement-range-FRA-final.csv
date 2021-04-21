@@ -412,6 +412,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.10_1	Nouvelle-Aquitaine	-0.14212	0.20476	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.10_1	Nouvelle-Aquitaine	-0.18592	0.19891	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.10_1	Nouvelle-Aquitaine	-0.26622	0.25296	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.10_1	Nouvelle-Aquitaine	-0.31243	0.34397	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.11_1	Occitanie	-0.07278	0.25727	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.11_1	Occitanie	-0.0211	0.15677	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.11_1	Occitanie	-0.01042	0.14912	full_february	DAY_OF_WEEK
@@ -825,6 +826,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.11_1	Occitanie	-0.15176	0.2098	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.11_1	Occitanie	-0.19209	0.20639	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.11_1	Occitanie	-0.28786	0.26632	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.11_1	Occitanie	-0.35171	0.36526	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.12_1	Pays de la Loire	-0.09709	0.29364	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.12_1	Pays de la Loire	0.01832	0.13538	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.12_1	Pays de la Loire	0.00907	0.12693	full_february	DAY_OF_WEEK
@@ -1238,6 +1240,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.12_1	Pays de la Loire	-0.14319	0.20122	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.12_1	Pays de la Loire	-0.18804	0.18851	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.12_1	Pays de la Loire	-0.27859	0.23613	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.12_1	Pays de la Loire	-0.24596	0.34412	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.13_1	Provence-Alpes-C-te d'Azur	-0.12136	0.27381	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.13_1	Provence-Alpes-C-te d'Azur	-0.06029	0.16829	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.13_1	Provence-Alpes-C-te d'Azur	0.01125	0.1372	full_february	DAY_OF_WEEK
@@ -1651,6 +1654,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.13_1	Provence-Alpes-Côte d'Azur	-0.16647	0.21724	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.13_1	Provence-Alpes-Côte d'Azur	-0.19438	0.21651	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.13_1	Provence-Alpes-Côte d'Azur	-0.33294	0.29558	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.13_1	Provence-Alpes-Côte d'Azur	-0.3228	0.35808	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.1_1	Auvergne-Rh-ne-Alpes	-0.04178	0.25061	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.1_1	Auvergne-Rh-ne-Alpes	-0.06971	0.17888	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.1_1	Auvergne-Rh-ne-Alpes	0.00029	0.14622	full_february	DAY_OF_WEEK
@@ -2064,6 +2068,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.1_1	Auvergne-Rhône-Alpes	-0.13392	0.20701	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.1_1	Auvergne-Rhône-Alpes	-0.19735	0.20834	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.1_1	Auvergne-Rhône-Alpes	-0.28998	0.25005	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.1_1	Auvergne-Rhône-Alpes	-0.34622	0.37066	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comt-	-0.03763	0.26839	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comt-	-0.04274	0.19033	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comt-	0.0153	0.16277	full_february	DAY_OF_WEEK
@@ -2477,6 +2482,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comté	-0.10279	0.21546	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comté	-0.15177	0.20507	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comté	-0.24704	0.2468	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.2_1	Bourgogne-Franche-Comté	-0.32835	0.38178	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.3_1	Bretagne	-0.02503	0.27947	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.3_1	Bretagne	-0.00245	0.14206	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.3_1	Bretagne	-0.00753	0.13513	full_february	DAY_OF_WEEK
@@ -2890,6 +2896,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.3_1	Bretagne	-0.12855	0.19884	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.3_1	Bretagne	-0.17215	0.18557	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.3_1	Bretagne	-0.22067	0.22835	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.3_1	Bretagne	-0.18334	0.33169	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.4_1	Centre-Val de Loire	-0.07508	0.304	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.4_1	Centre-Val de Loire	0.02415	0.15063	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.4_1	Centre-Val de Loire	0.04789	0.13416	full_february	DAY_OF_WEEK
@@ -3303,6 +3310,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.4_1	Centre-Val de Loire	-0.12816	0.22023	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.4_1	Centre-Val de Loire	-0.16744	0.21352	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.4_1	Centre-Val de Loire	-0.26077	0.26054	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.4_1	Centre-Val de Loire	-0.27684	0.37458	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.5_1	Corse	-0.22377	0.30225	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.5_1	Corse	-0.0536	0.18054	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.5_1	Corse	-0.00448	0.1592	full_february	DAY_OF_WEEK
@@ -3716,6 +3724,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.5_1	Corse	-0.13953	0.2009	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.5_1	Corse	-0.14962	0.20544	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.5_1	Corse	-0.20294	0.25426	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.5_1	Corse	-0.2952	0.34819	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.6_1	Grand Est	-0.02532	0.2752	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.6_1	Grand Est	0.02187	0.15048	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.6_1	Grand Est	0.03014	0.13524	full_february	DAY_OF_WEEK
@@ -4129,6 +4138,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.6_1	Grand Est	-0.13501	0.21742	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.6_1	Grand Est	-0.16874	0.21303	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.6_1	Grand Est	-0.24057	0.25058	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.6_1	Grand Est	-0.30568	0.3987	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.7_1	Hauts-de-France	-0.01054	0.26893	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.7_1	Hauts-de-France	0.01769	0.15274	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.7_1	Hauts-de-France	0.02349	0.13796	full_february	DAY_OF_WEEK
@@ -4542,6 +4552,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.7_1	Hauts-de-France	-0.13841	0.223	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.7_1	Hauts-de-France	-0.16563	0.20552	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.7_1	Hauts-de-France	-0.20317	0.24126	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.7_1	Hauts-de-France	-0.19458	0.34591	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.8_1	-le-de-France	-0.0537	0.25822	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.8_1	-le-de-France	-0.00754	0.13181	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.8_1	-le-de-France	0.0174	0.11497	full_february	DAY_OF_WEEK
@@ -4955,6 +4966,7 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.8_1	Île-de-France	-0.17902	0.22219	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.8_1	Île-de-France	-0.19398	0.21861	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.8_1	Île-de-France	-0.2148	0.24841	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.8_1	Île-de-France	-0.24197	0.33636	full_february	DAY_OF_WEEK
 2020-03-01	FRA	GADM	FRA.9_1	Normandie	-0.02881	0.27226	full_february	DAY_OF_WEEK
 2020-03-02	FRA	GADM	FRA.9_1	Normandie	0.01027	0.14389	full_february	DAY_OF_WEEK
 2020-03-03	FRA	GADM	FRA.9_1	Normandie	0.02648	0.12966	full_february	DAY_OF_WEEK
@@ -5368,3 +5380,4 @@ ds	country	polygon_source	polygon_id	polygon_name	all_day_bing_tiles_visited_rel
 2021-04-15	FRA	GADM	FRA.9_1	Normandie	-0.13045	0.21002	full_february	DAY_OF_WEEK
 2021-04-16	FRA	GADM	FRA.9_1	Normandie	-0.17945	0.19539	full_february	DAY_OF_WEEK
 2021-04-17	FRA	GADM	FRA.9_1	Normandie	-0.24688	0.23778	full_february	DAY_OF_WEEK
+2021-04-18	FRA	GADM	FRA.9_1	Normandie	-0.22534	0.34321	full_february	DAY_OF_WEEK
