@@ -14,6 +14,7 @@ import io
 import imageio
 from os import listdir
 from os.path import isfile, join
+from tqdm import tqdm
 
 class compute_covid_risk_heat_map:
 
@@ -148,7 +149,9 @@ class compute_covid_risk_heat_map:
     print(maxriskmap)
     times = [("0 days",0),('1 days', 24),('2 days', 48),("3 days", 72),('4 days',96)]
     counter = 0
-    for (i,j) in times:
+    images = []
+    riskMaps = []
+    for (j,i) in tqdm(times):
       covidExtraToCom['1MMaxpm25'] = [dfpollution[(dfpollution['numero'] == depNum) &( dfpollution['leadtime_hour']== i)]["1MMaxpm25"].values.squeeze() for depNum in covidExtraToCom['dep']]
       covidExtraToCom['1MMaxpm10'] = [dfpollution[(dfpollution['numero'] == depNum) &( dfpollution['leadtime_hour']== i)]["1MMaxpm10"].values.squeeze() for depNum in covidExtraToCom['dep']]
       covidExtraToCom['1MMaxo3'] = [dfpollution[(dfpollution['numero'] == depNum) &( dfpollution['leadtime_hour']== i)]["1MMaxo3"].values.squeeze() for depNum in covidExtraToCom['dep']]
@@ -228,7 +231,7 @@ class compute_covid_risk_heat_map:
       # Risk Assessment
       # =============================================================================
       #part| #%%
-      riskMaps = []
+     
       #for lead in progressbar(range(97), 'Compute risk: ', 60):
       risk = (0.1283*(0.029469479*self.max_normalize(coInterpolated)\
               + 0.031129209*self.max_normalize(o3Interpolated)\
@@ -263,7 +266,7 @@ class compute_covid_risk_heat_map:
       riskMaps.append(risk)
 
       markersize = .1
-      images = []
+     
 
       fig = plt.figure(figsize=(8,8))
       gs = fig.add_gridspec(1, 1)
