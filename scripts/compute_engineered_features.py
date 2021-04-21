@@ -73,6 +73,66 @@ class Compute_Engineered_Features_for_df:
 
         return None
 
+    def compute_forecast_data_for_models(self,row):
+
+        dateiminusone = row["date"] - pd.Timedelta("1 days") 
+        dateiminustwo = row["date"] - pd.Timedelta("2 days") 
+        dateiminusthree = row["date"] - pd.Timedelta("3 days") 
+        dateiminusfour = row["date"] - pd.Timedelta("4 days") 
+
+        dateiminusonepm25dayiforecast= self.dicpm25[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)]
+        dateiminusoneno2dayiforecast= self.dicno2[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)]
+        dateiminusoneo3dayiforecast= self.dico3[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)]
+        dateiminusonepm10dayiforecast= self.dicpm10[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)]
+        dateiminusonecodayiforecast= self.dicco[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)]
+        dateiminusoneso2dayiforecast= self.dicso2[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)]
+
+        dateiminustwopm25dayiforecast= self.dicpm25[(row['numero'], pd.to_datetime(str(dateiminustwo)), 48)]
+        dateiminustwono2dayiforecast= self.dicno2[(row['numero'], pd.to_datetime(str(dateiminustwo)),48)]
+        dateiminustwoo3dayiforecast= self.dico3[(row['numero'], pd.to_datetime(str(dateiminustwo)), 48)]
+        dateiminustwopm10dayiforecast= self.dicpm10[(row['numero'], pd.to_datetime(str(dateiminustwo)), 48)]
+        dateiminustwocodayiforecast= self.dicco[(row['numero'], pd.to_datetime(str(dateiminustwo)), 48)]
+        dateiminustwoso2dayiforecast= self.dicso2[(row['numero'], pd.to_datetime(str(dateiminustwo)), 48)]
+
+        dateiminusthreepm25dayiforecast= self.dicpm25[(row['numero'], pd.to_datetime(str(dateiminusthree)), 72)]
+        dateiminusthreeno2dayiforecast= self.dicno2[(row['numero'], pd.to_datetime(str(dateiminusthree)),72)]
+        dateiminusthreeo3dayiforecast= self.dico3[(row['numero'], pd.to_datetime(str(dateiminusthree)), 72)]
+        dateiminusthreepm10dayiforecast= self.dicpm10[(row['numero'], pd.to_datetime(str(dateiminusthree)), 72)]
+        dateiminusthreecodayiforecast= self.dicco[(row['numero'], pd.to_datetime(str(dateiminusthree)), 72)]
+        dateiminusthreeso2dayiforecast= self.dicso2[(row['numero'], pd.to_datetime(str(dateiminusthree)), 72)]
+
+        dateiminusfourpm25dayiforecast= self.dicpm25[(row['numero'], pd.to_datetime(str(dateiminusfour)), 96)]
+        dateiminusfourno2dayiforecast= self.dicno2[(row['numero'], pd.to_datetime(str(dateiminusfour)),96)]
+        dateiminusfouro3dayiforecast= self.dico3[(row['numero'], pd.to_datetime(str(dateiminusfour)), 96)]
+        dateiminusfourpm10dayiforecast= self.dicpm10[(row['numero'], pd.to_datetime(str(dateiminusfour)), 96)]
+        dateiminusfourcodayiforecast= self.dicco[(row['numero'], pd.to_datetime(str(dateiminusfour)), 96)]
+        dateiminusfourso2dayiforecast= self.dicso2[(row['numero'], pd.to_datetime(str(dateiminusfour)), 96)]
+
+        return(dateiminusonepm25dayiforecast,\
+                dateiminusoneno2dayiforecast,\
+                dateiminusoneo3dayiforecast,\
+                dateiminusonepm10dayiforecast,\
+                dateiminusonecodayiforecast,\
+                dateiminusoneso2dayiforecast,\
+                dateiminustwopm25dayiforecast,\
+                dateiminustwono2dayiforecast,\
+                dateiminustwoo3dayiforecast,\
+                dateiminustwopm10dayiforecast,\
+                dateiminustwocodayiforecast,\
+                dateiminustwoso2dayiforecast,\
+                dateiminusthreepm25dayiforecast,\
+                dateiminusthreeno2dayiforecast,\
+                dateiminusthreeo3dayiforecast,\
+                dateiminusthreepm10dayiforecast,\
+                dateiminusthreecodayiforecast,\
+                dateiminusthreeso2dayiforecast,\
+                dateiminusfourpm25dayiforecast,\
+                dateiminusfourno2dayiforecast,\
+                dateiminusfouro3dayiforecast,\
+                dateiminusfourpm10dayiforecast,\
+                dateiminusfourcodayiforecast,\
+                dateiminusfourso2dayiforecast)
+
     def compute_Engineered_Features(self, row):
         referencedate = self.data["date"].min()
         datalist = []
@@ -85,6 +145,7 @@ class Compute_Engineered_Features_for_df:
         date = row["date"] - pd.Timedelta("30 days")
         date2 = row["date"] - pd.Timedelta("6 days")
         date3 = row["date"] - pd.Timedelta("2 days") 
+
         dateprevday = row["date"] - pd.Timedelta("1 days")
 
         dates = pd.date_range(start = date, periods=31).tolist()
@@ -214,13 +275,45 @@ class Compute_Engineered_Features_for_df:
         print("\n")
         self.data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
         return None
+    
+    def compute_dayi_past_forecasts_assign_to_df(self):
+        self.data[["dateiminusonepm25dayiforecast",\
+                "dateiminusoneno2dayiforecast",\
+                "dateiminusoneo3dayiforecast",\
+                "dateiminusonepm10dayiforecast",\
+                "dateiminusonecodayiforecast",\
+                "dateiminusoneso2dayiforecast",\
+                "dateiminustwopm25dayiforecast",\
+                "dateiminustwono2dayiforecast",\
+                "dateiminustwoo3dayiforecast",\
+                "dateiminustwopm10dayiforecast",\
+                "dateiminustwocodayiforecast",\
+                "dateiminustwoso2dayiforecast",\
+                "dateiminusthreepm25dayiforecast",\
+                "dateiminusthreeno2dayiforecast",\
+                "dateiminusthreeo3dayiforecast",\
+                "dateiminusthreepm10dayiforecast",\
+                "dateiminusthreecodayiforecast",\
+                "dateiminusthreeso2dayiforecast",\
+                "dateiminusfourpm25dayiforecast",\
+                "dateiminusfourno2dayiforecast",\
+                "dateiminusfouro3dayiforecast",\
+                "dateiminusfourpm10dayiforecast",\
+                "dateiminusfourcodayiforecast",\
+                "dateiminusfourso2dayiforecast"]] = self.data.apply(self.compute_forecast_data_for_models, axis = 1).apply(pd.Series)
+        print("\n")
+        print(self.data)
+        print("\n")
+        self.data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
+        return None
 
 if __name__ == '__main__':
     Engineered_Features = Compute_Engineered_Features_for_df()
     Engineered_Features.get_data()
     Engineered_Features.max_normalize_data()
     Engineered_Features.compute_dictionnaries()
-    Engineered_Features.compute_Engineered_features_assign_to_df()
+    #Engineered_Features.compute_Engineered_features_assign_to_df()
+    Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
 
    
 
