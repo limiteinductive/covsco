@@ -98,7 +98,7 @@ class Compute_Engineered_Features_for_df:
 
         for valuedate in dates:
             if(valuedate < referencedate):
-                datalist.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan')))
+                datalist.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN'),('NaN','Nan'),('NaN','NaN')))
             
             else:
                 datalist.append((self.dicpm25[(row['numero'], pd.to_datetime(str(valuedate)), 0)], \
@@ -111,7 +111,7 @@ class Compute_Engineered_Features_for_df:
 
         for valuedate in dates2:
             if(valuedate < referencedate):
-                datalist2.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan')))
+                datalist2.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN')))
                 datalist3.append('NaN')
                 datalist4.append("NaN")
             
