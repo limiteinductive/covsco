@@ -205,8 +205,8 @@ class Compute_Engineered_Features_for_df:
                 'hospiprevday',
                 'pm257davg','no27davg','o37davg', 'pm107davg','co7davg','so27davg',\
                 'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
-                "normpm257davg","normno27davg","normo37davg","normpm107davg","normco7davg",'normso27davg',\
                 "normpm251Mavg","normno21Mavg","normo31Mavg","normpm101Mavg","normco1Mavg",'normso27davg',\
+                "normpm257davg","normno27davg","normo37davg","normpm107davg","normco7davg",'normso27davg',\
                 "newhospi7davg","newreanim7davg","newhospi3davg","newreanim3davg"]] \
                     = self.data.apply(self.compute_Engineered_Features, axis=1).apply(pd.Series)
         print("\n")
