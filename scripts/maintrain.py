@@ -66,11 +66,8 @@ class maintrain:
         return diff.mean()
 
     def initdata(self):
-        self.df = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+        self.df = pd.read_csv("../data/train/all_data_merged/fr/traindf.csv")
         self.df = self.df.dropna()
-
-        self.df = self.df[self.df["leadtime_hour"]==0]
-
         self.df["all_day_bing_tiles_visited_relative_change"]=self.df["all_day_bing_tiles_visited_relative_change"].astype(float)
         self.df["all_day_ratio_single_tile_users"]=self.df["all_day_ratio_single_tile_users"].astype(float)
         print(self.df)
@@ -142,7 +139,6 @@ class maintrain:
                 "dateiminustwopm10dayiforecast1MMax",\
                 "dateiminustwocodayiforecast1MMax",\
                 "dateiminustwoso2dayiforecast1MMax",\
-                '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
                     'hospi','newhospi','CovidPosTest',\
                         'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
                             'vac1nb', 'vac2nb',\
@@ -279,7 +275,7 @@ class maintrain:
             FIlistdf.columns = ["feature_importance"]
             FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
             print(FIlistdf)
-            FIlistdf.to_csv("../feature_importance/XGBoost Regressor Feature importance report: model day "+ counter + ".csv", sep = ";")
+            FIlistdf.to_csv("../feature_importance/XGBoost Regressor Feature importance report: model day "+ str(counter) + ".csv", sep = ";")
             print("\n")
 
             print("\n")
@@ -296,8 +292,8 @@ class maintrain:
             FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
             print(FIlistdf)
             print("\n")
-            FIlistdf.to_csv("../feature_importance/SCIKIT Learn's Gradient Boosting Regressor Feature Importance report: model day "+ counter + "csv", sep = ';')
-            filename = '../model/model_day_'+ counter + '.joblib'
+            FIlistdf.to_csv("../feature_importance/SCIKIT Learn's Gradient Boosting Regressor Feature Importance report: model day "+ str(counter) + ".csv", sep = ';')
+            filename = '../model/model_day_'+ str(counter) + '.joblib'
             joblib.dump(ensemble, filename)
             counter += 1
             # # load the model from disk
@@ -336,15 +332,17 @@ class maintrain:
     def predict(self):
         for i in range(5):
             currentDate = datetime.today().strftime('%Y-%m-%d')
-            filename = '../model/model_day_'+ i + '.joblib'
+            filename = '../model/model_day_'+ str(i) + '.joblib'
             loaded_model = joblib.load(filename)
-            Xpredict = self.predictiondata[self.predictiondata["leadtime_hour"]== i * 24].drop(columns = ["date", "numero"])
+            Xpredictdf = pd.read_csv('../predictions/fr/data/day'+str(i)+'df.csv')
+            print(Xpredictdf)
+            Xpredict = Xpredictdf.drop(columns = ["date","numero"])
             newhospipredictions = pd.DataFrame(loaded_model.predict(Xpredict))
             print(newhospipredictions)
             newhospipredictions.columns = ["newhospipred"]
-            newhospipredictions["date"]= self.predictiondata["date"]
-            newhospipredictions["depnum"]= self.predictiondata["numero"]
-            newhospipredictions.to_csv("../predictions/fr/" + currentDate + "_predictions_for_day_"+ i + '.csv', index = False)
+            newhospipredictions["date"] = Xpredictdf["date"]
+            newhospipredictions["depnum"] = Xpredictdf["numero"]
+            newhospipredictions.to_csv("../predictions/fr/" + str(currentDate) + "_predictions_for_day_"+ str(i) + '.csv', index = False)
         return None
             
 
@@ -502,4 +500,5 @@ if __name__ == '__main__':
 
     TrainModel = maintrain()
     TrainModel.initdata()
-    TrainModel.CurrentBestModel()
+    #TrainModel.CurrentBestModel()
+    TrainModel.predict()

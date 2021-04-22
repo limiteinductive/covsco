@@ -113,6 +113,10 @@ class maintraindata:
         Engineered_Features.max_normalize_data()
         Engineered_Features.compute_dictionnaries()
         Engineered_Features.compute_Engineered_features_assign_to_df()
+        Engineered_Features.compute_avg_and_max_dictionnaries()
+        Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
+        Engineered_Features.compute_target_assign_to_df()
+        Engineered_Features.compute_dfs_from_which_to_make_predictions()
         self.status=14
         print("Computing pm2.5 Pollutions levels")
         ComputePollutionLevels = compute_pollution_levels()
