@@ -68,6 +68,11 @@ class Compute_Engineered_Features_for_df:
         self.day4coforecast = None
         self.day4so2forecast = None
         self.simplifieddf = None
+        self.modelday0features = None
+        self.modelday1features = None
+        self.modelday2features = None
+        self.modelday3features = None
+        self.modelday4features = None
     
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
@@ -77,9 +82,9 @@ class Compute_Engineered_Features_for_df:
         self.file_name = '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv'
         self.data = pd.read_csv(self.file_name)
         self.data["date"]=pd.to_datetime(self.data["date"])
-        self.simplifieddf = pd.read_csv('../data/train/all_data_merged/fr/traindf.csv')
-        self.simplifieddf["date"]=pd.to_datetime(self.simplifieddf["date"])
-        print(self.simplifieddf)
+        #self.simplifieddf = pd.read_csv('../data/train/all_data_merged/fr/traindf.csv')
+        #self.simplifieddf["date"]=pd.to_datetime(self.simplifieddf["date"])
+        #print(self.simplifieddf)
         return None
 
     def max_normalize_data(self):
@@ -136,19 +141,18 @@ class Compute_Engineered_Features_for_df:
         return None
 
     def compute_input_df_model1(self,row):
-        print("Computing input dataframe for model day1...")
         print(row)
         datalist = []
         datalist2 = []
         maxdate = self.data["date"].max()
         mindate = self.simplifieddf["date"].min()
         day1idx = row["idx"]
-        self.day1pm25forecast = self.dicpm25[(row['numero'], maxdate, 24)][0]
-        self.day1no2forecast =self.dicno2[(row['numero'], maxdate, 24)][0]
-        self.day1o3forecast = self.dico3[(row['numero'], maxdate, 24)][0]
-        self.day1pm10forecast = self.dicpm10[(row['numero'], maxdate, 24)][0]
-        self.day1coforecast = self.dicco[(row['numero'], maxdate, 24)][0]
-        self.day1so2forecast = self.dicso2[(row['numero'], maxdate, 24)][0]
+        self.day1pm25forecast = self.dicpm25[(row['numero'], maxdate, 24)]
+        self.day1no2forecast =self.dicno2[(row['numero'], maxdate, 24)]
+        self.day1o3forecast = self.dico3[(row['numero'], maxdate, 24)]
+        self.day1pm10forecast = self.dicpm10[(row['numero'], maxdate, 24)]
+        self.day1coforecast = self.dicco[(row['numero'], maxdate, 24)]
+        self.day1so2forecast = self.dicso2[(row['numero'], maxdate, 24)]
         date = row["date"] + pd.Timedelta("1 days") - pd.Timedelta("30 days")
         date2 = row["date"] + pd.Timedelta("1 days") - pd.Timedelta("6 days")
         dates = pd.date_range(start = date, periods=30).tolist()
@@ -164,9 +168,9 @@ class Compute_Engineered_Features_for_df:
                                 self.dicpm10[(row['numero'], pd.to_datetime(str(valuedate)), 0)],\
                                 self.dicco[(row['numero'], pd.to_datetime(str(valuedate)), 0)],
                                 self.dicso2[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
-            datalist.append(((self.day1pm25forecast,0.0),(self.day1no2forecast,0.0),(self.day1o3forecast,0.0),(self.day1pm10forecast,0.0),\
-                (self.day1coforecast,0.0),(self.day1so2forecast,0.0) ))
-        
+            datalist.append((self.day1pm25forecast,self.day1no2forecast,self.day1o3forecast,self.day1pm10forecast,\
+                self.day1coforecast,self.day1so2forecast))
+        print(datalist)
         if (date2 < mindate):
             datalist2.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN'),('NaN','Nan'),('NaN','NaN')))
         else:
@@ -177,8 +181,8 @@ class Compute_Engineered_Features_for_df:
                                 self.dicpm10[(row['numero'], pd.to_datetime(str(valuedate)), 0)],\
                                 self.dicco[(row['numero'], pd.to_datetime(str(valuedate)), 0)],
                                 self.dicso2[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
-            datalist2.append(((self.day1pm25forecast,0.0),(self.day1no2forecast,0.0),(self.day1o3forecast,0.0),(self.day1pm10forecast,0.0),\
-                (self.day1coforecast,0.0),(self.day1so2forecast,0.0) ))
+            datalist2.append((self.day1pm25forecast,self.day1no2forecast,self.day1o3forecast,self.day1pm10forecast,\
+                self.day1coforecast,self.day1so2forecast))
             
         cleanedList = [((float(x),float(a)),(float(y),float(b)),(float(z),float(c)),(float(w),float(d)),(float(v),float(e)),(float(r),(float(s)))) \
         for ((x,a),(y,b),(z,c),(w,d),(v,e),(r,s)) in datalist \
@@ -189,8 +193,8 @@ class Compute_Engineered_Features_for_df:
             for ((x,a),(y,b),(z,c),(w,d),(v,e),(r,s)) in datalist2 \
                 if ((str(x),str(a)),(str(y),str(b)),(str(z),str(c)),(str(w),str(d)),(str(v),str(e)),(str(r),str(s))) \
                     != (('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN'))]
-        avg = [tuple(sum(j)/len(datalist) for j in zip(*i)) for i in zip(*cleanedList)]
-        avg2 = [tuple(sum(j)/len(datalist2) for j in zip(*i)) for i in zip(*cleanedList2)]
+        avg = [tuple(sum(j)/len(cleanedList) for j in zip(*i)) for i in zip(*cleanedList)]
+        avg2 = [tuple(sum(j)/len(cleanedList2) for j in zip(*i)) for i in zip(*cleanedList2)]
 
         day1pm257daverage=avg[0][0]
         day1no27daverage= avg[1][0]
@@ -204,12 +208,6 @@ class Compute_Engineered_Features_for_df:
         day1pm101Maverage= avg2[3][0]
         day1co1Maverage= avg2[4][0]
         day1so21Maverage= avg2[5][0]
-        day1pm251MMax = max(cleanedList,key=itemgetter(0))[0][0],\
-        day1no21MMax =max(cleanedList,key=itemgetter(1))[1][0],\
-        day1o31MMax =max(cleanedList,key=itemgetter(2))[2][0],\
-        day1pm101MMax =max(cleanedList,key=itemgetter(3))[3][0],\
-        day1co1MMax =max(cleanedList,key=itemgetter(4))[4][0],
-        day1so21MMax =max(cleanedList,key=itemgetter(5))[5][0],\
         day1hospi =row['hospi']
         day1newhospi = row['newhospi']
         day1CovidPosTest = row['CovidPosTest']
@@ -245,12 +243,12 @@ class Compute_Engineered_Features_for_df:
                     day1pm101Maverage,\
                     day1co1Maverage,\
                     day1so21Maverage,\
-                    day1pm251MMax,\
-                    day1no21MMax,\
-                    day1o31MMax,\
-                    day1pm101MMax,\
-                    day1co1MMax,\
-                    day1so21MMax,\
+                    max(cleanedList,key=itemgetter(0))[0][0],\
+                    max(cleanedList,key=itemgetter(1))[1][0],\
+                    max(cleanedList,key=itemgetter(2))[2][0],\
+                    max(cleanedList,key=itemgetter(3))[3][0],\
+                    max(cleanedList,key=itemgetter(4))[4][0],\
+                    max(cleanedList,key=itemgetter(5))[5][0],\
                     day1hospi,\
                     day1newhospi,\
                     day1CovidPosTest,\
@@ -269,7 +267,6 @@ class Compute_Engineered_Features_for_df:
                     day1variant2)
 
     def compute_input_df_model2(self,row):
-        print("Computing input dataframe for model day2...")
         datalist =[]
         datalist2 =[]
         maxdate = self.data["date"].max()
@@ -325,12 +322,6 @@ class Compute_Engineered_Features_for_df:
         day2pm101Maverage= avg2[3][0]
         day2co1Maverage= avg2[4][0]
         day2so21Maverage= avg2[5][0]
-        day2pm251MMax = max(datalist,key=itemgetter(0))[0][0],\
-        day2no21MMax =max(datalist,key=itemgetter(1))[1][0],\
-        day2o31MMax =max(datalist,key=itemgetter(2))[2][0],\
-        day2pm101MMax =max(datalist,key=itemgetter(3))[3][0],\
-        day2co1MMax =max(datalist,key=itemgetter(4))[4][0],
-        day2so21MMax =max(datalist,key=itemgetter(5))[5][0],\
         day2hospi =row['hospi']
         day2newhospi = row['newhospi']
         day2CovidPosTest = row['CovidPosTest']
@@ -366,12 +357,12 @@ class Compute_Engineered_Features_for_df:
                     day2pm101Maverage,\
                     day2co1Maverage,\
                     day2so21Maverage,\
-                    day2pm251MMax,\
-                    day2no21MMax,\
-                    day2o31MMax,\
-                    day2pm101MMax,\
-                    day2co1MMax,\
-                    day2so21MMax,\
+                    max(datalist,key=itemgetter(0))[0][0],\
+                    max(datalist,key=itemgetter(1))[1][0],\
+                    max(datalist,key=itemgetter(2))[2][0],\
+                    max(datalist,key=itemgetter(3))[3][0],\
+                    max(datalist,key=itemgetter(4))[4][0],\
+                    max(datalist,key=itemgetter(5))[5][0],\
                     day2hospi,\
                     day2newhospi,\
                     day2CovidPosTest,\
@@ -451,12 +442,6 @@ class Compute_Engineered_Features_for_df:
         day3pm101Maverage= avg2[3][0]
         day3co1Maverage= avg2[4][0]
         day3so21Maverage= avg2[5][0]
-        day3pm251MMax = max(datalist,key=itemgetter(0))[0][0],\
-        day3no21MMax =max(datalist,key=itemgetter(1))[1][0],\
-        day3o31MMax =max(datalist,key=itemgetter(2))[2][0],\
-        day3pm101MMax =max(datalist,key=itemgetter(3))[3][0],\
-        day3co1MMax =max(datalist,key=itemgetter(4))[4][0],
-        day3so21MMax =max(datalist,key=itemgetter(5))[5][0],\
         day3hospi =row['hospi']
         day3newhospi = row['newhospi']
         day3CovidPosTest = row['CovidPosTest']
@@ -492,12 +477,12 @@ class Compute_Engineered_Features_for_df:
                     day3pm101Maverage,\
                     day3co1Maverage,\
                     day3so21Maverage,\
-                    day3pm251MMax,\
-                    day3no21MMax,\
-                    day3o31MMax,\
-                    day3pm101MMax,\
-                    day3co1MMax,\
-                    day3so21MMax,\
+                    max(datalist,key=itemgetter(0))[0][0],\
+                    max(datalist,key=itemgetter(1))[1][0],\
+                    max(datalist,key=itemgetter(2))[2][0],\
+                    max(datalist,key=itemgetter(3))[3][0],\
+                    max(datalist,key=itemgetter(4))[4][0],\
+                    max(datalist,key=itemgetter(5))[5][0],\
                     day3hospi,\
                     day3newhospi,\
                     day3CovidPosTest,\
@@ -581,12 +566,6 @@ class Compute_Engineered_Features_for_df:
         day4pm101Maverage= avg2[3][0]
         day4co1Maverage= avg2[4][0]
         day4so21Maverage= avg2[5][0]
-        day4pm251MMax = max(datalist,key=itemgetter(0))[0][0],\
-        day4no21MMax =max(datalist,key=itemgetter(1))[1][0],\
-        day4o31MMax =max(datalist,key=itemgetter(2))[2][0],\
-        day4pm101MMax =max(datalist,key=itemgetter(3))[3][0],\
-        day4co1MMax =max(datalist,key=itemgetter(4))[4][0],
-        day4so21MMax =max(datalist,key=itemgetter(5))[5][0],\
         day4hospi =row['hospi']
         day4newhospi = row['newhospi']
         day4CovidPosTest = row['CovidPosTest']
@@ -622,12 +601,12 @@ class Compute_Engineered_Features_for_df:
                     day4pm101Maverage,\
                     day4co1Maverage,\
                     day4so21Maverage,\
-                    day4pm251MMax,\
-                    day4no21MMax,\
-                    day4o31MMax,\
-                    day4pm101MMax,\
-                    day4co1MMax,\
-                    day4so21MMax,\
+                    max(datalist,key=itemgetter(0))[0][0],\
+                    max(datalist,key=itemgetter(1))[1][0],\
+                    max(datalist,key=itemgetter(2))[2][0],\
+                    max(datalist,key=itemgetter(3))[3][0],\
+                    max(datalist,key=itemgetter(4))[4][0],
+                    max(datalist,key=itemgetter(5))[5][0],\
                     day4hospi,\
                     day4newhospi,\
                     day4CovidPosTest,\
@@ -648,7 +627,7 @@ class Compute_Engineered_Features_for_df:
     def compute_dfs_from_which_to_make_predictions(self):
         print("Exporting dataframes from which predictions will be made to csvs...")
         datemax = self.data["date"].max()   
-        modelday0features = ['date','numero','idx', 'pm25', 'no2','o3','pm10','co','so2',\
+        self.modelday0features = ['date','numero','idx', 'pm25', 'no2','o3','pm10','co','so2',\
             'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
                 'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
                     '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
@@ -661,17 +640,125 @@ class Compute_Engineered_Features_for_df:
                                                 "minority","pauvrete","rsa","ouvriers",\
                                                     "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
                                                         ]
-
+        self.modelday1features = ['idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
+                                            "dateiminusonepm10dayiforecast","dateiminusonecodayiforecast","dateiminusoneso2dayiforecast",\
+                                                "dateiminusonepm25dayiforecast7davg","dateiminusoneno2dayiforecast7davg",\
+                                                    "dateiminusoneo3dayiforecast7davg","dateiminusonepm10dayiforecast7davg",\
+                                                        "dateiminusonecodayiforecast7davg","dateiminusoneso2dayiforecast7davg",\
+                                                        "dateiminusonepm25dayiforecast1Mavg","dateiminusoneno2dayiforecast1Mavg",\
+                                                        "dateiminusoneo3dayiforecast1Mavg","dateiminusonepm10dayiforecast1Mavg",\
+                                                        "dateiminusonecodayiforecast1Mavg","dateiminusoneso2dayiforecast1Mavg",\
+                                                        "dateiminusonepm25dayiforecast1MMax","dateiminusoneno2dayiforecast1MMax",\
+                                                        "dateiminusoneo3dayiforecast1MMax","dateiminusonepm10dayiforecast1MMax",\
+                                                        "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\
+                                                        'hospi','newhospi','CovidPosTest',\
+                                                            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
+                                                                'vac1nb', 'vac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                                                                        ]
+        self.modelday2features = ['idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
+                                            "dateiminustwopm10dayiforecast","dateiminustwocodayiforecast","dateiminustwoso2dayiforecast",\
+        "dateiminustwopm25dayiforecast7davg",\
+                "dateiminustwono2dayiforecast7davg",\
+                "dateiminustwoo3dayiforecast7davg",\
+                "dateiminustwopm10dayiforecast7davg",\
+                "dateiminustwocodayiforecast7davg",\
+                "dateiminustwoso2dayiforecast7davg",\
+                "dateiminustwopm25dayiforecast1Mavg",\
+                "dateiminustwono2dayiforecast1Mavg",\
+                "dateiminustwoo3dayiforecast1Mavg",\
+                "dateiminustwopm10dayiforecast1Mavg",\
+                "dateiminustwocodayiforecast1Mavg",\
+                "dateiminustwoso2dayiforecast1Mavg",\
+                "dateiminustwopm25dayiforecast1MMax",\
+                "dateiminustwono2dayiforecast1MMax",\
+                "dateiminustwoo3dayiforecast1MMax",\
+                "dateiminustwopm10dayiforecast1MMax",\
+                "dateiminustwocodayiforecast1MMax",\
+                "dateiminustwoso2dayiforecast1MMax",\
+                    'hospi','newhospi','CovidPosTest',\
+                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
+                            'vac1nb', 'vac2nb',\
+                                'Insuffisance respiratoire chronique grave (ALD14)', \
+                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                        'Smokers',\
+                                            "minority","pauvrete","rsa","ouvriers",\
+                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                                    ]
+        self.modelday3features = ['idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
+                                    "dateiminusthreepm10dayiforecast","dateiminusthreecodayiforecast","dateiminusthreeso2dayiforecast",\
+                                        "dateiminusthreepm25dayiforecast7davg","dateiminusthreeno2dayiforecast7davg",\
+                                            "dateiminusthreeo3dayiforecast7davg","dateiminusthreepm10dayiforecast7davg",\
+                                                "dateiminusthreecodayiforecast7davg","dateiminusthreeso2dayiforecast7davg",\
+                                                    "dateiminusthreepm25dayiforecast1Mavg","dateiminusthreeno2dayiforecast1Mavg",\
+                                                        "dateiminusthreeo3dayiforecast1Mavg","dateiminusthreepm10dayiforecast1Mavg",\
+                                                            "dateiminusthreecodayiforecast1Mavg","dateiminusthreeso2dayiforecast1Mavg",\
+                                                                "dateiminusthreepm25dayiforecast1MMax","dateiminusthreeno2dayiforecast1MMax",\
+                                                                    "dateiminusthreeo3dayiforecast1MMax","dateiminusthreepm10dayiforecast1MMax",\
+                                                                     "dateiminusthreecodayiforecast1MMax","dateiminusthreeso2dayiforecast1MMax",\
+                                    'hospi','newhospi','CovidPosTest',\
+                                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
+                                            'vac1nb', 'vac2nb',\
+                                                'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                        'Smokers',\
+                                                            "minority","pauvrete","rsa","ouvriers",\
+                                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                                                    ]
+        self.modelday4features = ['idx',\
+                "dateiminusfourpm25dayiforecast",\
+                "dateiminusfourno2dayiforecast",\
+                "dateiminusfouro3dayiforecast",\
+                "dateiminusfourpm10dayiforecast",\
+                "dateiminusfourcodayiforecast",\
+                "dateiminusfourso2dayiforecast",
+                "dateiminusfourpm25dayiforecast7davg",\
+                "dateiminusfourno2dayiforecast7davg",\
+                "dateiminusfouro3dayiforecast7davg",\
+                "dateiminusfourpm10dayiforecast7davg",\
+                "dateiminusfourcodayiforecast7davg",\
+                "dateiminusfourso2dayiforecast7davg",\
+                "dateiminusfourpm25dayiforecast1Mavg",\
+                "dateiminusfourno2dayiforecast1Mavg",\
+                "dateiminusfouro3dayiforecast1Mavg",\
+                "dateiminusfourpm10dayiforecast1Mavg",\
+                "dateiminusfourcodayiforecast1Mavg",\
+                "dateiminusfourso2dayiforecast1Mavg",\
+                "dateiminusfourpm25dayiforecast1MMax",\
+                "dateiminusfourno2dayiforecast1MMax",\
+                "dateiminusfouro3dayiforecast1MMax",\
+                "dateiminusfourpm10dayiforecast1MMax",\
+                "dateiminusfourcodayiforecast1MMax",\
+                "dateiminusfourso2dayiforecast1MMax",\
+                    'hospi','newhospi','CovidPosTest',\
+                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
+                            'vac1nb', 'vac2nb',\
+                                'Insuffisance respiratoire chronique grave (ALD14)', \
+                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                        'Smokers',\
+                                            "minority","pauvrete","rsa","ouvriers",\
+                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                                    ]
+ 
         self.data = self.data.merge(self.simplifieddf, how = 'inner', on = ['date','numero'], suffixes = ["","_y"])
-        day0df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 0)][modelday0features]
-        day1df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 24)][modelday0features]
-        day1df = day1df[modelday0features].apply(self.compute_input_df_model1, axis=1).apply(pd.Series)
-        day2df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 48)][modelday0features]
-        day2df = day2df[modelday0features].apply(self.compute_input_df_model2, axis=1).apply(pd.Series)
-        day3df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 72)][modelday0features]
-        day3df = day3df[modelday0features].apply(self.compute_input_df_model3, axis=1).apply(pd.Series)
-        day4df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 96)][modelday0features]
-        day4df = day4df[modelday0features].apply(self.compute_input_df_model4, axis=1).apply(pd.Series)
+        print("Computing input dataframe for model day0 ...")
+        day0df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 0)][self.modelday0features]
+        print("Computing input dataframe for model day1 ...")
+        day1df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 24)][self.modelday1features]
+        day1df = day1df[self.modelday1features].apply(self.compute_input_df_model1, axis=1).apply(pd.Series)
+        print("Computing input dataframe for model day2 ...")
+        day2df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 48)][self.modelday2features]
+        day2df = day2df[modelday2features].apply(self.compute_input_df_model2, axis=1).apply(pd.Series)
+        print("Computing input dataframe for model day3 ...")
+        day3df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 72)][self.modelday3features]
+        day3df = day3df[self.modelday3features].apply(self.compute_input_df_model3, axis=1).apply(pd.Series)
+        print("Computing input dataframe for model day4 ...")
+        day4df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 96)][self.modelday4features]
+        day4df = day4df[self.modelday4features].apply(self.compute_input_df_model4, axis=1).apply(pd.Series)
         day0df.to_csv("../predictions/fr/data/day0df.csv", index = False)
         day1df.to_csv("../predictions/fr/data/day1df.csv", index = False)
         day2df.to_csv("../predictions/fr/data/day2df.csv", index = False)
@@ -868,7 +955,6 @@ class Compute_Engineered_Features_for_df:
             dateiminusthreepm10dayiforecast1MMax= self.dicpm10EngFeat[(row['numero'], pd.to_datetime(str(dateiminusthree)))][2]
             dateiminusthreecodayiforecast1MMax= self.diccoEngFeat[(row['numero'], pd.to_datetime(str(dateiminusthree)))][2]
             dateiminusthreeso2dayiforecast1MMax= self.dicso2EngFeat[(row['numero'], pd.to_datetime(str(dateiminusthree)))][2]
-
 
             dateiminusfourpm25dayiforecast= self.dicpm25[(row['numero'], pd.to_datetime(str(dateiminusfour)), 96)][0]
             dateiminusfourno2dayiforecast= self.dicno2[(row['numero'], pd.to_datetime(str(dateiminusfour)),96)][0]
@@ -1258,12 +1344,11 @@ class Compute_Engineered_Features_for_df:
 if __name__ == '__main__':
     Engineered_Features = Compute_Engineered_Features_for_df()
     Engineered_Features.get_data()
-    print(Engineered_Features.simplifieddf)
     Engineered_Features.max_normalize_data()
     Engineered_Features.compute_dictionnaries()
-    #Engineered_Features.compute_Engineered_features_assign_to_df()
+    Engineered_Features.compute_Engineered_features_assign_to_df()
     Engineered_Features.compute_avg_and_max_dictionnaries()
-    #Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
+    Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
     Engineered_Features.compute_target_assign_to_df()
     Engineered_Features.compute_dfs_from_which_to_make_predictions()
 
