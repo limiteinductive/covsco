@@ -13,7 +13,7 @@ class download_covid_hist_data:
         self.data = None
 
     def GetData(self):
-
+        print("Downloading Covid Numbers from coronavirusapi-france.now ...")
         self.file_name = "../data/train/pop/fr/departements-francais.csv"
         self.departements = pd.read_csv(self.file_name, sep = ";")
         self.url = "https://coronavirusapi-france.now.sh/AllDataByDepartement?Departement="
