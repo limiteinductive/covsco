@@ -112,7 +112,7 @@ class maintrain:
                                                         "dateiminusonecodayiforecast1Mavg","dateiminusoneso2dayiforecast1Mavg",\
                                                         "dateiminusonepm25dayiforecast1MMax","dateiminusoneno2dayiforecast1MMax",\
                                                         "dateiminusoneo3dayiforecast1MMax","dateiminusonepm10dayiforecast1MMax",\
-                                                        "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\         
+                                                        "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\
                                                         'hospi','newhospi','CovidPosTest',\
                                                             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
                                                                 'vac1nb', 'vac2nb',\
@@ -208,7 +208,7 @@ class maintrain:
                                                     ]
         return None
 
-    def HoldOut(self, features)
+    def HoldOut(self, features):
         print("Proceding to Hold-Out Method")
         self.df["date"]=pd.to_datetime(self.df["date"])
         self.X=self.df[features]

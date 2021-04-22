@@ -67,16 +67,19 @@ class Compute_Engineered_Features_for_df:
         self.day4pm10forecast = None
         self.day4coforecast = None
         self.day4so2forecast = None
-
+        self.simplifieddf = None
+    
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
 
     def get_data(self):
+        print("Reading data from csv...")
         self.file_name = '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv'
         self.data = pd.read_csv(self.file_name)
         return None
 
     def max_normalize_data(self):
+        print("Min Max Normalizing the data for data viz...")
         self.data["normpm25"]=self.max_normalize(self.data["pm25"])
         self.data["normno2"]=self.max_normalize(self.data["no2"])
         self.data["normo3"]=self.max_normalize(self.data["o3"])
@@ -87,7 +90,7 @@ class Compute_Engineered_Features_for_df:
         return None
     
     def compute_dictionnaries(self):
-
+        print("Computing dictionnaries from tuples...")           
         self.pm25tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["pm25"], self.data["normpm25"] )
         self.no2tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["no2"], self.data["normno2"])
         self.o3tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["o3"], self.data["normo3"])
@@ -111,14 +114,13 @@ class Compute_Engineered_Features_for_df:
         return None
 
     def compute_avg_and_max_dictionnaries(self):
-
+        print("Computing Engineered Feature Dictionnaries from tuples...")
         self.pm25EngFeattuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["pm257davg"], self.data["pm251Mavg"], self.data["1MMaxpm25"] )
         self.no2EngFeattuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["no27davg"], self.data["no21Mavg"], self.data["1MMaxno2"])
         self.o3EngFeattuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["o37davg"], self.data["o31Mavg"], self.data["1MMaxo3"] )
         self.pm10EngFeattuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["pm107davg"], self.data["pm101Mavg"], self.data["1MMaxpm10"])
         self.coEngFeattuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["co7davg"], self.data["co1Mavg"], self.data["1MMaxco"])
         self.so2EngFeattuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["so27davg"], self.data["so21Mavg"],self.data["1MMaxso2"])
-        
         
         self.dicpm25EngFeat = {(i, j, lh) : (k,l,m) for (i, j, lh, k, l,m) in zip(*self.pm25EngFeattuple)}
         self.dicno2EngFeat = {(i, j, lh) : (k,l,m)  for (i, j, lh, k, l,m) in zip(*self.no2EngFeattuple)}
@@ -128,7 +130,9 @@ class Compute_Engineered_Features_for_df:
         self.dicso2EngFeat = {(i, j, lh) : (k,l,m)  for (i, j, lh, k, l,m) in zip(*self.so2EngFeattuple)}
 
         return None
+
     def compute_input_df_model1(self,row):
+        print("Computing input dataframe for model day1...")
         datalist = []
         datalist2 = []
         maxdate = self.data["date"].max()
@@ -244,6 +248,7 @@ class Compute_Engineered_Features_for_df:
                     day1variant2)
 
     def compute_input_df_model2(self,row):
+        print("Computing input dataframe for model day2...")
         datalist =[]
         datalist2 =[]
         maxdate = self.data["date"].max()
@@ -364,6 +369,7 @@ class Compute_Engineered_Features_for_df:
                     day2variant2)
 
     def compute_input_df_model3(self,row):
+        print("Computing input dataframe for model day3...")
         datalist =[]
         datalist2 =[]
         maxdate = self.data["date"].max()
@@ -489,6 +495,7 @@ class Compute_Engineered_Features_for_df:
                     day3variant2)
 
     def compute_input_df_model4(self,row):
+        print("Computing input dataframe for model day4...")
         datalist =[]
         datalist2 =[]
         maxdate = self.data["date"].max()
@@ -617,7 +624,8 @@ class Compute_Engineered_Features_for_df:
                     day4variant1,\
                     day4variant2)
 
-    def compute_forecast_data_engineered_features_day0(self,row):
+    def compute_dfs_from_which_to_make_predictions(self):
+        print("Exporting dataframes from which predictions will be made to csvs...")
         datemax = self.data["date"].max()   
         modelday0features = ['idx', 'pm25', 'no2','o3','pm10','co','so2',\
             'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
@@ -642,12 +650,14 @@ class Compute_Engineered_Features_for_df:
         day3df = day3df[modelday0features].apply(self.compute_input_df_model3, axis=1).apply(pd.Series)
         day4df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 96)][modelday0features]
         day4df = day4df[modelday0features].apply(self.compute_input_df_model4, axis=1).apply(pd.Series)
-    
-        return (day0df,day1df,day2df,day3df,day4df)
+        day0df.to_csv("../predictions/fr/data/day0df.csv", index = False)
+        day1df.to_csv("../predictions/fr/data/day1df.csv", index = False)
+        day2df.to_csv("../predictions/fr/data/day2df.csv", index = False)
+        day3df.to_csv("../predictions/fr/data/day3df.csv", index = False)
+        day4df.to_csv("../predictions/fr/data/day4df.csv", index = False)
+        return None
 
     def compute_forecast_data_for_training_models(self,row):
-        print("Computing forecast data for training models...")
-        self.compute_avg_and_max_dictionnaries()
         dateiminusone = row["date"] - pd.Timedelta("1 days") 
         dateiminustwo = row["date"] - pd.Timedelta("2 days") 
         dateiminusthree = row["date"] - pd.Timedelta("3 days") 
@@ -973,6 +983,7 @@ class Compute_Engineered_Features_for_df:
             return self.dicnewhospi[(row['numero'], pd.to_datetime(str(date)), 0)]
 
     def compute_Engineered_Features(self, row):
+        print("Computing the engineered features...")
         referencedate = self.data["date"].min()
         datalist = []
         datalist2 = []
@@ -1100,15 +1111,18 @@ class Compute_Engineered_Features_for_df:
                 avg6)
 
     def compute_target_assign_to_df(self):
-        self.data[['newhospinextday']] = self.data.apply(self.compute_target,axis = 1)
+        print("Computing the target data & exporting to traindf.csv ...")
+        self.simplifieddf[['newhospinextday']] = self.simplifieddf.apply(self.compute_target,axis = 1)
         print("\n")     
-        print(self.data)
+        print(self.simplifieddf)
         print("\n")
-        self.data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
+        self.simplifieddf.to_csv('../data/train/all_data_merged/fr/traindf.csv', index = False)
         return None
 
     def compute_Engineered_features_assign_to_df(self):
-        self.data[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco','1MMaxso2',\
+        print("Computing the engineered features & exporting to Enriched_Covid_history_data.csv ...")
+        self.simplifieddf = self.data[self.data["leadtime_hour"]==0]
+        self.simplifieddf[['1MMaxpm25','1MMaxno2','1MMaxo3','1MMaxpm10','1MMaxco','1MMaxso2',\
                 '1MMaxnormpm25','1MMaxnormno2','1MMaxnormo3','1MMaxnormpm10','1MMaxnormco','1MMaxnormso2', 
                 'hospiprevday',
                 'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
@@ -1116,15 +1130,23 @@ class Compute_Engineered_Features_for_df:
                 "normpm251Mavg","normno21Mavg","normo31Mavg","normpm101Mavg","normco1Mavg",'normso27davg',\
                 "normpm257davg","normno27davg","normo37davg","normpm107davg","normco7davg",'normso27davg',\
                 "newhospi7davg","newreanim7davg","newhospi3davg","newreanim3davg"]] \
-                    = self.data.apply(self.compute_Engineered_Features, axis=1).apply(pd.Series)
+                    = self.simplifieddf.apply(self.compute_Engineered_Features, axis=1).apply(pd.Series)
         print("\n")
         print(self.data)
         print("\n")
-        self.data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
+        self.simplifieddf.to_csv('../data/train/all_data_merged/fr/traindf.csv', index = False)
         return None
     
     def compute_dayi_past_forecasts_assign_to_df(self):
-        self.data[["dateiminusonepm25dayiforecast",\
+        print ("Reverse engineering day_i past forecasts & exporting to dftrain.csv ...")
+        
+        self.simplifieddf = self.data[self.data["leadtime_hour"]==0]
+        self.simplifieddf.to_csv("test.csv",sep=';', index = False)
+        print (self.data)
+        print(self.simplifieddf)
+        self.simplifieddf.reset_index(inplace = True)
+        print(self.simplifieddf)
+        self.simplifieddf = self.simplifieddf[["dateiminusonepm25dayiforecast",\
                 "dateiminusoneno2dayiforecast",\
                 "dateiminusoneo3dayiforecast",\
                 "dateiminusonepm10dayiforecast",\
@@ -1147,7 +1169,7 @@ class Compute_Engineered_Features_for_df:
                 "dateiminusfouro3dayiforecast",\
                 "dateiminusfourpm10dayiforecast",\
                 "dateiminusfourcodayiforecast",\
-                "dateiminusfourso2dayiforecast",
+                "dateiminusfourso2dayiforecast",\
                 "dateiminusonepm25dayiforecast7davg",\
                 "dateiminusoneno2dayiforecast7davg",\
                 "dateiminusoneo3dayiforecast7davg",\
@@ -1219,12 +1241,12 @@ class Compute_Engineered_Features_for_df:
                 "dateiminusfouro3dayiforecast1MMax",\
                 "dateiminusfourpm10dayiforecast1MMax",\
                 "dateiminusfourcodayiforecast1MMax",\
-                "dateiminusfourso2dayiforecast1MMax"]] = self.data.apply(self.compute_forecast_data_for_training_models, axis = 1).apply(pd.Series)
+                "dateiminusfourso2dayiforecast1MMax"]] = self.simplifieddf.apply(self.compute_forecast_data_for_training_models, axis = 1).apply(pd.Series)
         
         print("\n")
-        print(self.data)
+        print(self.simplifieddf)
         print("\n")
-        self.data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
+        self.simplifieddf.to_csv('../data/train/all_data_merged/fr/dftrain.csv')
         return None
 
 if __name__ == '__main__':
@@ -1232,9 +1254,12 @@ if __name__ == '__main__':
     Engineered_Features.get_data()
     Engineered_Features.max_normalize_data()
     Engineered_Features.compute_dictionnaries()
+    Engineered_Features.compute_avg_and_max_dictionnaries()
     #Engineered_Features.compute_Engineered_features_assign_to_df()
-    #Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
+    Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
     Engineered_Features.compute_target_assign_to_df()
+    Engineered_Features.compute_dfs_from_which_to_make_predictions()
+
 
 
    
