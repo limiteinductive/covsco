@@ -16,6 +16,8 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import VotingClassifier
 from sklearn.ensemble import VotingRegressor
 from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.svm import LinearSVR
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import FastICA
 from sklearn.ensemble import StackingRegressor
 import xgboost as xgb
@@ -36,9 +38,9 @@ from sklearn.preprocessing import FunctionTransformer
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import RobustScaler
 
-class maintrain:
+class maintrain():
 
-    def __init__(self):
+    def __init__(self, skipcrossval):
 
         self.df = None
         self.modelday0features = None
@@ -54,6 +56,7 @@ class maintrain:
         self.X_test = None
         self.y_test = None
         self.predictiondata = None
+        self.skipcrossval=skipcrossval
 
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
@@ -206,10 +209,77 @@ class maintrain:
         ]
         return None
 
-    def HoldOut(self, features):
+    def HoldOut(self, features, model):
         print("Proceding to Hold-Out Method")
         self.df["date"]=pd.to_datetime(self.df["date"])
         self.X=self.df[features]
+        if model == 1:
+            self.X.rename(columns = {"dateiminusonepm25dayiforecast":"pm25","dateiminusoneno2dayiforecast":"no2","dateiminusoneo3dayiforecast":"o3",\
+                                            "dateiminusonepm10dayiforecast":"pm10","dateiminusonecodayiforecast":"co","dateiminusoneso2dayiforecast":"so2",\
+                                                "dateiminusonepm25dayiforecast7davg":"pm257davg","dateiminusoneno2dayiforecast7davg":"no27davg",\
+                                                    "dateiminusoneo3dayiforecast7davg":"o37davg","dateiminusonepm10dayiforecast7davg":"pm107davg",\
+                                                        "dateiminusonecodayiforecast7davg":"co7davg","dateiminusoneso2dayiforecast7davg":"so27davg",\
+                                                        "dateiminusonepm25dayiforecast1Mavg":"pm251Mavg","dateiminusoneno2dayiforecast1Mavg":"no21Mavg",\
+                                                        "dateiminusoneo3dayiforecast1Mavg":"o31Mavg","dateiminusonepm10dayiforecast1Mavg":"pm101Mavg",\
+                                                        "dateiminusonecodayiforecast1Mavg":"co1Mavg","dateiminusoneso2dayiforecast1Mavg":"so21Mavg",\
+                                                        "dateiminusonepm25dayiforecast1MMax":"1MMaxpm25","dateiminusoneno2dayiforecast1MMax":"1MMaxno2",\
+                                                        "dateiminusoneo3dayiforecast1MMax":"1MMaxo3","dateiminusonepm10dayiforecast1MMax":"1MMaxpm10",\
+                                                        "dateiminusonecodayiforecast1MMax":"1MMaxco","dateiminusoneso2dayiforecast1MMax":"1MMaxso2",\
+                                                        'dateiminusonehospi':'hospi','dateiminusonenewhospi':'newhospi',"dateiminusonecovidpostest":"CovidPosTest",\
+                                                            'dateiminonefbmobility2':'all_day_bing_tiles_visited_relative_change','dateiminonefbmobility1':'all_day_ratio_single_tile_users',\
+                                                                'dateiminusonevac1nb':'vac1nb', 'dateiminusonevac2nb':'vac2nb',\
+                                                                "dateiminusoneNb_susp_501Y_V1":"Nb_susp_501Y_V1","dateiminusoneNb_susp_501Y_V2_3":"Nb_susp_501Y_V2_3"})
+        if model == 2:
+            self.X.rename(columns = {"dateiminustwopm25dayiforecast":"pm25","dateiminustwono2dayiforecast":"no2","dateiminustwoo3dayiforecast":"o3",\
+                                            "dateiminustwopm10dayiforecast":"pm10","dateiminustwocodayiforecast":"co","dateiminustwoso2dayiforecast":"so2",\
+                                                "dateiminustwopm25dayiforecast7davg":"pm257davg","dateiminustwono2dayiforecast7davg":"no27davg",\
+                                                    "dateiminustwoo3dayiforecast7davg":"o37davg","dateiminustwopm10dayiforecast7davg":"pm107davg",\
+                                                        "dateiminustwocodayiforecast7davg":"co7davg","dateiminustwoso2dayiforecast7davg":"so27davg",\
+                                                        "dateiminustwopm25dayiforecast1Mavg":"pm251Mavg","dateiminustwono2dayiforecast1Mavg":"no21Mavg",\
+                                                        "dateiminustwoo3dayiforecast1Mavg":"o31Mavg","dateiminustwopm10dayiforecast1Mavg":"pm101Mavg",\
+                                                        "dateiminustwocodayiforecast1Mavg":"co1Mavg","dateiminustwoso2dayiforecast1Mavg":"so21Mavg",\
+                                                        "dateiminustwopm25dayiforecast1MMax":"1MMaxpm25","dateiminustwono2dayiforecast1MMax":"1MMaxno2",\
+                                                        "dateiminustwoo3dayiforecast1MMax":"1MMaxo3","dateiminustwopm10dayiforecast1MMax":"1MMaxpm10",\
+                                                        "dateiminustwocodayiforecast1MMax":"1MMaxco","dateiminustwoso2dayiforecast1MMax":"1MMaxso2",\
+                                                        'dateiminustwohospi':'hospi','dateiminustwonewhospi':'newhospi',"dateiminustwocovidpostest":"CovidPosTest",\
+                                                            'dateimintwofbmobility2':'all_day_bing_tiles_visited_relative_change','dateimintwofbmobility1':'all_day_ratio_single_tile_users',\
+                                                                'dateiminustwovac1nb':'vac1nb', 'dateiminustwovac2nb':'vac2nb',\
+                                                                                    "dateiminustwoNb_susp_501Y_V1":"Nb_susp_501Y_V1","dateiminustwoNb_susp_501Y_V2_3":"Nb_susp_501Y_V2_3"})
+
+        if model == 3:
+            self.X.rename(columns = {"dateiminusthreepm25dayiforecast":"pm25","dateiminusthreeno2dayiforecast":"no2","dateiminusthreeo3dayiforecast":"o3",\
+                                            "dateiminusthreepm10dayiforecast":"pm10","dateiminusthreecodayiforecast":"co","dateiminusthreeso2dayiforecast":"so2",\
+                                                "dateiminusthreepm25dayiforecast7davg":"pm257davg","dateiminusthreeno2dayiforecast7davg":"no27davg",\
+                                                    "dateiminusthreeo3dayiforecast7davg":"o37davg","dateiminusthreepm10dayiforecast7davg":"pm107davg",\
+                                                        "dateiminusthreecodayiforecast7davg":"co7davg","dateiminusthreeso2dayiforecast7davg":"so27davg",\
+                                                        "dateiminusthreepm25dayiforecast1Mavg":"pm251Mavg","dateiminusthreeno2dayiforecast1Mavg":"no21Mavg",\
+                                                        "dateiminusthreeo3dayiforecast1Mavg":"o31Mavg","dateiminusthreepm10dayiforecast1Mavg":"pm101Mavg",\
+                                                        "dateiminusthreecodayiforecast1Mavg":"co1Mavg","dateiminusthreeso2dayiforecast1Mavg":"so21Mavg",\
+                                                        "dateiminusthreepm25dayiforecast1MMax":"1MMaxpm25","dateiminusthreeno2dayiforecast1MMax":"1MMaxno2",\
+                                                        "dateiminusthreeo3dayiforecast1MMax":"1MMaxo3","dateiminusthreepm10dayiforecast1MMax":"1MMaxpm10",\
+                                                        "dateiminusthreecodayiforecast1MMax":"1MMaxco","dateiminusthreeso2dayiforecast1MMax":"1MMaxso2",\
+                                                        'dateiminusthreehospi':'hospi','dateiminusthreenewhospi':'newhospi',"dateiminusthreecovidpostest":"CovidPosTest",\
+                                                            'dateiminthreefbmobility2':'all_day_bing_tiles_visited_relative_change','dateiminthreefbmobility1':'all_day_ratio_single_tile_users',\
+                                                                'dateiminusthreevac1nb':'vac1nb', 'dateiminusthreevac2nb':'vac2nb',\
+                                                                                    "dateiminusthreeNb_susp_501Y_V1":"Nb_susp_501Y_V1","dateiminusthreeNb_susp_501Y_V2_3":"Nb_susp_501Y_V2_3"})
+
+        if model == 4:
+            self.X.rename(columns = {"dateiminusfourpm25dayiforecast":"pm25","dateiminusfourno2dayiforecast":"no2","dateiminusfouro3dayiforecast":"o3",\
+                                            "dateiminusfourpm10dayiforecast":"pm10","dateiminusfourcodayiforecast":"co","dateiminusfourso2dayiforecast":"so2",\
+                                                "dateiminusfourpm25dayiforecast7davg":"pm257davg","dateiminusfourno2dayiforecast7davg":"no27davg",\
+                                                    "dateiminusfouro3dayiforecast7davg":"o37davg","dateiminusfourpm10dayiforecast7davg":"pm107davg",\
+                                                        "dateiminusfourcodayiforecast7davg":"co7davg","dateiminusfourso2dayiforecast7davg":"so27davg",\
+                                                        "dateiminusfourpm25dayiforecast1Mavg":"pm251Mavg","dateiminusfourno2dayiforecast1Mavg":"no21Mavg",\
+                                                        "dateiminusfouro3dayiforecast1Mavg":"o31Mavg","dateiminusfourpm10dayiforecast1Mavg":"pm101Mavg",\
+                                                        "dateiminusfourcodayiforecast1Mavg":"co1Mavg","dateiminusfourso2dayiforecast1Mavg":"so21Mavg",\
+                                                        "dateiminusfourpm25dayiforecast1MMax":"1MMaxpm25","dateiminusfourno2dayiforecast1MMax":"1MMaxno2",\
+                                                        "dateiminusfouro3dayiforecast1MMax":"1MMaxo3","dateiminusfourpm10dayiforecast1MMax":"1MMaxpm10",\
+                                                        "dateiminusfourcodayiforecast1MMax":"1MMaxco","dateiminusfourso2dayiforecast1MMax":"1MMaxso2",\
+                                                        'dateiminusfourhospi':'hospi','dateiminusfournewhospi':'newhospi',"dateiminusfourcovidpostest":"CovidPosTest",\
+                                                            'dateiminfourfbmobility2':'all_day_bing_tiles_visited_relative_change','dateiminfourfbmobility1':'all_day_ratio_single_tile_users',\
+                                                                'dateiminusfourvac1nb':'vac1nb', 'dateiminusfourvac2nb':'vac2nb',\
+                                                        "dateiminusfourNb_susp_501Y_V1":"Nb_susp_501Y_V1","dateiminusfourNb_susp_501Y_V2_3":"Nb_susp_501Y_V2_3"})
+       
         self.y= self.df['newhospinextday']
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.33)
         print("\n")
@@ -217,18 +287,17 @@ class maintrain:
 
     def CurrentBestModel(self):
         
-        featurelist = [self.modelday0features,self.modelday1features,self.modelday2features,self.modelday3features,self.modelday4features]
+        featurelist = [self.modelday0features,self.modelday0features,self.modelday0features,self.modelday0features,self.modelday0features]
         counter = 0
         for features in featurelist:
-            self.HoldOut(features)
-
+            self.HoldOut(features, counter)
+            print("Model for day ",counter)
             print("VotingRegressor: The Votes of an XGBoost (Extreme Gradient) Regressor VS the votes of a Gradient Boosting Regressor")
-
-            GBR1 =  GradientBoostingRegressor(alpha=0.75, learning_rate=0.1, loss="ls", max_depth=8, max_features=0.33, min_samples_leaf=14, min_samples_split=18, n_estimators=100, subsample=0.9500000000000001)
+            GBR1 = GradientBoostingRegressor(alpha=0.9, learning_rate=0.1, loss="huber", max_depth=8, max_features=1.0, min_samples_leaf=19, min_samples_split=11, n_estimators=100, subsample=0.9500000000000001)
             exported_pipeline = make_pipeline(
-                StandardScaler(),
-                RobustScaler(),
-                GBR1)
+            StackingEstimator(estimator=LinearSVR(C=10.0, dual=False, epsilon=0.1, loss="squared_epsilon_insensitive", tol=0.001)),\
+                              MinMaxScaler(),\
+                              GBR1)\
 
             xgb_model = xgb.XGBRegressor(base_score=0.5, booster='gbtree', colsample_bylevel=1,
                         colsample_bynode=1, colsample_bytree=1, gamma=0, gpu_id=-1,
@@ -251,17 +320,19 @@ class maintrain:
             print(MSE5)
             print("MAE:")
             print(MAE5)
-            print("Cross Validation")
-            scores = cross_validate(ensemble, self.X, self.y, cv=5,
-                                    scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
-                                    return_train_score=True)
-            print("MSE:")
-            print(scores["test_neg_mean_squared_error"].mean())
-            print("MAE:")
-            print(scores["test_neg_mean_absolute_error"].mean())
-            print("Cross-val Scores")
-            print(scores)
-            print("\n")
+
+            if self.skipcrossval == None:
+                print("Cross Validation")
+                scores = cross_validate(ensemble, self.X, self.y, cv=5,
+                                        scoring=('neg_mean_squared_error',"neg_mean_absolute_error"),
+                                        return_train_score=True)
+                print("MSE:")
+                print(scores["test_neg_mean_squared_error"].mean())
+                print("MAE:")
+                print(scores["test_neg_mean_absolute_error"].mean())
+                print("Cross-val Scores")
+                print(scores)
+                print("\n")
 
             xgb_model.fit(self.X, self.y)
             GBR1.fit(self.X, self.y)
