@@ -20,7 +20,21 @@ class Compute_Engineered_Features_for_df:
         self.so2tuple = None
         self.tothospituple = None
         self.newhospituple = None
-        self.newreanim = None
+        self.covidpostesttuple = None
+        self.fbmobility1tuple = None
+        self.fbmobility2tuple = None
+        self.Nb_susp_501Y_V1tuple = None
+        self.Nb_susp_501Y_V2_3tuple = None
+        self.vac1nbtuple = None
+        self.vac2nbtuple =  None 
+        self.newreanimtuple = None
+        self.diccovidpostest = None
+        self.dicfbmobility1 = None
+        self.dicfbmobility2 = None
+        self.dicNb_susp_501Y_V1 = None
+        self.dicNb_susp_501Y_V2_3 = None
+        self.dicvac1nb = None
+        self.dicvac2nb =  None 
         self.dicpm25 = None
         self.dicno2 = None
         self.dico3 = None
@@ -77,14 +91,15 @@ class Compute_Engineered_Features_for_df:
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
 
-    def get_data(self):
+    def get_data(self, load = 0):
         print("Reading data from csv...")
         self.file_name = '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv'
         self.data = pd.read_csv(self.file_name)
         self.data["date"]=pd.to_datetime(self.data["date"])
-        #self.simplifieddf = pd.read_csv('../data/train/all_data_merged/fr/traindf.csv')
-        #self.simplifieddf["date"]=pd.to_datetime(self.simplifieddf["date"])
-        #print(self.simplifieddf)
+        if (load == 1):
+            self.simplifieddf = pd.read_csv('../data/train/all_data_merged/fr/traindf.csv')
+            self.simplifieddf["date"]=pd.to_datetime(self.simplifieddf["date"])
+            print(self.simplifieddf)
         return None
 
     def max_normalize_data(self):
@@ -108,8 +123,15 @@ class Compute_Engineered_Features_for_df:
         self.so2tuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["so2"], self.data["normso2"])
         self.tothospituple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["hospi"])
         self.newhospituple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"],self.data["newhospi"])
+        self.covidpostesttuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["CovidPosTest"])
+        self.fbmobility1tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["all_day_ratio_single_tile_users"])
+        self.fbmobility2tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["all_day_bing_tiles_visited_relative_change"])
+        self.Nb_susp_501Y_V1tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["Nb_susp_501Y_V1"])
+        self.Nb_susp_501Y_V2_3tuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["Nb_susp_501Y_V2_3"])
+        self.vac1nbtuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["vac1nb"])
+        self.vac2nbtuple = (self.data['numero'], self.data["date"], self.data["leadtime_hour"], self.data["vac2nb"])
         self.newreanimtuple = (self.data['numero'], self.data["date"],self.data["leadtime_hour"], self.data["newreanim"])
-
+       
         self.dicpm25 = {(i, j, lh) : (k,l) for (i, j, lh, k, l) in zip(*self.pm25tuple)}
         self.dicno2 = {(i, j, lh) : (k,l)  for (i, j, lh, k, l) in zip(*self.no2tuple)}
         self.dico3 = {(i, j, lh) : (k,l)  for (i, j, lh, k, l) in zip(*self.o3tuple)}
@@ -118,6 +140,13 @@ class Compute_Engineered_Features_for_df:
         self.dicso2 = {(i, j, lh) : (k,l)  for (i, j, lh, k, l) in zip(*self.so2tuple)}
         self.dictothospi = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.tothospituple)}
         self.dicnewhospi = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.newhospituple)}
+        self.diccovidpostest = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.covidpostesttuple)}
+        self.dicfbmobility1 = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.fbmobility1tuple)}
+        self.dicfbmobility2 = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.fbmobility2tuple)}
+        self.dicNb_susp_501Y_V1 = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.Nb_susp_501Y_V1tuple)}
+        self.dicNb_susp_501Y_V2_3 = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.Nb_susp_501Y_V2_3tuple)}
+        self.dicvac1nb = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.vac1nbtuple)}
+        self.dicvac2nb = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.vac2nbtuple)}
         self.dicnewreanim = {(i, j, lh) : k for (i, j, lh, k) in zip(*self.newreanimtuple)}
 
         return None
@@ -144,6 +173,7 @@ class Compute_Engineered_Features_for_df:
         print(row)
         datalist = []
         datalist2 = []
+
         maxdate = self.data["date"].max()
         mindate = self.simplifieddf["date"].min()
         day1idx = row["idx"]
@@ -170,7 +200,7 @@ class Compute_Engineered_Features_for_df:
                                 self.dicso2[(row['numero'], pd.to_datetime(str(valuedate)), 0)]))
             datalist.append((self.day1pm25forecast,self.day1no2forecast,self.day1o3forecast,self.day1pm10forecast,\
                 self.day1coforecast,self.day1so2forecast))
-        print(datalist)
+      
         if (date2 < mindate):
             datalist2.append((('NaN','Nan'),('NaN','Nan'),('NaN','Nan'),('NaN','NaN'),('NaN','Nan'),('NaN','NaN')))
         else:
@@ -224,13 +254,13 @@ class Compute_Engineered_Features_for_df:
         day1ouvriers = row["ouvriers"]
         day1variant1 = row["Nb_susp_501Y_V1"]
         day1variant2 = row["Nb_susp_501Y_V2_3"]
-        return (day1idx,\
-                    self.day1pm25forecast,\
-                    self.day1no2forecast,\
-                    self.day1o3forecast,\
-                    self.day1pm10forecast,\
-                    self.day1coforecast,\
-                    self.day1so2forecast,\
+        return (row["date"], row["numero"], day1idx,\
+                    self.day1pm25forecast[0],\
+                    self.day1no2forecast[0],\
+                    self.day1o3forecast[0],\
+                    self.day1pm10forecast[0],\
+                    self.day1coforecast[0],\
+                    self.day1so2forecast[0],\
                     day1pm257daverage,\
                     day1no27daverage,\
                     day1o37daverage,\
@@ -338,13 +368,13 @@ class Compute_Engineered_Features_for_df:
         day2ouvriers = row["ouvriers"]
         day2variant1 = row["Nb_susp_501Y_V1"]
         day2variant2 = row["Nb_susp_501Y_V2_3"]
-        return (day2idx,\
-                    self.day2pm25forecast,\
-                    self.day2no2forecast,\
-                    self.day2o3forecast,\
-                    self.day2pm10forecast,\
-                    self.day2coforecast,\
-                    self.day2so2forecast,\
+        return (row["date"], row["numero"], day2idx,\
+                    self.day2pm25forecast[0],\
+                    self.day2no2forecast[0],\
+                    self.day2o3forecast[0],\
+                    self.day2pm10forecast[0],\
+                    self.day2coforecast[0],\
+                    self.day2so2forecast[0],\
                     day2pm257daverage,\
                     day2no27daverage,\
                     day2o37daverage,\
@@ -381,7 +411,6 @@ class Compute_Engineered_Features_for_df:
                     day2variant2)
 
     def compute_input_df_model3(self,row):
-        print("Computing input dataframe for model day3...")
         datalist =[]
         datalist2 =[]
         maxdate = self.data["date"].max()
@@ -458,13 +487,13 @@ class Compute_Engineered_Features_for_df:
         day3ouvriers = row["ouvriers"]
         day3variant1 = row["Nb_susp_501Y_V1"]
         day3variant2 = row["Nb_susp_501Y_V2_3"]
-        return (day3idx,\
-                    self.day3pm25forecast,\
-                    self.day3no2forecast,\
-                    self.day3o3forecast,\
-                    self.day3pm10forecast,\
-                    self.day3coforecast,\
-                    self.day3so2forecast,\
+        return (row["date"], row["numero"], day3idx,\
+                    self.day3pm25forecast[0],\
+                    self.day3no2forecast[0],\
+                    self.day3o3forecast[0],\
+                    self.day3pm10forecast[0],\
+                    self.day3coforecast[0],\
+                    self.day3so2forecast[0],\
                     day3pm257daverage,\
                     day3no27daverage,\
                     day3o37daverage,\
@@ -501,7 +530,6 @@ class Compute_Engineered_Features_for_df:
                     day3variant2)
 
     def compute_input_df_model4(self,row):
-        print("Computing input dataframe for model day4...")
         datalist =[]
         datalist2 =[]
         maxdate = self.data["date"].max()
@@ -582,13 +610,13 @@ class Compute_Engineered_Features_for_df:
         day4ouvriers = row["ouvriers"]
         day4variant1 = row["Nb_susp_501Y_V1"]
         day4variant2 = row["Nb_susp_501Y_V2_3"]
-        return (day4idx,\
-                    self.day4pm25forecast,\
-                    self.day4no2forecast,\
-                    self.day4o3forecast,\
-                    self.day4pm10forecast,\
-                    self.day4coforecast,\
-                    self.day4so2forecast,\
+        return (row["date"], row["numero"], day4idx,\
+                    self.day4pm25forecast[0],\
+                    self.day4no2forecast[0],\
+                    self.day4o3forecast[0],\
+                    self.day4pm10forecast[0],\
+                    self.day4coforecast[0],\
+                    self.day4so2forecast[0],\
                     day4pm257daverage,\
                     day4no27daverage,\
                     day4o37daverage,\
@@ -640,7 +668,7 @@ class Compute_Engineered_Features_for_df:
                                                 "minority","pauvrete","rsa","ouvriers",\
                                                     "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
                                                         ]
-        self.modelday1features = ['idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
+        self.modelday1features = ['date','numero','idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
                                             "dateiminusonepm10dayiforecast","dateiminusonecodayiforecast","dateiminusoneso2dayiforecast",\
                                                 "dateiminusonepm25dayiforecast7davg","dateiminusoneno2dayiforecast7davg",\
                                                     "dateiminusoneo3dayiforecast7davg","dateiminusonepm10dayiforecast7davg",\
@@ -651,16 +679,17 @@ class Compute_Engineered_Features_for_df:
                                                         "dateiminusonepm25dayiforecast1MMax","dateiminusoneno2dayiforecast1MMax",\
                                                         "dateiminusoneo3dayiforecast1MMax","dateiminusonepm10dayiforecast1MMax",\
                                                         "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\
-                                                        'hospi','newhospi','CovidPosTest',\
-                                                            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                                                                'vac1nb', 'vac2nb',\
+                                                        'dateiminusonehospi','dateiminusonenewhospi',"dateiminonecovidpostest",\
+                                                            'dateiminonefbmobility2','dateiminonefbmobility1',\
+                                                                'dateiminusonevac1nb', 'dateiminusonevac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                                                             'Smokers',\
                                                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                                                    "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                                                                    "dateiminusnoneNb_susp_501Y_V1","dateiminusnoneNb_susp_501Y_V2_3"\
                                                                                         ]
-        self.modelday2features = ['idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
+       
+        self.modelday2features = ['date','numero','idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
                                             "dateiminustwopm10dayiforecast","dateiminustwocodayiforecast","dateiminustwoso2dayiforecast",\
         "dateiminustwopm25dayiforecast7davg",\
                 "dateiminustwono2dayiforecast7davg",\
@@ -680,16 +709,16 @@ class Compute_Engineered_Features_for_df:
                 "dateiminustwopm10dayiforecast1MMax",\
                 "dateiminustwocodayiforecast1MMax",\
                 "dateiminustwoso2dayiforecast1MMax",\
-                    'hospi','newhospi','CovidPosTest',\
-                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                            'vac1nb', 'vac2nb',\
-                                'Insuffisance respiratoire chronique grave (ALD14)', \
-                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                                        'Smokers',\
-                                            "minority","pauvrete","rsa","ouvriers",\
-                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                    ]
-        self.modelday3features = ['idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
+                'dateiminustwohospi','dateiminustwonewhospi',"dateimintwocovidpostest",\
+                                                            'dateimintwofbmobility2','dateimintwofbmobility1',\
+                                                                'dateiminustwovac1nb', 'dateiminustwovac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "dateiminusntwoNb_susp_501Y_V1","dateiminusntwoNb_susp_501Y_V2_3"\
+        ]  
+        self.modelday3features = ['date','numero','idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
                                     "dateiminusthreepm10dayiforecast","dateiminusthreecodayiforecast","dateiminusthreeso2dayiforecast",\
                                         "dateiminusthreepm25dayiforecast7davg","dateiminusthreeno2dayiforecast7davg",\
                                             "dateiminusthreeo3dayiforecast7davg","dateiminusthreepm10dayiforecast7davg",\
@@ -700,16 +729,16 @@ class Compute_Engineered_Features_for_df:
                                                                 "dateiminusthreepm25dayiforecast1MMax","dateiminusthreeno2dayiforecast1MMax",\
                                                                     "dateiminusthreeo3dayiforecast1MMax","dateiminusthreepm10dayiforecast1MMax",\
                                                                      "dateiminusthreecodayiforecast1MMax","dateiminusthreeso2dayiforecast1MMax",\
-                                    'hospi','newhospi','CovidPosTest',\
-                                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                                            'vac1nb', 'vac2nb',\
-                                                'Insuffisance respiratoire chronique grave (ALD14)', \
-                                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                                                        'Smokers',\
-                                                            "minority","pauvrete","rsa","ouvriers",\
-                                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                                    ]
-        self.modelday4features = ['idx',\
+                                    'dateiminusthreehospi','dateiminusthreenewhospi',"dateiminthreecovidpostest",\
+                                                            'dateiminthreefbmobility2','dateiminthreefbmobility1',\
+                                                                'dateiminusthreevac1nb', 'dateiminusthreevac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "dateiminusnthreeNb_susp_501Y_V1","dateiminusnthreeNb_susp_501Y_V2_3"\
+        ]
+        self.modelday4features = ['date','numero','idx',\
                 "dateiminusfourpm25dayiforecast",\
                 "dateiminusfourno2dayiforecast",\
                 "dateiminusfouro3dayiforecast",\
@@ -734,31 +763,31 @@ class Compute_Engineered_Features_for_df:
                 "dateiminusfourpm10dayiforecast1MMax",\
                 "dateiminusfourcodayiforecast1MMax",\
                 "dateiminusfourso2dayiforecast1MMax",\
-                    'hospi','newhospi','CovidPosTest',\
-                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                            'vac1nb', 'vac2nb',\
-                                'Insuffisance respiratoire chronique grave (ALD14)', \
-                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                                        'Smokers',\
-                                            "minority","pauvrete","rsa","ouvriers",\
-                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                    ]
+                'dateiminusfourhospi','dateiminusfournewhospi',"dateiminfourcovidpostest",\
+                                                            'dateiminfourfbmobility2','dateiminfourfbmobility1',\
+                                                                'dateiminusfourvac1nb', 'dateiminusfourvac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "dateiminusnfourNb_susp_501Y_V1","dateiminusnfourNb_susp_501Y_V2_3"\
+        ]
  
         self.data = self.data.merge(self.simplifieddf, how = 'inner', on = ['date','numero'], suffixes = ["","_y"])
         print("Computing input dataframe for model day0 ...")
         day0df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 0)][self.modelday0features]
         print("Computing input dataframe for model day1 ...")
         day1df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 24)][self.modelday1features]
-        day1df = day1df[self.modelday1features].apply(self.compute_input_df_model1, axis=1).apply(pd.Series)
+        day1df[self.modelday1features]=day1df.apply(self.compute_input_df_model1, axis=1).apply(pd.Series)
         print("Computing input dataframe for model day2 ...")
         day2df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 48)][self.modelday2features]
-        day2df = day2df[modelday2features].apply(self.compute_input_df_model2, axis=1).apply(pd.Series)
+        day2df[self.modelday2features]=day2df.apply(self.compute_input_df_model2, axis=1).apply(pd.Series)
         print("Computing input dataframe for model day3 ...")
         day3df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 72)][self.modelday3features]
-        day3df = day3df[self.modelday3features].apply(self.compute_input_df_model3, axis=1).apply(pd.Series)
+        day3df[self.modelday3features]=day3df.apply(self.compute_input_df_model3, axis=1).apply(pd.Series)
         print("Computing input dataframe for model day4 ...")
         day4df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 96)][self.modelday4features]
-        day4df = day4df[self.modelday4features].apply(self.compute_input_df_model4, axis=1).apply(pd.Series)
+        day4df[self.modelday4features]=day4df.apply(self.compute_input_df_model4, axis=1).apply(pd.Series)
         day0df.to_csv("../predictions/fr/data/day0df.csv", index = False)
         day1df.to_csv("../predictions/fr/data/day1df.csv", index = False)
         day2df.to_csv("../predictions/fr/data/day2df.csv", index = False)
@@ -772,7 +801,7 @@ class Compute_Engineered_Features_for_df:
         dateiminusthree = pd.to_datetime(row["date"] - pd.Timedelta("3 days"))
         dateiminusfour = pd.to_datetime(row["date"] - pd.Timedelta("4 days"))
 
-        if (dateiminusfour < self.simplifieddf["date"].min()):
+        if (dateiminusfour < self.data["date"].min()):
             dateiminusonepm25dayiforecast= "NaN"
             dateiminusoneno2dayiforecast= "NaN"
             dateiminusoneo3dayiforecast= "NaN"
@@ -869,7 +898,47 @@ class Compute_Engineered_Features_for_df:
             dateiminusfourpm10dayiforecast1MMax= "NaN"
             dateiminusfourcodayiforecast1MMax= "NaN"
             dateiminusfourso2dayiforecast1MMax= "NaN"
-        
+            dateiminonehospi = "NaN"
+            dateiminustwohospi = "NaN"
+            dateiminusthreehospi = "NaN"
+            dateiminusfourhospi = "NaN"
+            dateiminonenewhospi = "NaN"
+            dateiminustwonewhospi = "NaN"
+            dateiminusthreenewhospi = "NaN"
+            dateiminusfournewhospi = "NaN"
+            dateiminonecovidpostest = "NaN"
+            dateiminustwocovidpostest = "NaN"
+            dateiminusthreecovidpostest = "NaN"
+            dateiminusfourcovidpostest = "NaN"
+            dateiminonefbmobility1 = "NaN"
+            dateiminustwofbmobility1= "NaN"
+            dateiminusthreefbmobility1 = "NaN"
+            dateiminusfourfbmobility1 = "NaN"
+            dateiminonefbmobility2 = "NaN"
+            dateiminustwofbmobility2= "NaN"
+            dateiminusthreefbmobility2 = "NaN"
+            dateiminusfourfbmobility2 = "NaN"
+            dateiminusnoneNb_susp_501Y_V1 = "NaN"
+            dateiminustwoNb_susp_501Y_V1 = "NaN"
+            dateiminusthreeNb_susp_501Y_V1 = "NaN"
+            dateiminusfourNb_susp_501Y_V1 = "NaN"
+            dateiminusoneNb_susp_501Y_V2_3 = "NaN"
+            dateiminustwoNb_susp_501Y_V2_3 = "NaN"
+            dateiminusthreeNb_susp_501Y_V2_3 = "NaN"
+            dateiminusfourNb_susp_501Y_V2_3 = "NaN"
+            dateiminusonevac2nb = "NaN"
+            dateiminustwovac2nb = "NaN"
+            dateiminusthreevac2nb = "NaN"
+            dateiminusfourvac2nb = "NaN"
+            dateiminusonevac1nb = "NaN"
+            dateiminustwovac1nb = "NaN"
+            dateiminusthreevac1nb = "NaN"
+            dateiminusfourvac1nb = "NaN"
+
+
+
+
+
         else:
 
             dateiminusonepm25dayiforecast= self.dicpm25[(row['numero'], pd.to_datetime(str(dateiminusone)), 24)][0]
@@ -984,6 +1053,42 @@ class Compute_Engineered_Features_for_df:
             dateiminusfourcodayiforecast1MMax= self.diccoEngFeat[(row['numero'], pd.to_datetime(str(dateiminusfour)))][2]
             dateiminusfourso2dayiforecast1MMax= self.dicso2EngFeat[(row['numero'], pd.to_datetime(str(dateiminusfour)))][2]
 
+            dateiminonehospi = self.dictothospi[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwohospi = self.dictothospi[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreehospi = self.dictothospi[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourhospi = self.dictothospi[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminonenewhospi = self.dicnewhospi[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwonewhospi = self.dicnewhospi[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreenewhospi = self.dicnewhospi[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfournewhospi = self.dicnewhospi[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminonecovidpostest = self.diccovidpostest[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwocovidpostest = self.diccovidpostest[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreecovidpostest = self.diccovidpostest[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourcovidpostest = self.diccovidpostest[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminonefbmobility1 = self.dicfbmobility1[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwofbmobility1= self.dicfbmobility1[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreefbmobility1 = self.dicfbmobility1[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourfbmobility1 = self.dicfbmobility1[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminonefbmobility2 = self.dicfbmobility2[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwofbmobility2= self.dicfbmobility2[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreefbmobility2 = self.dicfbmobility2[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourfbmobility2 = self.dicfbmobility2[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminusnoneNb_susp_501Y_V1 = self.dicNb_susp_501Y_V1[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwoNb_susp_501Y_V1 = self.dicNb_susp_501Y_V1[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreeNb_susp_501Y_V1 = self.dicNb_susp_501Y_V1[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourNb_susp_501Y_V1 = self.dicNb_susp_501Y_V1[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminusoneNb_susp_501Y_V2_3 = self.dicNb_susp_501Y_V2_3[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwoNb_susp_501Y_V2_3 = self.dicNb_susp_501Y_V2_3[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreeNb_susp_501Y_V2_3 = self.dicNb_susp_501Y_V2_3[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourNb_susp_501Y_V2_3 = self.dicNb_susp_501Y_V2_3[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminusonevac2nb = self.dicvac2nb[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwovac2nb = self.dicvac2nb[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreevac2nb = self.dicvac2nb[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourvac2nb = self.dicvac2nb[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
+            dateiminusonevac1nb = self.dicvac1nb[(row['numero'] ,pd.to_datetime(str(dateiminusone)), 0)]
+            dateiminustwovac1nb = self.dicvac1nb[(row['numero'] ,pd.to_datetime(str(dateiminustwo)), 0)]
+            dateiminusthreevac1nb = self.dicvac1nb[(row['numero'] ,pd.to_datetime(str(dateiminusthree)), 0)]
+            dateiminusfourvac1nb = self.dicvac1nb[(row['numero'] ,pd.to_datetime(str(dateiminusfour)), 0)]
 
         return( 
                 (dateiminusonepm25dayiforecast,\
@@ -1081,7 +1186,44 @@ class Compute_Engineered_Features_for_df:
                 dateiminusfouro3dayiforecast1MMax,\
                 dateiminusfourpm10dayiforecast1MMax,\
                 dateiminusfourcodayiforecast1MMax,\
-                dateiminusfourso2dayiforecast1MMax))
+                dateiminusfourso2dayiforecast1MMax),\
+                dateiminonehospi,\
+                dateiminustwohospi,\
+                dateiminusthreehospi,\
+                dateiminusfourhospi,\
+                dateiminonenewhospi,\
+                dateiminustwonewhospi,\
+                dateiminusthreenewhospi,\
+                dateiminusfournewhospi,\
+                dateiminonecovidpostest,\
+                dateiminustwocovidpostest,\
+                dateiminusthreecovidpostest,\
+                dateiminusfourcovidpostest,\
+                dateiminonefbmobility1,\
+                dateiminustwofbmobility1,\
+                dateiminusthreefbmobility1,\
+                dateiminusfourfbmobility1,\
+                dateiminonefbmobility2,\
+                dateiminustwofbmobility2,\
+                dateiminusthreefbmobility2,\
+                dateiminusfourfbmobility2,\
+                dateiminusnoneNb_susp_501Y_V1,\
+                dateiminustwoNb_susp_501Y_V1,\
+                dateiminusthreeNb_susp_501Y_V1,\
+                dateiminusfourNb_susp_501Y_V1,\
+                dateiminusoneNb_susp_501Y_V2_3,\
+                dateiminustwoNb_susp_501Y_V2_3,\
+                dateiminusthreeNb_susp_501Y_V2_3,\
+                dateiminusfourNb_susp_501Y_V2_3,\
+                dateiminusonevac2nb,\
+                dateiminustwovac2nb,\
+                dateiminusthreevac2nb,\
+                dateiminusfourvac2nb,\
+                dateiminusonevac1nb,\
+                dateiminustwovac1nb,\
+                dateiminusthreevac1nb,\
+                dateiminusfourvac1nb\
+                )
 
     def compute_target(self, row):
         date = row["date"] + pd.Timedelta("1 days")
@@ -1239,6 +1381,7 @@ class Compute_Engineered_Features_for_df:
                 "normpm257davg","normno27davg","normo37davg","normpm107davg","normco7davg",'normso27davg',\
                 "newhospi7davg","newreanim7davg","newhospi3davg","newreanim3davg"]] \
                     = self.simplifieddf.apply(self.compute_Engineered_Features, axis=1).apply(pd.Series)
+        
         print("\n")
         print(self.simplifieddf)
         print("\n")
@@ -1333,7 +1476,45 @@ class Compute_Engineered_Features_for_df:
         "dateiminusfouro3dayiforecast1MMax",\
         "dateiminusfourpm10dayiforecast1MMax",\
         "dateiminusfourcodayiforecast1MMax",\
-        "dateiminusfourso2dayiforecast1MMax"]] = self.simplifieddf.apply(self.compute_forecast_data_for_training_models, axis = 1).apply(pd.Series)
+        "dateiminusfourso2dayiforecast1MMax",\
+        "dateiminusonehospi" \
+        "dateiminustwohospi" \
+        "dateiminusthreehospi" \
+        "dateiminusfourhospi" \
+        "dateiminonenewhospi" \
+        "dateiminustwonewhospi" \
+        "dateiminusthreenewhospi" \
+        "dateiminusfournewhospi" \
+        "dateiminonecovidpostest" \
+        "dateiminustwocovidpostest" \
+        "dateiminusthreecovidpostest" \
+        "dateiminusfourcovidpostest" \
+        "dateiminonefbmobility1" \
+        "dateiminustwofbmobility1"\
+        "dateiminusthreefbmobility1" \
+        "dateiminusfourfbmobility1" \
+        "dateiminonefbmobility2" \
+        "dateiminustwofbmobility2"\
+        "dateiminusthreefbmobility2" \
+        "dateiminusfourfbmobility2" \
+        "dateiminusnoneNb_susp_501Y_V1" \
+        "dateiminustwoNb_susp_501Y_V1" \
+        "dateiminusthreeNb_susp_501Y_V1" \
+        "dateiminusfourNb_susp_501Y_V1" \
+        "dateiminusoneNb_susp_501Y_V2_3" \
+        "dateiminustwoNb_susp_501Y_V2_3" \
+        "dateiminusthreeNb_susp_501Y_V2_3" \
+        "dateiminusfourNb_susp_501Y_V2_3" \
+        "dateiminusonevac2nb" \
+        "dateiminustwovac2nb" \
+        "dateiminusthreevac2nb" \
+        "dateiminusfourvac2nb" \
+        "dateiminusonevac1nb" \
+        "dateiminustwovac1nb" \
+        "dateiminusthreevac1nb" \
+        "dateiminusfourvac1nb" \
+            ]] \
+        = self.simplifieddf.apply(self.compute_forecast_data_for_training_models, axis = 1).apply(pd.Series)
         
         print("\n")
         print(self.simplifieddf)
@@ -1343,10 +1524,10 @@ class Compute_Engineered_Features_for_df:
 
 if __name__ == '__main__':
     Engineered_Features = Compute_Engineered_Features_for_df()
-    Engineered_Features.get_data()
+    Engineered_Features.get_data(load = 1)
     Engineered_Features.max_normalize_data()
     Engineered_Features.compute_dictionnaries()
-    Engineered_Features.compute_Engineered_features_assign_to_df()
+    #Engineered_Features.compute_Engineered_features_assign_to_df()
     Engineered_Features.compute_avg_and_max_dictionnaries()
     Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
     Engineered_Features.compute_target_assign_to_df()
