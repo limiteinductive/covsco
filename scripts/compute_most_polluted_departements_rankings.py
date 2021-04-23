@@ -9,6 +9,7 @@ with pd.ExcelWriter("../research/Pollution study by departement 1Y Max 1M-TMCs.x
 
         datalist =[]
         df2 = df.copy()
+        df2 = df2[df["leadtime_hour"]==0]
         maximum_pollution_level = df2[(df2["1MMax"+pollutant]==df2["1MMax"+pollutant].max())]
         datalist.append((maximum_pollution_level["nom"].unique()[0],\
                         maximum_pollution_level["numero"].unique()[0],

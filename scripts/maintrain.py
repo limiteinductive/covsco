@@ -99,7 +99,7 @@ class maintrain:
                                                 "minority","pauvrete","rsa","ouvriers",\
                                                     "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
                                                         ]
-        self.modelday1features = ['idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
+        self.modelday1features = ['date','numero','idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
                                             "dateiminusonepm10dayiforecast","dateiminusonecodayiforecast","dateiminusoneso2dayiforecast",\
                                                 "dateiminusonepm25dayiforecast7davg","dateiminusoneno2dayiforecast7davg",\
                                                     "dateiminusoneo3dayiforecast7davg","dateiminusonepm10dayiforecast7davg",\
@@ -110,16 +110,17 @@ class maintrain:
                                                         "dateiminusonepm25dayiforecast1MMax","dateiminusoneno2dayiforecast1MMax",\
                                                         "dateiminusoneo3dayiforecast1MMax","dateiminusonepm10dayiforecast1MMax",\
                                                         "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\
-                                                        'hospi','newhospi','CovidPosTest',\
-                                                            'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                                                                'vac1nb', 'vac2nb',\
+                                                        'dateiminusonehospi','dateiminusonenewhospi',"dateiminonecovidpostest",\
+                                                            'dateiminonefbmobility2','dateiminonefbmobility1',\
+                                                                'dateiminusonevac1nb', 'dateiminusonevac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                                                             'Smokers',\
                                                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                                                    "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
+                                                                                    "dateiminusnoneNb_susp_501Y_V1","dateiminusnoneNb_susp_501Y_V2_3"\
                                                                                         ]
-        self.modelday2features = ['idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
+       
+        self.modelday2features = ['date','numero','idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
                                             "dateiminustwopm10dayiforecast","dateiminustwocodayiforecast","dateiminustwoso2dayiforecast",\
         "dateiminustwopm25dayiforecast7davg",\
                 "dateiminustwono2dayiforecast7davg",\
@@ -139,16 +140,16 @@ class maintrain:
                 "dateiminustwopm10dayiforecast1MMax",\
                 "dateiminustwocodayiforecast1MMax",\
                 "dateiminustwoso2dayiforecast1MMax",\
-                    'hospi','newhospi','CovidPosTest',\
-                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                            'vac1nb', 'vac2nb',\
-                                'Insuffisance respiratoire chronique grave (ALD14)', \
-                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                                        'Smokers',\
-                                            "minority","pauvrete","rsa","ouvriers",\
-                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                    ]
-        self.modelday3features = ['idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
+                'dateiminustwohospi','dateiminustwonewhospi',"dateimintwocovidpostest",\
+                                                            'dateimintwofbmobility2','dateimintwofbmobility1',\
+                                                                'dateiminustwovac1nb', 'dateiminustwovac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "dateiminusntwoNb_susp_501Y_V1","dateiminusntwoNb_susp_501Y_V2_3"\
+        ]  
+        self.modelday3features = ['date','numero','idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
                                     "dateiminusthreepm10dayiforecast","dateiminusthreecodayiforecast","dateiminusthreeso2dayiforecast",\
                                         "dateiminusthreepm25dayiforecast7davg","dateiminusthreeno2dayiforecast7davg",\
                                             "dateiminusthreeo3dayiforecast7davg","dateiminusthreepm10dayiforecast7davg",\
@@ -159,16 +160,16 @@ class maintrain:
                                                                 "dateiminusthreepm25dayiforecast1MMax","dateiminusthreeno2dayiforecast1MMax",\
                                                                     "dateiminusthreeo3dayiforecast1MMax","dateiminusthreepm10dayiforecast1MMax",\
                                                                      "dateiminusthreecodayiforecast1MMax","dateiminusthreeso2dayiforecast1MMax",\
-                                    'hospi','newhospi','CovidPosTest',\
-                                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                                            'vac1nb', 'vac2nb',\
-                                                'Insuffisance respiratoire chronique grave (ALD14)', \
-                                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                                                        'Smokers',\
-                                                            "minority","pauvrete","rsa","ouvriers",\
-                                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                                    ]
-        self.modelday4features = ['idx',\
+                                    'dateiminusthreehospi','dateiminusthreenewhospi',"dateiminthreecovidpostest",\
+                                                            'dateiminthreefbmobility2','dateiminthreefbmobility1',\
+                                                                'dateiminusthreevac1nb', 'dateiminusthreevac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "dateiminusnthreeNb_susp_501Y_V1","dateiminusnthreeNb_susp_501Y_V2_3"\
+        ]
+        self.modelday4features = ['date','numero','idx',\
                 "dateiminusfourpm25dayiforecast",\
                 "dateiminusfourno2dayiforecast",\
                 "dateiminusfouro3dayiforecast",\
@@ -193,15 +194,15 @@ class maintrain:
                 "dateiminusfourpm10dayiforecast1MMax",\
                 "dateiminusfourcodayiforecast1MMax",\
                 "dateiminusfourso2dayiforecast1MMax",\
-                    'hospi','newhospi','CovidPosTest',\
-                        'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
-                            'vac1nb', 'vac2nb',\
-                                'Insuffisance respiratoire chronique grave (ALD14)', \
-                                    'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
-                                        'Smokers',\
-                                            "minority","pauvrete","rsa","ouvriers",\
-                                                "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                    ]
+                'dateiminusfourhospi','dateiminusfournewhospi',"dateiminfourcovidpostest",\
+                                                            'dateiminfourfbmobility2','dateiminfourfbmobility1',\
+                                                                'dateiminusfourvac1nb', 'dateiminusfourvac2nb',\
+                                                                    'Insuffisance respiratoire chronique grave (ALD14)', \
+                                                                        'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                                                            'Smokers',\
+                                                                                "minority","pauvrete","rsa","ouvriers",\
+                                                                                    "dateiminusnfourNb_susp_501Y_V1","dateiminusnfourNb_susp_501Y_V2_3"\
+        ]
         return None
 
     def HoldOut(self, features):
