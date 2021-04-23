@@ -10,7 +10,7 @@ class runpythonscripts:
 
         self.status = None
     
-    def runscripts(self, train = None, skipgetdata = None, skipallengineer = None,  skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
+    def runscripts(self, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skipallengineer = None,  skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
         GetData = maintraindata()
         if skipgetdata == None:
             GetData.GetHistoricalData()
@@ -29,12 +29,13 @@ class runpythonscripts:
             EngineerFeatures.compute_target_assign_to_df()
             EngineerFeatures.compute_dfs_from_which_to_make_predictions()
         
-        TrainModel = maintrain()
-        TrainModel.initdata()
-        if skiptrain == None:
-            TrainModel.CurrentBestModel()
+        if skipalltrain == None:
+            TrainModel = maintrain(skipcrossval)
+            TrainModel.initdata()
+            if skiptrain == None:
+                TrainModel.CurrentBestModel()
 
-        TrainModel.predict()
+            TrainModel.predict()
         ComputeMap = compute_covid_risk_heat_map()
         ComputeMap.compute_map()
         self.status = "OK Computed Map"
@@ -45,7 +46,7 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    #Run.runscripts(skipgetdata = "Y", skipallengineer= "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = "Y", load = 1)
-    Run.runscripts()
+    Run.runscripts(skipalltrain = "Y", skipgetdata = "Y", skipallengineer= "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = "Y", load = 1, skipcrossval = "Y")
+    #Run.runscripts()
 
         
