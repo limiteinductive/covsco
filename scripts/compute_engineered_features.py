@@ -1378,7 +1378,7 @@ class Compute_Engineered_Features_for_df:
         "dateiminustwonewhospi" ,\
         "dateiminusthreenewhospi" ,\
         "dateiminusfournewhospi" ,\
-        "dateiminonecovidpostest" ,\
+        "dateiminusonecovidpostest" ,\
         "dateiminustwocovidpostest" ,\
         "dateiminusthreecovidpostest" ,\
         "dateiminusfourcovidpostest" ,\
@@ -1390,7 +1390,7 @@ class Compute_Engineered_Features_for_df:
         "dateiminustwofbmobility2",\
         "dateiminusthreefbmobility2" ,\
         "dateiminusfourfbmobility2" ,\
-        "dateiminusnoneNb_susp_501Y_V1" ,\
+        "dateiminusoneNb_susp_501Y_V1" ,\
         "dateiminustwoNb_susp_501Y_V1" ,\
         "dateiminusthreeNb_susp_501Y_V1" ,\
         "dateiminusfourNb_susp_501Y_V1" ,\
