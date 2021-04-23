@@ -100,7 +100,7 @@ class maintrain:
                                                 "minority","pauvrete","rsa","ouvriers",\
                                                     "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
                                                         ]
-        self.modelday1features = ['date','numero','idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
+        self.modelday1features = ['idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
                                             "dateiminusonepm10dayiforecast","dateiminusonecodayiforecast","dateiminusoneso2dayiforecast",\
                                                 "dateiminusonepm25dayiforecast7davg","dateiminusoneno2dayiforecast7davg",\
                                                     "dateiminusoneo3dayiforecast7davg","dateiminusonepm10dayiforecast7davg",\
@@ -121,7 +121,7 @@ class maintrain:
                                                                                     "dateiminusoneNb_susp_501Y_V1","dateiminusoneNb_susp_501Y_V2_3"\
                                                                                         ]
        
-        self.modelday2features = ['date','numero','idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
+        self.modelday2features = ['idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
                                             "dateiminustwopm10dayiforecast","dateiminustwocodayiforecast","dateiminustwoso2dayiforecast",\
         "dateiminustwopm25dayiforecast7davg",\
                 "dateiminustwono2dayiforecast7davg",\
@@ -141,7 +141,7 @@ class maintrain:
                 "dateiminustwopm10dayiforecast1MMax",\
                 "dateiminustwocodayiforecast1MMax",\
                 "dateiminustwoso2dayiforecast1MMax",\
-                'dateiminustwohospi','dateiminustwonewhospi',"dateimintwocovidpostest",\
+                'dateiminustwohospi','dateiminustwonewhospi',"dateiminustwocovidpostest",\
                                                             'dateiminustwofbmobility2','dateiminustwofbmobility1',\
                                                                 'dateiminustwovac1nb', 'dateiminustwovac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
@@ -150,7 +150,7 @@ class maintrain:
                                                                                 "minority","pauvrete","rsa","ouvriers",\
                                                                                     "dateiminustwoNb_susp_501Y_V1","dateiminustwoNb_susp_501Y_V2_3"\
         ]  
-        self.modelday3features = ['date','numero','idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
+        self.modelday3features = ['idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
                                     "dateiminusthreepm10dayiforecast","dateiminusthreecodayiforecast","dateiminusthreeso2dayiforecast",\
                                         "dateiminusthreepm25dayiforecast7davg","dateiminusthreeno2dayiforecast7davg",\
                                             "dateiminusthreeo3dayiforecast7davg","dateiminusthreepm10dayiforecast7davg",\
@@ -170,7 +170,7 @@ class maintrain:
                                                                                 "minority","pauvrete","rsa","ouvriers",\
                                                                                     "dateiminusthreeNb_susp_501Y_V1","dateiminusthreeNb_susp_501Y_V2_3"\
         ]
-        self.modelday4features = ['date','numero','idx',\
+        self.modelday4features = ['idx',\
                 "dateiminusfourpm25dayiforecast",\
                 "dateiminusfourno2dayiforecast",\
                 "dateiminusfouro3dayiforecast",\
