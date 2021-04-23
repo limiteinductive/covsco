@@ -51,8 +51,9 @@ class maintraindata:
     def __init__(self):
         self.status = None
 
-    def GetHistoricalData(self):
+    def GetHistoricalData(self, stepstoskip = None):
         self.status=0
+        
         print('Processing Population data ... ', flush=True, end='')
         GetPopulationData = process_population_hist()
         GetPopulationData.get_data()
@@ -114,7 +115,7 @@ class maintraindata:
         Engineered_Features.compute_dictionnaries()
         Engineered_Features.compute_Engineered_features_assign_to_df()
         Engineered_Features.compute_avg_and_max_dictionnaries()
-        Engineered_Features.compute_dayi_past_forecasts_assign_to_df()
+        Engineered_Features.compute_dayi_past_data_assign_to_df()
         Engineered_Features.compute_target_assign_to_df()
         Engineered_Features.compute_dfs_from_which_to_make_predictions()
         self.status=14
