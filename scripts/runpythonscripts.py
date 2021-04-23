@@ -3,18 +3,19 @@ from maintraindata import  maintraindata
 from compute_engineered_features import Compute_Engineered_Features_for_df
 from maintrain import maintrain
 from compute_covid_risk_heat_map import compute_covid_risk_heat_map
+
 class runpythonscripts:
     
     def __init__(self):
 
         self.status = None
     
-    def runscripts(self, train = None, skipgetdata = None, skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None):
+    def runscripts(self, train = None, skipgetdata = None, skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
         GetData = maintraindata()
         if skipgetdata == None:
             GetData.GetHistoricalData()
         EngineerFeatures = Compute_Engineered_Features_for_df()
-        EngineerFeatures.get_data(load = 1)
+        EngineerFeatures.get_data(load)
         EngineerFeatures.max_normalize_data()
         EngineerFeatures.compute_dictionnaries()
         if skipengineerfeatures == None:
@@ -42,7 +43,7 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts(skipgetdata = "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = None)
-
+    Run.runscripts(skipgetdata = "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = None, load = 1)
+    #Run.runscripts()
 
         
