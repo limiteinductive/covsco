@@ -43,7 +43,7 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts(skipgetdata = "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = None, load = 1)
-    #Run.runscripts()
+    #Run.runscripts(skipgetdata = "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = None, load = 1)
+    Run.runscripts()
 
         
