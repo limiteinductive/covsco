@@ -54,6 +54,7 @@ class maintrain:
         self.X_test = None
         self.y_test = None
         self.predictiondata = None
+
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
 
@@ -110,14 +111,14 @@ class maintrain:
                                                         "dateiminusonepm25dayiforecast1MMax","dateiminusoneno2dayiforecast1MMax",\
                                                         "dateiminusoneo3dayiforecast1MMax","dateiminusonepm10dayiforecast1MMax",\
                                                         "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\
-                                                        'dateiminusonehospi','dateiminusonenewhospi',"dateiminonecovidpostest",\
+                                                        'dateiminusonehospi','dateiminusonenewhospi',"dateiminusonecovidpostest",\
                                                             'dateiminonefbmobility2','dateiminonefbmobility1',\
                                                                 'dateiminusonevac1nb', 'dateiminusonevac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                                                             'Smokers',\
                                                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                                                    "dateiminusnoneNb_susp_501Y_V1","dateiminusnoneNb_susp_501Y_V2_3"\
+                                                                                    "dateiminusoneNb_susp_501Y_V1","dateiminusoneNb_susp_501Y_V2_3"\
                                                                                         ]
        
         self.modelday2features = ['date','numero','idx',  "dateiminustwopm25dayiforecast","dateiminustwono2dayiforecast","dateiminustwoo3dayiforecast",\
@@ -141,13 +142,13 @@ class maintrain:
                 "dateiminustwocodayiforecast1MMax",\
                 "dateiminustwoso2dayiforecast1MMax",\
                 'dateiminustwohospi','dateiminustwonewhospi',"dateimintwocovidpostest",\
-                                                            'dateimintwofbmobility2','dateimintwofbmobility1',\
+                                                            'dateiminustwofbmobility2','dateiminustwofbmobility1',\
                                                                 'dateiminustwovac1nb', 'dateiminustwovac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                                                             'Smokers',\
                                                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                                                    "dateiminusntwoNb_susp_501Y_V1","dateiminusntwoNb_susp_501Y_V2_3"\
+                                                                                    "dateiminustwoNb_susp_501Y_V1","dateiminustwoNb_susp_501Y_V2_3"\
         ]  
         self.modelday3features = ['date','numero','idx',"dateiminusthreepm25dayiforecast","dateiminusthreeno2dayiforecast","dateiminusthreeo3dayiforecast",\
                                     "dateiminusthreepm10dayiforecast","dateiminusthreecodayiforecast","dateiminusthreeso2dayiforecast",\
@@ -160,14 +161,14 @@ class maintrain:
                                                                 "dateiminusthreepm25dayiforecast1MMax","dateiminusthreeno2dayiforecast1MMax",\
                                                                     "dateiminusthreeo3dayiforecast1MMax","dateiminusthreepm10dayiforecast1MMax",\
                                                                      "dateiminusthreecodayiforecast1MMax","dateiminusthreeso2dayiforecast1MMax",\
-                                    'dateiminusthreehospi','dateiminusthreenewhospi',"dateiminthreecovidpostest",\
-                                                            'dateiminthreefbmobility2','dateiminthreefbmobility1',\
+                                    'dateiminusthreehospi','dateiminusthreenewhospi',"dateiminusthreecovidpostest",\
+                                                            'dateiminusthreefbmobility2','dateiminusthreefbmobility1',\
                                                                 'dateiminusthreevac1nb', 'dateiminusthreevac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                                                             'Smokers',\
                                                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                                                    "dateiminusnthreeNb_susp_501Y_V1","dateiminusnthreeNb_susp_501Y_V2_3"\
+                                                                                    "dateiminusthreeNb_susp_501Y_V1","dateiminusthreeNb_susp_501Y_V2_3"\
         ]
         self.modelday4features = ['date','numero','idx',\
                 "dateiminusfourpm25dayiforecast",\
@@ -194,14 +195,14 @@ class maintrain:
                 "dateiminusfourpm10dayiforecast1MMax",\
                 "dateiminusfourcodayiforecast1MMax",\
                 "dateiminusfourso2dayiforecast1MMax",\
-                'dateiminusfourhospi','dateiminusfournewhospi',"dateiminfourcovidpostest",\
-                                                            'dateiminfourfbmobility2','dateiminfourfbmobility1',\
+                'dateiminusfourhospi','dateiminusfournewhospi',"dateiminusfourcovidpostest",\
+                                                            'dateiminusfourfbmobility2','dateiminusfourfbmobility1',\
                                                                 'dateiminusfourvac1nb', 'dateiminusfourvac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                                                             'Smokers',\
                                                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                                                    "dateiminusnfourNb_susp_501Y_V1","dateiminusnfourNb_susp_501Y_V2_3"\
+                                                                                    "dateiminusfourNb_susp_501Y_V1","dateiminusfourNb_susp_501Y_V2_3"\
         ]
         return None
 
