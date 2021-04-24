@@ -571,7 +571,7 @@ class maintrain():
 
 if __name__ == '__main__':
 
-    TrainModel = maintrain()
+    TrainModel = maintrain(skipcrossval = "Y")
     TrainModel.initdata()
     #TrainModel.CurrentBestModel()
     TrainModel.predict()
