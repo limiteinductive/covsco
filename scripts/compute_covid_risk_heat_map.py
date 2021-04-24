@@ -291,7 +291,7 @@ class compute_covid_risk_heat_map:
               + 0.59*self.max_normalize(covidExtraToCom['newhospipred'])\
               + 0.08*self.max_normalize(covidExtraToCom['hospi'])\
               + 0.04*self.max_normalize(covidExtraToCom["CovidPosTest"]))\
-              + 0.1617 * self.max_normalize(covidExtraToCom['Total'])
+              + 0.1617 * self.max_normalize(covidExtraToCom['total'])
 
       risk = np.array(risk)
       risk = np.vstack((lons,lats,risk))
