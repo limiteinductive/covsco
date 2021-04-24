@@ -3,7 +3,7 @@ from maintraindata import  maintraindata
 from compute_engineered_features import Compute_Engineered_Features_for_df
 from maintrain import maintrain
 from compute_covid_risk_heat_map import compute_covid_risk_heat_map
-
+from compute_pollution_levels_maps import compute_maps
 class runpythonscripts:
     
     def __init__(self):
@@ -38,7 +38,10 @@ class runpythonscripts:
             TrainModel.predict()
         ComputeMap = compute_covid_risk_heat_map()
         ComputeMap.compute_map()
-        self.status = "OK Computed Map"
+        ComputeMaps = compute_maps()
+        ComputeMaps.compute_maps()
+
+        self.status = "OK Computed Maps"
         print(self.status)
 
         return self.status
@@ -46,7 +49,7 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts(skipalltrain = "Y", skipgetdata = "Y", skipallengineer= "Y", skipengineerfeatures = "Y", skipcomputedayipastdata = "Y", load = 1, skipcrossval = "Y")
+    Run.runscripts(skipalltrain = None, skipgetdata = "Y", skipallengineer= None, skipengineerfeatures = None, skipcomputedayipastdata = None, load = None, skipcrossval = "Y")
     #Run.runscripts()
 
         

@@ -144,7 +144,7 @@ class compute_covid_risk_heat_map:
         + 0.59*self.max_normalize(dfpollution3['newhospi']).max()
         + 0.08*self.max_normalize(dfpollution3['hospi']).max()
         + 0.04*self.max_normalize(dfpollution3["CovidPosTest"]).max()
-        + 0.1617 *self.max_normalize(covidExtraToCom['total']).max()
+        + 0.1617 *self.max_normalize(np.log10(covidExtraToCom['total'])).max()
         )
 
     print(maxriskmap)
@@ -203,7 +203,7 @@ class compute_covid_risk_heat_map:
 
       print("Interpolating newhospi predictions to commune level...")
       covidExtraToCom['newhospipred'] = [newhospipredictionsdf[newhospipredictionsdf['depnum'] == depNum]["newhospipred"].values.squeeze() for depNum in covidExtraToCom['dep']]
-      print("newhospipred itnerpolated")
+      print("newhospipred interpolated")
       print('OK', flush=True)
 
       filePath = '../data/train/cams/fr/forecast/'
@@ -344,7 +344,7 @@ class compute_covid_risk_heat_map:
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
     gifName = 'covid-risk-fc-{:}.gif'.format(currentDate)
-    kargs = { 'duration': .2 }
+    kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images, 'GIF', **kargs)
     print('OK')
     print('Finished.')
