@@ -143,7 +143,7 @@ class process_cams_forecast_data:
         #self.cams.index = self.cams.index.to_timestamp()
         print(self.cams.columns)
         self.file_name = '../data/train/covid/fr/Covid_data_history.csv'
-        self.covid = pd.read_csv(self.file_name, sep=',').dropna()
+        self.covid = pd.read_csv(self.file_name, sep=',')
         self.covid = self.covid.reset_index()
         print(self.covid)
         self.covid['date']=pd.to_datetime(self.covid['date'])
