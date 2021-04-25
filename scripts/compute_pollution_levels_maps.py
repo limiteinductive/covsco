@@ -78,7 +78,7 @@ class compute_maps:
     print('Data pre-processing:', flush=True)
 
     countryEU = regionmask.defined_regions.natural_earth.countries_50
-    currentDate = datetime.today().strftime('%Y-%m-%d')
+ 
 
     print('Population ... ', flush=True, end='')
     pop         = pd.read_csv('../data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
@@ -102,6 +102,8 @@ class compute_maps:
     dfpollution= dfpollution.dropna()
     dfpollution2 = dfpollution2.dropna()
     dfpollution3 = dfpollution3.dropna()
+    
+    currentDate = dfpollution3["date"].max()
     dfpollution=dfpollution[dfpollution["date"]==dfpollution["date"].max()]
     dfpollution3=dfpollution3[dfpollution3["date"]==dfpollution3["date"].max()]
     covid = covid.groupby('numero').rolling(window=7).mean()
@@ -304,7 +306,7 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('PM2.5 concentrations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 
@@ -340,7 +342,8 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        #currentDateWD = datetime.strptime(str(dfpollution3["date"].max())).strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('CO concentrations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 
@@ -376,7 +379,7 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('O3 concentrations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 
@@ -412,7 +415,7 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('NO2 concentrations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 
@@ -448,7 +451,7 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('PM10 concentrations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 
@@ -484,7 +487,7 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('SO2 concentrations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 
@@ -520,7 +523,7 @@ class compute_maps:
 
         ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-        currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+        currentDateWD = pd.to_datetime(dfpollution3["date"].max()).strftime('%a, %d %b %Y')
         ax1.set_title('Predictions of severe Covid19 cases leading to hospitalizations: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
         loc='left', pad=-60)
 

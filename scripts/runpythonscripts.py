@@ -10,7 +10,7 @@ class runpythonscripts:
 
         self.status = None
     
-    def runscripts(self, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skipallengineer = None,  skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
+    def runscripts(self,skiptpot = None, skipimpute = None, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skipallengineer = None,  skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
         GetData = maintraindata()
         if skipgetdata == None:
             GetData.GetHistoricalData()
@@ -30,7 +30,7 @@ class runpythonscripts:
             EngineerFeatures.compute_dfs_from_which_to_make_predictions()
         
         if skipalltrain == None:
-            TrainModel = maintrain(skipcrossval)
+            TrainModel = maintrain(skipcrossval, skipimpute, skiptpot)
             TrainModel.initdata()
             if skiptrain == None:
                 TrainModel.CurrentBestModel()
@@ -49,7 +49,15 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts(skipalltrain = None, skipgetdata = "Y", skipallengineer= None, skipengineerfeatures = None, skipcomputedayipastdata = None, load = None, skipcrossval = "Y")
+    Run.runscripts(skiptpot = "y",\
+                   skipimpute = "Y",\
+                   skiptrain = "Y",\
+                   skipalltrain = "Y",\
+                   skipgetdata = "Y",\
+                   skipallengineer= "y",\
+                   skipengineerfeatures = "y",\
+                   skipcomputedayipastdata = "y",\
+                   load = 1, skipcrossval = "Y")
     #Run.runscripts()
 
         

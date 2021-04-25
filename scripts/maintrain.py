@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta
 from datetime import datetime
+from sklearn.impute import KNNImputer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
@@ -40,7 +41,7 @@ from sklearn.preprocessing import RobustScaler
 
 class maintrain():
 
-    def __init__(self, skipcrossval):
+    def __init__(self, skipcrossval, skipimpute, skiptpot):
 
         self.df = None
         self.modelday0features = None
@@ -56,7 +57,10 @@ class maintrain():
         self.X_test = None
         self.y_test = None
         self.predictiondata = None
+        self.featuresandtargetforanalysis = None
         self.skipcrossval=skipcrossval
+        self.skipimpute = skipimpute
+        self.skiptpot = skiptpot
 
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
@@ -71,10 +75,28 @@ class maintrain():
 
     def initdata(self):
         self.df = pd.read_csv("../data/train/all_data_merged/fr/traindf.csv")
-        self.df = self.df.dropna()
         self.df["all_day_bing_tiles_visited_relative_change"]=self.df["all_day_bing_tiles_visited_relative_change"].astype(float)
         self.df["all_day_ratio_single_tile_users"]=self.df["all_day_ratio_single_tile_users"].astype(float)
         print(self.df)
+        self.featuresandtargetforanalysis = ['idx', 'pm25', 'no2',\
+        'o3','pm10','co','so2',\
+            'pm257davg','no27davg',\
+            'o37davg','co7davg', 'pm107davg','so27davg',\
+                "normpm25","normno2","normo3","normpm10","normco","normso2",\
+                'hospiprevday','covidpostestprevday','prevdaytotalcovidcasescumulated','CovidPosTest',\
+                "newhospi7davg","newreanim7davg","newhospi3davg","newreanim3davg",\
+                    'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users','vac1nb', 'vac2nb',\
+                        'Insuffisance respiratoire chronique grave (ALD14)', \
+                            'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+                                'Smokers',\
+                                    "minority",\
+                                        "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
+                                            '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
+                                                'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
+                                                    '1MMaxnormpm25','1MMaxnormno2','1MMaxnormo3','1MMaxnormpm10','1MMaxnormco','1MMaxnormso2',\
+                                                        "normpm257davg","normno27davg","normo37davg","normpm107davg","normco7davg","normso27davg",\
+                                                                "normpm251Mavg","normno21Mavg","normo31Mavg","normpm101Mavg","normco1Mavg","normso21Mavg",\
+                                                                'newhospi','newreanim',"newhospinextday"]
 
         self.featuresandtarget = ['idx', 'pm25', 'no2','o3','pm10','co','so2',\
             'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
@@ -89,6 +111,9 @@ class maintrain():
                                                 "minority","pauvrete","rsa","ouvriers",\
                                                     "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
                                                         "newhospinextday"]
+        
+
+        
                                 
         self.modelday0features = ['idx', 'pm25', 'no2','o3','pm10','co','so2',\
             'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
@@ -115,7 +140,7 @@ class maintrain():
                                                         "dateiminusoneo3dayiforecast1MMax","dateiminusonepm10dayiforecast1MMax",\
                                                         "dateiminusonecodayiforecast1MMax","dateiminusoneso2dayiforecast1MMax",\
                                                         'dateiminusonehospi','dateiminusonenewhospi',"dateiminusonecovidpostest",\
-                                                            'dateiminonefbmobility2','dateiminonefbmobility1',\
+                                                            'dateiminusonefbmobility2','dateiminusonefbmobility1',\
                                                                 'dateiminusonevac1nb', 'dateiminusonevac2nb',\
                                                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
@@ -207,6 +232,42 @@ class maintrain():
                                                                                 "minority","pauvrete","rsa","ouvriers",\
                                                                                     "dateiminusfourNb_susp_501Y_V1","dateiminusfourNb_susp_501Y_V2_3"\
         ]
+
+        if  self.skipimpute == None:   
+            self.df = self.df.replace("Nan", np.nan)
+            self.df.fillna( 9999, inplace = True )
+            
+            print("KNNImputing NaN values for features and target for analysis ...")
+            imputer = KNNImputer(missing_values= 9999, n_neighbors=5, weights='uniform', metric='nan_euclidean')
+            imputer.fit(self.df[self.featuresandtargetforanalysis])
+            self.df[self.featuresandtargetforanalysis] = imputer.transform(self.df[self.featuresandtargetforanalysis])
+            
+            print("KNNImputing NaN values for model day 1 features ...")
+            imputer = KNNImputer(missing_values=9999, n_neighbors=5, weights='uniform', metric='nan_euclidean')
+            imputer.fit(self.df[self.modelday1features])
+            self.df[self.modelday1features] = imputer.transform(self.df[self.modelday1features])
+
+            print("KNNImputing NaN values for model day 2 features ...")
+            imputer = KNNImputer(missing_values=9999, n_neighbors=5, weights='uniform', metric='nan_euclidean')
+            imputer.fit(self.df[self.modelday2features])
+            self.df[self.modelday2features] = imputer.transform(self.df[self.modelday2features])
+
+            print("KNNImputing NaN values for model day 3 features ...")
+            imputer = KNNImputer(missing_values=9999, n_neighbors=5, weights='uniform', metric='nan_euclidean')
+            imputer.fit(self.df[self.modelday3features])
+            self.df[self.modelday3features] = imputer.transform(self.df[self.modelday3features])
+    
+            print("KNNImputing NaN values for model day 4 features ...")
+            imputer = KNNImputer(missing_values=9999, n_neighbors=5, weights='uniform', metric='nan_euclidean')
+            imputer.fit(self.df[self.modelday4features])
+            self.df[self.modelday4features] = imputer.transform(self.df[self.modelday4features])
+
+            self.df.to_csv("../data/train/all_data_merged/fr/traindfknnimputed.csv", index = False)
+        
+        else:
+
+            self.df = pd.read_csv("../data/train/all_data_merged/fr/traindfknnimputed.csv")
+
         return None
 
     def HoldOut(self, features, model):
@@ -281,7 +342,7 @@ class maintrain():
                                                         "dateiminusfourNb_susp_501Y_V1":"Nb_susp_501Y_V1","dateiminusfourNb_susp_501Y_V2_3":"Nb_susp_501Y_V2_3"})
        
         self.y= self.df['newhospinextday']
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.33)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.33,random_state=84)
         print("\n")
         return None
 
@@ -292,7 +353,8 @@ class maintrain():
         for features in featurelist:
             self.HoldOut(features, counter)
             print("Model for day ",counter)
-            print("VotingRegressor: The Votes of an XGBoost (Extreme Gradient) Regressor VS the votes of a Gradient Boosting Regressor")
+            #print("VotingRegressor: The Votes of an XGBoost (Extreme Gradient) Regressor VS the votes of a Gradient Boosting Regressor")
+            print("Gradient Boosting Regressor:")
             GBR1 = GradientBoostingRegressor(alpha=0.9, learning_rate=0.1, loss="huber", max_depth=8, max_features=1.0, min_samples_leaf=19, min_samples_split=11, n_estimators=100, subsample=0.9500000000000001)
             exported_pipeline = make_pipeline(
             StackingEstimator(estimator=LinearSVR(C=10.0, dual=False, epsilon=0.1, loss="squared_epsilon_insensitive", tol=0.001)),\
@@ -320,6 +382,15 @@ class maintrain():
             print(MSE5)
             print("MAE:")
             print(MAE5)
+
+            # GBR1.fit(self.X_train, self.y_train)
+            # predvot = GBR1.predict(self.X_test).round(0)
+            # MSE5 = self.mse(self.y_test,predvot)
+            # MAE5 = self.mae(self.y_test,predvot)
+            # print("MSE:")
+            # print(MSE5)
+            # print("MAE:")
+            # print(MAE5)
 
             if self.skipcrossval == None:
                 print("Cross Validation")
@@ -368,20 +439,20 @@ class maintrain():
             FIlistdf.to_csv("../feature_importance/SCIKIT Learn's Gradient Boosting Regressor Feature Importance report: model day "+ str(counter) + ".csv", sep = ';')
             filename = '../model/model_day_'+ str(counter) + '.joblib'
             joblib.dump(ensemble, filename)
-            counter += 1
-            # # load the model from disk
-            # loaded_model = joblib.load(filename)
-            # result = loaded_model.score(X_test, Y_test)
-            # print(result)
+         
             print("\n")
+            if self.skiptpot == None:
+                self.tpotregressor(counter)
+            counter += 1
+
         return None
 
-    def tpotregressor(self):
+    def tpotregressor(self, i):
         print("TPOTRegressor")
-        tpot = TPOTRegressor(generations=1, population_size=50, verbosity=2, random_state=42)
+        tpot = TPOTRegressor(generations=50, population_size=10, verbosity=2, random_state=42)
         tpot.fit(self.X, self.y)
         #print(tpot.score(X, y_test2))
-        tpot.export('tpot_covid_pipeline.py')
+        tpot.export('tpot_covid_pipeline_day_' + str(i) + '.py')
         print("\n")
         return None
 
@@ -404,18 +475,19 @@ class maintrain():
 
     def predict(self):
         for i in range(5):
-            currentDate = datetime.today().strftime('%Y-%m-%d')
+            #currentDate = datetime.today().strftime('%Y-%m-%d')
+            
             filename = '../model/model_day_'+ str(i) + '.joblib'
             loaded_model = joblib.load(filename)
             Xpredictdf = pd.read_csv('../predictions/fr/data/day'+str(i)+'df.csv')
+            currentDate = (pd.to_datetime(Xpredictdf["date"].max())+pd.Timedelta("1 Days")).strftime('%Y-%m-%d')
             print(Xpredictdf)
             Xpredict = Xpredictdf.drop(columns = ["date","numero"])
             newhospipredictions = pd.DataFrame(loaded_model.predict(Xpredict))
-            print(newhospipredictions)
             newhospipredictions.columns = ["newhospipred"]
             newhospipredictions["date"] = Xpredictdf["date"]
             newhospipredictions["depnum"] = Xpredictdf["numero"]
-            newhospipredictions.to_csv("../predictions/fr/" + str(currentDate) + "_predictions_for_day_"+ str(i) + '.csv', index = False)
+            newhospipredictions.to_csv("../predictions/fr/" + currentDate + "_predictions_for_day_"+ str(i) + '.csv', index = False)
         return None
             
 

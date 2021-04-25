@@ -36,7 +36,7 @@ class process_covid_positive_test_historical_data:
 
         if (date2 < referencedate):
             prevdaycovidpostest = "NaN"
-            prevdaytotalcovidcasescumulated ="Nan"
+            prevdaytotalcovidcasescumulated ="NaN"
 
         else:   
             prevdaycovidpostest = self.diccovpostest[(row["numero"], date2)][0]

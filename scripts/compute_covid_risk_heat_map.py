@@ -77,7 +77,8 @@ class compute_covid_risk_heat_map:
     print('Data pre-processing:', flush=True)
 
     countryEU = regionmask.defined_regions.natural_earth.countries_50
-    currentDate = datetime.today().strftime('%Y-%m-%d')
+    #currentDate = datetime.today().strftime('%Y-%m-%d')
+    
 
     print('Population ... ', flush=True, end='')
     pop         = pd.read_csv('../data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
@@ -100,9 +101,12 @@ class compute_covid_risk_heat_map:
    
     dfpollution= dfpollution.dropna()
     dfpollution2 = dfpollution2.dropna()
+    dfpollution3['newhospinextday'] = dfpollution3['newhospinextday'].fillna(9999)
     dfpollution3 = dfpollution3.dropna()
+    currentDate = dfpollution3["date"].max()
     dfpollution=dfpollution[dfpollution["date"]==dfpollution["date"].max()]
     dfpollution3=dfpollution3[dfpollution3["date"]==dfpollution3["date"].max()]
+    print(dfpollution3)
     covid = covid.groupby('numero').rolling(window=7).mean()
     covid = covid.groupby(level=0).tail(1).reset_index(drop=True)
     print ("Computing all department longitudes and latitudes in dataframes...")
@@ -120,81 +124,58 @@ class compute_covid_risk_heat_map:
     covidExtraToCom = pop.copy()
     covidExtraToCom['hospi'] = [covid[covid['numero'] == depNum].hospi.values.squeeze() for depNum in covidExtraToCom['dep']]
 
-    print("Computing Risk Indicators Maximum Value...")
-    maxriskmap = (0.1283*(0.029469479*self.max_normalize(dfpollution2["co"]).max()
-        + 0.031129209*self.max_normalize(dfpollution2["o3"]).max()
-        + 0.025763024*self.max_normalize(dfpollution2["pm25"]).max()\
-        + 0.023641346*self.max_normalize(dfpollution2["no2"]).max() 
-        + 0.021235887 * self.max_normalize(dfpollution2["pm10"]).max()\
-        + 0.352199212*self.max_normalize(dfpollution3["1MMaxo3"]).max()
-        + 0.027367485*self.max_normalize(dfpollution3["1MMaxpm10"]).max()
-        + 0.025778019*self.max_normalize(dfpollution3["1MMaxno2"]).max()
-        + 0.048095527*self.max_normalize(dfpollution3["1MMaxpm25"]).max()
-        + 0.026836554*self.max_normalize(dfpollution3["1MMaxco"]).max()
-        + 0.06857573*self.max_normalize(dfpollution3["o37davg"]).max()
-        + 0.023853625*self.max_normalize(dfpollution3["pm107davg"]).max()
-        + 0.031856764*self.max_normalize(dfpollution3["no27davg"]).max()
-        + 0.026716503*self.max_normalize(dfpollution3["pm257davg"]).max()
-        + 0.056620756*self.max_normalize(dfpollution3["co7davg"]).max()
-        + 0.033909774*self.max_normalize(dfpollution3["o31Mavg"]).max()
-        + 0.022787624*self.max_normalize(dfpollution3["pm101Mavg"]).max()
-        + 0.022010391*self.max_normalize(dfpollution3["no21Mavg"]).max()
-        + 0.021063666*self.max_normalize(dfpollution3["pm251Mavg"]).max()
-        + 0.081089422*self.max_normalize(dfpollution3["co1Mavg"]).max())
-        + 0.59*self.max_normalize(dfpollution3['newhospi']).max()
-        + 0.08*self.max_normalize(dfpollution3['hospi']).max()
-        + 0.04*self.max_normalize(dfpollution3["CovidPosTest"]).max()
-        + 0.1617 *self.max_normalize(np.log10(covidExtraToCom['total'])).max()
-        )
-
-    print(maxriskmap)
     times = ["0 days","1 days","2 days", "3 days",'4 days']
     counter = 0
     images = []
     riskMaps = []
-    currentDatestring = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%Y-%m-%d')
+    currentDatestring = (pd.to_datetime(dfpollution3["date"].max())+pd.Timedelta("1 Days")).strftime('%Y-%m-%d')
+    print(currentDatestring)
     print("Interpolating engineered features to commune level...")
       # covidExtraToCom[['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','pm107davg','pm257davg','o37davg','no27davg','co7davg','pm101Mavg',\
       #   'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','population','hospi','CovidPosTest' ]] \
       #     = [dfpollution3[dfpollution3['numero'] == depNum].reindex(columns = ['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','pm107davg','pm257davg','o37davg','no27davg','co7davg','pm101Mavg',\
       #   'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','idx','hospi','CovidPosTest' ]).values.squeeze() for depNum in covidExtraToCom['dep']]
+    columns = ['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','pm107davg','pm257davg','o37davg','no27davg','co7davg','pm101Mavg',\
+                 'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','hospi','CovidPosTest' ]
 
-    covidExtraToCom['1MMaxpm25'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxpm25"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("1MMaxpm25 interpolated!")
-    covidExtraToCom['1MMaxpm10'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxpm10"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("1MMaxpm10 interpolated!")
-    covidExtraToCom['1MMaxo3'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxo3"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("1MMaxo3 interpolated!")
-    covidExtraToCom['1MMaxno2'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxno2"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("1MMaxno2 interpolated!")
-    covidExtraToCom['1MMaxco'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxco"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("1MMaxco interpolated!")
-    covidExtraToCom['pm107davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm107davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("pm107davg interpolated!")
-    covidExtraToCom['pm257davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm257davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("pm257davg interpolated!")
-    covidExtraToCom['o37davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["o37davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("o37davg interpolated!")
-    covidExtraToCom['no27davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["no27davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("no27davg interpolated!")
-    covidExtraToCom['co7davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["co7davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("co7davg interpolated!")
-    covidExtraToCom['pm101Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm101Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("pm101Mavg interpolated!")
-    covidExtraToCom['pm251Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm251Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("pm251Mavg interpolated!")
-    covidExtraToCom['o31Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["o31Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("o31Mavg interpolated!")
-    covidExtraToCom['no21Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["no21Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("no21Mavg interpolated!")
-    covidExtraToCom['co1Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["co1Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("co1Mavg interpolated!")
-    covidExtraToCom['population'] = [dfpollution3[dfpollution3['numero'] == depNum]["idx"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("population interpolated!")
-    covidExtraToCom['hospi'] = [dfpollution3[dfpollution3['numero'] == depNum]["hospi"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("hospi interpolated!")
-    covidExtraToCom['CovidPosTest'] = [dfpollution3[dfpollution3['numero'] == depNum]["CovidPosTest"].values.squeeze() for depNum in covidExtraToCom['dep']]
-    print("CovidPosTest interpolated!")
+    for col in columns:
+      covidExtraToCom[col] = [dfpollution3[dfpollution3['numero'] == depNum][col].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # covidExtraToCom['1MMaxpm25'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxpm25"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("1MMaxpm25 interpolated!")
+    # covidExtraToCom['1MMaxpm10'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxpm10"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("1MMaxpm10 interpolated!")
+    # covidExtraToCom['1MMaxo3'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxo3"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("1MMaxo3 interpolated!")
+    # covidExtraToCom['1MMaxno2'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxno2"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("1MMaxno2 interpolated!")
+    # covidExtraToCom['1MMaxco'] = [dfpollution3[dfpollution3['numero'] == depNum]["1MMaxco"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("1MMaxco interpolated!")
+    # covidExtraToCom['pm107davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm107davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("pm107davg interpolated!")
+    # covidExtraToCom['pm257davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm257davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("pm257davg interpolated!")
+    # covidExtraToCom['o37davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["o37davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("o37davg interpolated!")
+    # covidExtraToCom['no27davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["no27davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("no27davg interpolated!")
+    # covidExtraToCom['co7davg'] = [dfpollution3[dfpollution3['numero'] == depNum]["co7davg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("co7davg interpolated!")
+    # covidExtraToCom['pm101Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm101Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("pm101Mavg interpolated!")
+    # covidExtraToCom['pm251Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["pm251Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("pm251Mavg interpolated!")
+    # covidExtraToCom['o31Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["o31Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("o31Mavg interpolated!")
+    # covidExtraToCom['no21Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["no21Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("no21Mavg interpolated!")
+    # covidExtraToCom['co1Mavg'] = [dfpollution3[dfpollution3['numero'] == depNum]["co1Mavg"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("co1Mavg interpolated!")
+    # covidExtraToCom['population'] = [dfpollution3[dfpollution3['numero'] == depNum]["idx"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("population interpolated!")
+    # covidExtraToCom['hospi'] = [dfpollution3[dfpollution3['numero'] == depNum]["hospi"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("hospi interpolated!")
+    # covidExtraToCom['CovidPosTest'] = [dfpollution3[dfpollution3['numero'] == depNum]["CovidPosTest"].values.squeeze() for depNum in covidExtraToCom['dep']]
+    # print("CovidPosTest interpolated!")
 
     for j in tqdm(times):
       filename = "../predictions/fr/" + currentDatestring + "_predictions_for_day_" + str(counter) +".csv"
@@ -207,8 +188,9 @@ class compute_covid_risk_heat_map:
       print('OK', flush=True)
 
       filePath = '../data/train/cams/fr/forecast/'
-      latestfiledatestring = self.findlatestdateofcamsdata(filePath)[1].strftime('%Y-%m-%d')
-      fileName = "cams-forecast-"+latestfiledatestring +".nc"
+      #latestfiledatestring = self.findlatestdateofcamsdata(filePath)[1].strftime('%Y-%m-%d')
+      #latestfiledatestring = self.findlatestdateofcamsdata(filePath)[1].strftime('%Y-%m-%d')
+      fileName = "cams-forecast-"+currentDatestring +".nc"
       pollutants = xr.open_dataset(filePath + fileName).sel(time = j)
 
       pm25 = pollutants.pm2p5_conc
@@ -267,31 +249,32 @@ class compute_covid_risk_heat_map:
       #part| #%%
      
       #for lead in progressbar(range(97), 'Compute risk: ', 60):
-      print("Computing Risk Indicator ...")
-      risk = (0.1283*(0.029469479*self.max_normalize(coInterpolated)\
-              + 0.031129209*self.max_normalize(o3Interpolated)\
-              + 0.025763024 * self.max_normalize(pm25Interpolated)\
-              + 0.023641346* self.max_normalize(no2Interpolated) \
-              + 0.021235887 * self.max_normalize(pm10Interpolated) \
-              + 0.352199212 * self.max_normalize(covidExtraToCom["1MMaxo3"])\
-              + 0.027367485*self.max_normalize(covidExtraToCom["1MMaxpm10"])\
-              + 0.025778019*self.max_normalize(covidExtraToCom["1MMaxno2"])\
-              + 0.048095527*self.max_normalize(covidExtraToCom["1MMaxpm25"])\
-              + 0.026836554*self.max_normalize(covidExtraToCom["1MMaxco"])\
-              + 0.06857573*self.max_normalize(covidExtraToCom["o37davg"])\
-              + 0.023853625*self.max_normalize(covidExtraToCom["pm107davg"])\
-              + 0.031856764*self.max_normalize(covidExtraToCom["no27davg"])\
-              + 0.026716503*self.max_normalize(covidExtraToCom["pm257davg"])\
-              + 0.056620756*self.max_normalize(covidExtraToCom["co7davg"])\
-              + 0.033909774*self.max_normalize(covidExtraToCom["o31Mavg"])\
-              + 0.022787624*self.max_normalize(covidExtraToCom["pm101Mavg"])\
-              + 0.022010391*self.max_normalize(covidExtraToCom["no21Mavg"])\
-              + 0.021063666*self.max_normalize(covidExtraToCom["pm251Mavg"])\
-              + 0.081089422*self.max_normalize(covidExtraToCom["co1Mavg"]))\
-              + 0.59*self.max_normalize(covidExtraToCom['newhospipred'])\
-              + 0.08*self.max_normalize(covidExtraToCom['hospi'])\
-              + 0.04*self.max_normalize(covidExtraToCom["CovidPosTest"]))\
-              + 0.1617 * self.max_normalize(covidExtraToCom['total'])
+      print("Computing Risk of severe respiratory diseases summoned by pollution ...")
+      risk =    0.0397*self.max_normalize(coInterpolated)\
+              + 0.0414*self.max_normalize(o3Interpolated)\
+              + 0.0371 * self.max_normalize(pm25Interpolated)\
+              + 0.0327* self.max_normalize(no2Interpolated) \
+              + 0.0361 * self.max_normalize(pm10Interpolated) \
+              + 0.0350* self.max_normalize(so2Interpolated) \
+              + 0.0250 * self.max_normalize(covidExtraToCom["1MMaxo3"])\
+              + 0.0192*self.max_normalize(covidExtraToCom["1MMaxpm10"])\
+              + 0.0174*self.max_normalize(covidExtraToCom["1MMaxno2"])\
+              + 0.0287*self.max_normalize(covidExtraToCom["1MMaxpm25"])\
+              + 0.0632*self.max_normalize(covidExtraToCom["1MMaxco"])\
+              + 0.0201*self.max_normalize(covidExtraToCom["1MMaxso2"])\
+              + 0.0530*self.max_normalize(covidExtraToCom["o37davg"])\
+              + 0.0485*self.max_normalize(covidExtraToCom["pm107davg"])\
+              + 0.0233*self.max_normalize(covidExtraToCom["no27davg"])\
+              + 0.0327*self.max_normalize(covidExtraToCom["pm257davg"])\
+              + 0.1773*self.max_normalize(covidExtraToCom["co7davg"])\
+              + 0.0355*self.max_normalize(covidExtraToCom["so27davg"])\
+              + 0.0515*self.max_normalize(covidExtraToCom["o31Mavg"])\
+              + 0.0320*self.max_normalize(covidExtraToCom["pm101Mavg"])\
+              + 0.0298*self.max_normalize(covidExtraToCom["no21Mavg"])\
+              + 0.0293*self.max_normalize(covidExtraToCom["pm251Mavg"])\
+              + 0.0293*self.max_normalize(covidExtraToCom["so21Mavg"])\
+              + 0.0337*self.max_normalize(covidExtraToCom["co1Mavg"])\
+
 
       risk = np.array(risk)
       risk = np.vstack((lons,lats,risk))
@@ -318,16 +301,16 @@ class compute_covid_risk_heat_map:
           pass
 
       cax = ax1.scatter(riskMaps[counter].lon,riskMaps[counter].lat,c=riskMaps[counter].idx,
-      cmap='RdYlGn_r', s=markersize*5, vmin=0, vmax=maxriskmap, zorder=4)
+      cmap='RdYlGn_r', s=markersize*5, vmin=0, vmax=1, zorder=4)
       cbar = fig.colorbar(cax, orientation='horizontal', pad=0, aspect=50,
-      fraction=.01, extend='max', drawedges=False, ticks=[0, maxriskmap])
+      fraction=.01, extend='max', drawedges=False, ticks=[0, 1])
       cbar.ax.set_xticklabels(['low', 'high'])
       cbar.ax.xaxis.set_ticks_position('top')
       cbar.ax.xaxis.set_label_position('top')
 
       ax1.text(0,.0,'Data \nCAMS \ndata.gouv.fr', transform=ax1.transAxes,fontdict={'size':12})
 
-      currentDateWD = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%a, %d %b %Y')
+      currentDateWD = (pd.to_datetime(dfpollution3["date"].max()) +pd.Timedelta("1 Days")).strftime('%a, %d %b %Y')
       ax1.set_title('Risk of severe Covid-19 cases: \n{:}\n'.format(currentDateWD + " + "+ str (counter) + " days"),
       loc='left', pad=-60)
 
