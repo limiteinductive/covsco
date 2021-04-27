@@ -10,7 +10,7 @@ class runpythonscripts:
 
         self.status = None
     
-    def runscripts(self,skiptpot = None, skipimpute = None, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skipallengineer = None,  skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
+    def runscripts(self,skiplevelmaps = None, skipcovidriskheatmap = None, skiptpot = None, skipimpute = None, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skipallengineer = None,  skipengineerfeatures = None, skipcomputedayipastdata = None, skiptrain = None, load = None):
         GetData = maintraindata()
         if skipgetdata == None:
             GetData.GetHistoricalData()
@@ -36,10 +36,14 @@ class runpythonscripts:
                 TrainModel.CurrentBestModel()
 
             TrainModel.predict()
-        ComputeMap = compute_covid_risk_heat_map()
-        ComputeMap.compute_map()
-        ComputeMaps = compute_maps()
-        ComputeMaps.compute_maps()
+        
+        if skipcovidriskheatmap == None:
+            ComputeMap = compute_covid_risk_heat_map()
+            ComputeMap.compute_map()
+
+        if skiplevelmaps == None:
+            ComputeMaps = compute_maps()
+            ComputeMaps.compute_maps()
 
         self.status = "OK Computed Maps"
         print(self.status)
@@ -49,15 +53,17 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts(skiptpot = "y",\
-                   skipimpute = "Y",\
+    Run.runscripts(skiplevelmaps = None,\
+                   skipcovidriskheatmap = None,\
+                   skiptpot = "y",\
+                   skipimpute = None,\
                    skiptrain = "Y",\
-                   skipalltrain = "Y",\
-                   skipgetdata = "Y",\
-                   skipallengineer= "y",\
-                   skipengineerfeatures = "y",\
-                   skipcomputedayipastdata = "y",\
-                   load = 1, skipcrossval = "Y")
-    #Run.runscripts()
+                   skipalltrain = None,\
+                   skipgetdata = None,\
+                   skipallengineer= None,\
+                   skipengineerfeatures = None,\
+                   skipcomputedayipastdata = None,\
+                   load = None, skipcrossval = "Y")
+   # Run.runscripts()
 
         
