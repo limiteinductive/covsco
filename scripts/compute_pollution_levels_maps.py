@@ -97,13 +97,12 @@ class compute_maps:
     dfpollution2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
     dfpollution2= dfpollution2.dropna()
     dfpollution = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
-    dfpollution3 = pd.read_csv("../data/train/all_data_merged/fr/traindf.csv")
+    dfpollution3 = pd.read_csv("../data/train/all_data_merged/fr/traindfknnimputed.csv")
    
     dfpollution= dfpollution.dropna()
     dfpollution2 = dfpollution2.dropna()
-    dfpollution3 = dfpollution3.dropna()
     
-    currentDate = dfpollution3["date"].max()
+    currentDate = pd.to_datetime(dfpollution3["date"].max()) + pd.Timedelta("1 Days")
     dfpollution=dfpollution[dfpollution["date"]==dfpollution["date"].max()]
     dfpollution3=dfpollution3[dfpollution3["date"]==dfpollution3["date"].max()]
     covid = covid.groupby('numero').rolling(window=7).mean()
@@ -141,7 +140,7 @@ class compute_maps:
     risk5Maps = []
     risk6Maps = []
     newhospipredmaps = []
-    currentDatestring = datetime.strptime(currentDate, '%Y-%m-%d').strftime('%Y-%m-%d')
+    currentDatestring = currentDate.strftime('%Y-%m-%d')
 
       # covidExtraToCom[['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','pm107davg','pm257davg','o37davg','no27davg','co7davg','pm101Mavg',\
       #   'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','population','hospi','CovidPosTest' ]] \
@@ -233,51 +232,51 @@ class compute_maps:
         risk1 = np.vstack((lons,lats,risk1))
         risk1 = risk1.T
         risk1 = pd.DataFrame(risk1, columns = ['lon', 'lat', 'idx'])
-        risk1max = dfpollution3['pm25'].max()
+        risk1max = dfpollution2['pm25'].max()
 
         risk2 = np.array(risk2)
         risk2 = np.vstack((lons,lats,risk2))
         risk2 = risk2.T
         risk2 = pd.DataFrame(risk2, columns = ['lon', 'lat', 'idx'])
-        risk2max = dfpollution3['co'].max()
+        risk2max = dfpollution2['co'].max()
     
 
         risk3 = np.array(risk3)
         risk3 = np.vstack((lons,lats,risk3))
         risk3 = risk3.T
         risk3 = pd.DataFrame(risk3, columns = ['lon', 'lat', 'idx'])
-        risk3max = dfpollution3['o3'].max()
+        risk3max = dfpollution2['o3'].max()
 
         risk4 = np.array(risk4)
         risk4 = np.vstack((lons,lats,risk4))
         risk4 = risk4.T
         risk4 = pd.DataFrame(risk4, columns = ['lon', 'lat', 'idx'])
-        risk4max = dfpollution3['no2'].max()
+        risk4max = dfpollution2['no2'].max()
 
         risk5 = np.array(risk5)
         risk5 = np.vstack((lons,lats,risk5))
         risk5 = risk5.T
         risk5 = pd.DataFrame(risk5, columns = ['lon', 'lat', 'idx'])
-        risk5max = dfpollution3['pm10'].max()
+        risk5max = dfpollution2['pm10'].max()
 
         risk6 = np.array(risk6)
         risk6 = np.vstack((lons,lats,risk6))
         risk6 = risk6.T
         risk6 = pd.DataFrame(risk6, columns = ['lon', 'lat', 'idx'])
-        risk6max = dfpollution3['so2'].max()
+        risk6max = dfpollution2['so2'].max()
 
         newhospipredmap = np.array(newhospipredmap)
         newhospipredmap = np.vstack((lons,lats,newhospipredmap))
         newhospipredmap = newhospipredmap.T
         newhospipredmap = pd.DataFrame(newhospipredmap, columns = ['lon', 'lat', 'idx'])
-        newhospipredmax = dfpollution3['newhospi'].max()
+        newhospipredmax = dfpollution2['newhospi'].max()
 
         risk1Maps.append(risk1)
-        risk2Maps.append(risk1)
-        risk3Maps.append(risk1)
-        risk4Maps.append(risk1)
-        risk5Maps.append(risk1)
-        risk6Maps.append(risk1)
+        risk2Maps.append(risk2)
+        risk3Maps.append(risk3)
+        risk4Maps.append(risk4)
+        risk5Maps.append(risk5)
+        risk6Maps.append(risk6)
         newhospipredmaps.append(newhospipredmap)
 
         markersize = .1
@@ -539,43 +538,43 @@ class compute_maps:
 
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'PM2.5-concentration-{:}.gif'.format(currentDate)
+    gifName = 'PM2.5-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images1, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'CO-concentration-{:}.gif'.format(currentDate)
+    gifName = 'CO-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images2, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'O3-concentration-{:}.gif'.format(currentDate)
+    gifName = 'O3-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images3, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'NO2-concentration-{:}.gif'.format(currentDate)
+    gifName = 'NO2-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images4, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'PM10-concentration-{:}.gif'.format(currentDate)
+    gifName = 'PM10-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images5, 'GIF', **kargs)
     
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'SO2-concentration-{:}.gif'.format(currentDate)
+    gifName = 'SO2-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images6, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
     gifPath = '../forecast/fr/'
-    gifName = 'newhospi-{:}.gif'.format(currentDate)
+    gifName = 'newhospi-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images7, 'GIF', **kargs)
 

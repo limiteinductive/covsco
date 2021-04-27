@@ -135,8 +135,8 @@ class compute_covid_risk_heat_map:
       #   'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','population','hospi','CovidPosTest' ]] \
       #     = [dfpollution3[dfpollution3['numero'] == depNum].reindex(columns = ['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','pm107davg','pm257davg','o37davg','no27davg','co7davg','pm101Mavg',\
       #   'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','idx','hospi','CovidPosTest' ]).values.squeeze() for depNum in covidExtraToCom['dep']]
-    columns = ['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','pm107davg','pm257davg','o37davg','no27davg','co7davg','pm101Mavg',\
-                 'pm251Mavg','o31Mavg','no21Mavg','co1Mavg','hospi','CovidPosTest' ]
+    columns = ['1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2','pm107davg','pm257davg','o37davg','no27davg','co7davg',"so27davg", 'pm101Mavg',\
+                 'pm251Mavg','o31Mavg','no21Mavg','co1Mavg',"so21Mavg", 'hospi','CovidPosTest' ]
 
     for col in columns:
       covidExtraToCom[col] = [dfpollution3[dfpollution3['numero'] == depNum][col].values.squeeze() for depNum in covidExtraToCom['dep']]
