@@ -83,10 +83,11 @@ class compute_maps:
     print('Population ... ', flush=True, end='')
     pop         = pd.read_csv('../data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
     pop.columns = ['reg', 'dep', 'com', 'article', 'com_nom', 'lon', 'lat', 'total']
-    popDEP          = pop.copy().groupby('dep').median()
+    popDEP          = pop.copy().groupby('dep').median().reset_index()
     popDEP['total'] = pop.groupby('dep').sum()['total']
     pop['idx']    = self.max_normalize((pop['total']))
     popDEP['idx'] = self.max_normalize((popDEP['total']))
+    
     print('OK', flush=True)
 
     print('Covid ... ', flush=True, end='')
@@ -104,7 +105,7 @@ class compute_maps:
     
     currentDate = pd.to_datetime(dfpollution3["date"].max()) + pd.Timedelta("1 Days")
     dfpollution=dfpollution[dfpollution["date"]==dfpollution["date"].max()]
-    dfpollution3=dfpollution3[dfpollution3["date"]==dfpollution3["date"].max()]
+    dfpollution3=dfpollution3[pd.to_datetime(dfpollution3["date"]) >= pd.to_datetime("2020-07-01")]
     covid = covid.groupby('numero').rolling(window=7).mean()
     covid = covid.groupby(level=0).tail(1).reset_index(drop=True)
     print ("Computing all department longitudes and latitudes in dataframes...")
@@ -155,7 +156,9 @@ class compute_maps:
 
         print("Interpolating newhospi predictions to commune level...")
         covidExtraToCom['newhospipred'] = [newhospipredictionsdf[newhospipredictionsdf['depnum'] == depNum]["newhospipred"].values.squeeze() for depNum in covidExtraToCom['dep']]
-        print("newhospipred interpolated")
+        covidExtraToCom['DepPop'] = [popDEP[popDEP['dep'] == depNum]["total"].values.squeeze() for depNum in covidExtraToCom['dep']]
+        covidExtraToCom ['newhospipercapita'] = (covidExtraToCom['newhospipred']/covidExtraToCom['DepPop'])*100000
+        print("newhospipred interpolated, newhospipercapitacalculated !")
         print('OK', flush=True)
 
         filePath = '../data/train/cams/fr/forecast/'
@@ -226,7 +229,7 @@ class compute_maps:
         risk4 = no2Interpolated
         risk5 = pm10Interpolated
         risk6 = so2Interpolated
-        newhospipredmap = covidExtraToCom['newhospipred']
+        newhospipredmap = covidExtraToCom ['newhospipercapita']
 
         risk1 = np.array(risk1)
         risk1 = np.vstack((lons,lats,risk1))
@@ -269,7 +272,7 @@ class compute_maps:
         newhospipredmap = np.vstack((lons,lats,newhospipredmap))
         newhospipredmap = newhospipredmap.T
         newhospipredmap = pd.DataFrame(newhospipredmap, columns = ['lon', 'lat', 'idx'])
-        newhospipredmax = dfpollution2['newhospi'].max()
+        newhospipredmax = covidExtraToCom ['newhospipercapita'].max()
 
         risk1Maps.append(risk1)
         risk2Maps.append(risk2)

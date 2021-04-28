@@ -9,7 +9,8 @@ itertools.imap = lambda *args, **kwargs: list(map(*args, **kwargs))
 
 class Compute_Engineered_Features_for_df:
 
-    def __init__(self):
+    def __init__(self, start_date):
+        self.start_date = start_date
         self.file_name = None
         self.data = None
         self.pm25tuple = None
@@ -84,7 +85,6 @@ class Compute_Engineered_Features_for_df:
         self.simplifieddf = None
         self.modelfeatures = None
      
-    
     def max_normalize(self, x):
         return (x - x.min()) / (x.max() - x.min())
 
@@ -93,10 +93,13 @@ class Compute_Engineered_Features_for_df:
         self.file_name = '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv'
         self.data = pd.read_csv(self.file_name)
         self.data["date"]=pd.to_datetime(self.data["date"])
-        if (load == 1):
+        self.data = self.data[self.data["date"]>pd.to_datetime(self.start_date)]
+
+        if (load != None):
             self.simplifieddf = pd.read_csv('../data/train/all_data_merged/fr/traindf.csv')
             self.simplifieddf["date"]=pd.to_datetime(self.simplifieddf["date"])
             print(self.simplifieddf)
+
         return None
 
     def max_normalize_data(self):
@@ -607,6 +610,7 @@ class Compute_Engineered_Features_for_df:
         day4ouvriers = row["ouvriers"]
         day4variant1 = row["Nb_susp_501Y_V1"]
         day4variant2 = row["Nb_susp_501Y_V2_3"]
+        
         return (row["date"], row["numero"], day4idx,\
                     self.day4pm25forecast[0],\
                     self.day4no2forecast[0],\
