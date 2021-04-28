@@ -109,7 +109,7 @@ class maintraindata:
         ProcessLowIncome.process_li()
         self.status=13
         print("Computing the engineered Features")
-        Engineered_Features = Compute_Engineered_Features_for_df()
+        Engineered_Features = Compute_Engineered_Features_for_df("2020-07-01")
         Engineered_Features.get_data()
         Engineered_Features.max_normalize_data()
         Engineered_Features.compute_dictionnaries()
