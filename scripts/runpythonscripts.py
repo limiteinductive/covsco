@@ -11,8 +11,8 @@ class runpythonscripts:
 
         self.status = None
     
-    def runscripts(self,skiplevelmaps = None, skipcovidriskheatmap = None, skiptpot = None, skipimpute = None, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skiptrain = None, load = None):
-        GetData = maintraindata()
+    def runscripts(self, datastartdate, skiplevelmaps = None, skipcovidriskheatmap = None, skiptpot = None, skipimpute = None, skipalltrain = None, train = None,skipcrossval =None, skipgetdata = None, skiptrain = None, load = None):
+        GetData = maintraindata(datastartdate)
         if skipgetdata == None:
             GetData.GetHistoricalData()
         
@@ -43,7 +43,7 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts(skiplevelmaps = None,\
+    Run.runscripts("2020-04-08", skiplevelmaps = None,\
                    skipcovidriskheatmap = "Y",\
                    skiptpot = "y",\
                    skipimpute = None,\

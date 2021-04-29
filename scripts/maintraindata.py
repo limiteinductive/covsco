@@ -48,8 +48,9 @@ from compute_polution_levels import compute_pollution_levels
 # Merge data #%%
 # =============================================================================
 class maintraindata:
-    def __init__(self):
+    def __init__(self, datastartdate):
         self.status = None
+        self.datastartdate = datastartdate
 
     def GetHistoricalData(self, stepstoskip = None):
         self.status=0
@@ -109,7 +110,7 @@ class maintraindata:
         ProcessLowIncome.process_li()
         self.status=13
         print("Computing the engineered Features")
-        Engineered_Features = Compute_Engineered_Features_for_df("2020-07-01")
+        Engineered_Features = Compute_Engineered_Features_for_df(self.datastartdate)
         Engineered_Features.get_data()
         Engineered_Features.max_normalize_data()
         Engineered_Features.compute_dictionnaries()
