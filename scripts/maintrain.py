@@ -98,10 +98,25 @@ class maintrain():
                                                                 "normpm251Mavg","normno21Mavg","normo31Mavg","normpm101Mavg","normco1Mavg","normso21Mavg",\
                                                                 'newhospi','newreanim',"newhospinextday"]
 
-        self.featuresandtarget = ['idx', 'pm25', 'no2','o3','pm10','co','so2',\
-            'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
-                'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
-                    '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
+        # self.featuresandtarget = ['idx', 'pm25', 'no2','o3','pm10','co','so2',\
+        #     'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
+        #         'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
+        #             '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
+        #                 'hospi','newhospi','CovidPosTest',\
+        #                     'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
+        #                         'vac1nb', 'vac2nb',\
+        #                             'Insuffisance respiratoire chronique grave (ALD14)', \
+        #                                 'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
+        #                                     'Smokers',\
+        #                                         "minority","pauvrete","rsa","ouvriers",\
+        #                                             "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
+        #                                                 "newhospinextday"]
+        
+        self.featuresandtarget = ['idx', \
+        # 'pm25', 'no2','o3','pm10','co','so2',\
+        #     'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
+        #         'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
+        #             '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
                         'hospi','newhospi','CovidPosTest',\
                             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
                                 'vac1nb', 'vac2nb',\
@@ -115,10 +130,23 @@ class maintrain():
 
         
                                 
-        self.modelday0features = ['idx', 'pm25', 'no2','o3','pm10','co','so2',\
-            'pm257davg','no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
-                'pm251Mavg','no21Mavg','o31Mavg','pm101Mavg','co1Mavg','so21Mavg',\
-                    '1MMaxpm25','1MMaxpm10','1MMaxo3','1MMaxno2','1MMaxco','1MMaxso2',\
+        self.modelday0features = ['idx',\
+        #'pm25', \
+            # 'no2','o3','pm10','co','so2',\
+            #'pm257davg', \
+                #'no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
+                #'pm251Mavg',
+                #'no21Mavg',
+                #'o31Mavg',
+                #'pm101Mavg',
+                #'co1Mavg',
+                #'so21Mavg',\
+                    '1MMaxpm25',\
+                    #'1MMaxpm10',\
+                    '1MMaxo3',
+                    #'1MMaxno2',
+                    '1MMaxco',\
+                        #'1MMaxso2',\
                         'hospi','newhospi','CovidPosTest',\
                             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
                                 'vac1nb', 'vac2nb',\
@@ -643,7 +671,7 @@ class maintrain():
 
 if __name__ == '__main__':
 
-    TrainModel = maintrain(skipcrossval = "Y")
+    TrainModel = maintrain(skipcrossval = "Y", skipimpute = "Y", skiptpot = "Y")
     TrainModel.initdata()
-    #TrainModel.CurrentBestModel()
+    TrainModel.CurrentBestModel()
     TrainModel.predict()
