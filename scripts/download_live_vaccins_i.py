@@ -14,11 +14,11 @@ class LiveVaccin:
 
     def get_file(self):
         self.url = 'https://www.data.gouv.fr/es/datasets/r/59aeab47-c364-462c-9087-ce233b6acbbc'
-        download_url(self.url, '../data/prediction/live_vaccins.csv')
+        download_url(self.url, '/home/ludo915/code/covsco/data/prediction/live_vaccins.csv')
         return self
 
     def preprocess_vaccin(self):
-        data = pd.read_csv('../data/prediction/live_vaccins.csv')
+        data = pd.read_csv('/home/ludo915/code/covsco/data/prediction/live_vaccins.csv')
         data['date_debut_semaine'] = pd.to_datetime(data['date_debut_semaine'])
         self.date_max = data['date_debut_semaine'].max()
 
@@ -50,12 +50,12 @@ class LiveVaccin:
 
     def process_vacc(self):
         self.initial_data = pd.read_csv(
-            '../data/prediction/prediction_data.csv')
+            '/home/ludo915/code/covsco/data/prediction/prediction_data.csv')
         self.initial_data['vacc_1'] = self.initial_data.apply(self.live_vacc_1,
                                                               axis=1)
         self.initial_data['vacc_2'] = self.initial_data.apply(self.live_vacc_2,
                                                               axis=1)
-        self.initial_data.to_csv('../data/prediction/prediction_data.csv',
+        self.initial_data.to_csv('/home/ludo915/code/covsco/data/prediction/prediction_data.csv',
                                  index=False)
         return self
 

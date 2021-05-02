@@ -43,14 +43,14 @@ class runpythonscripts:
 if __name__ == "__main__":
 
     Run = runpythonscripts()
-    Run.runscripts("2020-04-08", skiplevelmaps = None,\
+    Run.runscripts("2020-04-08", skiplevelmaps = "True",\
                    skipcovidriskheatmap = "Y",\
                    skiptpot = "y",\
-                   skipimpute = None,\
-                   skiptrain = None,\
-                   skipalltrain = None,\
-                   skipgetdata = None,\
-                   load = None, skipcrossval = "Y")
-   # Run.runscripts()
+                   skipimpute = "Y",\
+                   skiptrain = "Y",\
+                   skipalltrain = "Y",\
+                   skipgetdata = "Y",\
+                   load = 1, skipcrossval = "Y")
+    #Run.runscripts("2020-04-08", skipcovidriskheatmap='Y', skiptpot='Y')
 
         

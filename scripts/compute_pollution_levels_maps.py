@@ -81,7 +81,7 @@ class compute_maps:
  
 
     print('Population ... ', flush=True, end='')
-    pop         = pd.read_csv('../data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
+    pop         = pd.read_csv('/home/ludo915/code/covsco/data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
     pop.columns = ['reg', 'dep', 'com', 'article', 'com_nom', 'lon', 'lat', 'total']
     popDEP          = pop.copy().groupby('dep').median().reset_index()
     popDEP['total'] = pop.groupby('dep').sum()['total']
@@ -91,14 +91,14 @@ class compute_maps:
     print('OK', flush=True)
 
     print('Covid ... ', flush=True, end='')
-    filePath = '../data/train/covid/fr/'
+    filePath = '/home/ludo915/code/covsco/data/train/covid/fr/'
     fileName = 'Covid_data_history.csv'
     covid = pd.read_csv(filePath + fileName, sep=',').dropna()
 
-    dfpollution2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+    dfpollution2 = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
     dfpollution2= dfpollution2.dropna()
-    dfpollution = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
-    dfpollution3 = pd.read_csv("../data/train/all_data_merged/fr/traindfknnimputed.csv")
+    dfpollution = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+    dfpollution3 = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindfknnimputed.csv")
    
     dfpollution= dfpollution.dropna()
     dfpollution2 = dfpollution2.dropna()
@@ -150,7 +150,7 @@ class compute_maps:
 
     for j in tqdm(times):
         print(j)
-        filename = "../predictions/fr/" + currentDatestring + "_predictions_for_day_" + str(counter) +".csv"
+        filename = "/home/ludo915/code/covsco/predictions/fr/" + currentDatestring + "_predictions_for_day_" + str(counter) +".csv"
         newhospipredictionsdf = pd.read_csv(filename)
         print(filename + " Read!")
 
@@ -161,7 +161,7 @@ class compute_maps:
         print("newhospipred interpolated, newhospipercapitacalculated !")
         print('OK', flush=True)
 
-        filePath = '../data/train/cams/fr/forecast/'
+        filePath = '/home/ludo915/code/covsco/data/train/cams/fr/forecast/'
         latestfiledatestring = self.findlatestdateofcamsdata(filePath)[1].strftime('%Y-%m-%d')
         fileName = "cams-forecast-"+latestfiledatestring +".nc"
         pollutants = xr.open_dataset(filePath + fileName).sel(time = j)
@@ -540,43 +540,43 @@ class compute_maps:
         counter += 1
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'PM2.5-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images1, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'CO-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images2, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'O3-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images3, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'NO2-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images4, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'PM10-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images5, 'GIF', **kargs)
     
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'SO2-concentration-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images6, 'GIF', **kargs)
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'newhospi-{:}.gif'.format(currentDatestring)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images7, 'GIF', **kargs)

@@ -74,7 +74,9 @@ class maintrain():
         return diff.mean()
 
     def initdata(self):
-        self.df = pd.read_csv("../data/train/all_data_merged/fr/traindf.csv")
+        self.df = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindfknnimputed.csv")
+        self.df["date"]=pd.to_datetime(self.df["date"])
+        self.df = self.df[self.df["date"]> pd.to_datetime("2020-05-13")]
         self.df["all_day_bing_tiles_visited_relative_change"]=self.df["all_day_bing_tiles_visited_relative_change"].astype(float)
         self.df["all_day_ratio_single_tile_users"]=self.df["all_day_ratio_single_tile_users"].astype(float)
         print(self.df)
@@ -132,15 +134,22 @@ class maintrain():
                                 
         self.modelday0features = ['idx',\
         #'pm25', \
-            # 'no2','o3','pm10','co','so2',\
-            #'pm257davg', \
-                #'no27davg','o37davg','co7davg', 'pm107davg','so27davg',\
-                #'pm251Mavg',
-                #'no21Mavg',
-                #'o31Mavg',
-                #'pm101Mavg',
-                #'co1Mavg',
-                #'so21Mavg',\
+            #  'no2',
+            #'o3',\
+            #'pm10',
+            #'co',\
+            #'so2',\
+            # 'pm257davg', \
+            #     'no27davg',\
+            #'o37davg',\
+               'co7davg', \
+            #'pm107davg','so27davg',\
+            #     'pm251Mavg',
+            #     'no21Mavg',
+            #     'o31Mavg',
+            #     'pm101Mavg',
+                 'co1Mavg',
+            #     'so21Mavg',\
                     '1MMaxpm25',\
                     #'1MMaxpm10',\
                     '1MMaxo3',
@@ -290,11 +299,11 @@ class maintrain():
             imputer.fit(self.df[self.modelday4features])
             self.df[self.modelday4features] = imputer.transform(self.df[self.modelday4features])
 
-            self.df.to_csv("../data/train/all_data_merged/fr/traindfknnimputed.csv", index = False)
+            self.df.to_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindfknnimputed.csv", index = False)
         
         else:
 
-            self.df = pd.read_csv("../data/train/all_data_merged/fr/traindfknnimputed.csv")
+            self.df = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindfknnimputed.csv")
 
         return None
 
@@ -398,6 +407,7 @@ class maintrain():
                         reg_alpha=0, reg_lambda=1, scale_pos_weight=1, subsample=1,
                         tree_method='exact', validate_parameters=1, verbosity=None)
 
+
             ensemble = VotingRegressor(
                 estimators = [("TPET",exported_pipeline),("xgbr",xgb_model)],
             )
@@ -447,7 +457,7 @@ class maintrain():
             FIlistdf.columns = ["feature_importance"]
             FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
             print(FIlistdf)
-            FIlistdf.to_csv("../feature_importance/XGBoost Regressor Feature importance report: model day "+ str(counter) + ".csv", sep = ";")
+            FIlistdf.to_csv("/home/ludo915/code/covsco/feature_importance/XGBoost Regressor Feature importance report: model day "+ str(counter) + ".csv", sep = ";")
             print("\n")
 
             print("\n")
@@ -464,8 +474,8 @@ class maintrain():
             FIlistdf.sort_values(by = ["feature_importance"], inplace = True, ascending = False)
             print(FIlistdf)
             print("\n")
-            FIlistdf.to_csv("../feature_importance/SCIKIT Learn's Gradient Boosting Regressor Feature Importance report: model day "+ str(counter) + ".csv", sep = ';')
-            filename = '../model/model_day_'+ str(counter) + '.joblib'
+            FIlistdf.to_csv("/home/ludo915/code/covsco/feature_importance/SCIKIT Learn's Gradient Boosting Regressor Feature Importance report: model day "+ str(counter) + ".csv", sep = ';')
+            filename = '/home/ludo915/code/covsco/model/model_day_'+ str(counter) + '.joblib'
             joblib.dump(ensemble, filename)
          
             print("\n")
@@ -505,17 +515,19 @@ class maintrain():
         for i in range(5):
             #currentDate = datetime.today().strftime('%Y-%m-%d')
             
-            filename = '../model/model_day_'+ str(i) + '.joblib'
+            filename = '/home/ludo915/code/covsco/model/model_day_'+ str(i) + '.joblib'
             loaded_model = joblib.load(filename)
-            Xpredictdf = pd.read_csv('../predictions/fr/data/day'+str(i)+'df.csv')
+            Xpredictdf = pd.read_csv('/home/ludo915/code/covsco/predictions/fr/data/day'+str(i)+'df.csv')
             currentDate = (pd.to_datetime(Xpredictdf["date"].max())+pd.Timedelta("1 Days")).strftime('%Y-%m-%d')
+         
             print(Xpredictdf)
             Xpredict = Xpredictdf.drop(columns = ["date","numero"])
+            Xpredict = Xpredict[self.modelday0features]
             newhospipredictions = pd.DataFrame(loaded_model.predict(Xpredict))
             newhospipredictions.columns = ["newhospipred"]
             newhospipredictions["date"] = Xpredictdf["date"]
             newhospipredictions["depnum"] = Xpredictdf["numero"]
-            newhospipredictions.to_csv("../predictions/fr/" + currentDate + "_predictions_for_day_"+ str(i) + '.csv', index = False)
+            newhospipredictions.to_csv("/home/ludo915/code/covsco/predictions/fr/" + currentDate + "_predictions_for_day_"+ str(i) + '.csv', index = False)
         return None
             
 
@@ -527,7 +539,7 @@ class maintrain():
         # predETdf.columns = ["prednewhospi"]
         # featuresandtargetdf = X_test2.merge(y_test2, left_on = X_test2.index, right_on = y_test2.index)
         # featuresandtargetdf["prednewhospi"]=predETdf["prednewhospi"].round(0)
-        # featuresandtargetdf.to_csv("../predictions/fr/new_hospi_predictions.csv", index = False)
+        # featuresandtargetdf.to_csv("/home/ludo915/code/covsco/predictions/fr/new_hospi_predictions.csv", index = False)
         # ETMSE = mse(y_test2, predET)
         # ETMAE = mae(y_test2, predET)
 

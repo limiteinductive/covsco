@@ -90,13 +90,13 @@ class Compute_Engineered_Features_for_df:
 
     def get_data(self, load = None):
         print("Reading data from csv...")
-        self.file_name = '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv'
+        self.file_name = '/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv'
         self.data = pd.read_csv(self.file_name)
         self.data["date"]=pd.to_datetime(self.data["date"])
         self.data = self.data[self.data["date"]>pd.to_datetime(self.start_date)]
 
         if (load != None):
-            self.simplifieddf = pd.read_csv('../data/train/all_data_merged/fr/traindf.csv')
+            self.simplifieddf = pd.read_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindf.csv')
             self.simplifieddf["date"]=pd.to_datetime(self.simplifieddf["date"])
             print(self.simplifieddf)
 
@@ -685,11 +685,11 @@ class Compute_Engineered_Features_for_df:
         print("Computing input dataframe for model day4 ...")
         day4df = self.data[(self.data["date"]==datemax) & (self.data["leadtime_hour"]== 96)][self.modelfeatures]
         day4df[self.modelfeatures]=day4df.apply(self.compute_input_df_model4, axis=1).apply(pd.Series)
-        day0df.to_csv("../predictions/fr/data/day0df.csv", index = False)
-        day1df.to_csv("../predictions/fr/data/day1df.csv", index = False)
-        day2df.to_csv("../predictions/fr/data/day2df.csv", index = False)
-        day3df.to_csv("../predictions/fr/data/day3df.csv", index = False)
-        day4df.to_csv("../predictions/fr/data/day4df.csv", index = False)
+        day0df.to_csv("/home/ludo915/code/covsco/predictions/fr/data/day0df.csv", index = False)
+        day1df.to_csv("/home/ludo915/code/covsco/predictions/fr/data/day1df.csv", index = False)
+        day2df.to_csv("/home/ludo915/code/covsco/predictions/fr/data/day2df.csv", index = False)
+        day3df.to_csv("/home/ludo915/code/covsco/predictions/fr/data/day3df.csv", index = False)
+        day4df.to_csv("/home/ludo915/code/covsco/predictions/fr/data/day4df.csv", index = False)
         return None
 
     def compute_forecast_data_for_training_models(self,row):
@@ -1263,7 +1263,7 @@ class Compute_Engineered_Features_for_df:
         print("\n")     
         print(self.simplifieddf)
         print("\n")
-        self.simplifieddf.to_csv('../data/train/all_data_merged/fr/traindf.csv', index = False)
+        self.simplifieddf.to_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindf.csv', index = False)
         return None
 
     def compute_Engineered_features_assign_to_df(self):
@@ -1282,7 +1282,7 @@ class Compute_Engineered_Features_for_df:
         print("\n")
         print(self.simplifieddf)
         print("\n")
-        self.simplifieddf.to_csv('../data/train/all_data_merged/fr/traindf.csv', index = False)
+        self.simplifieddf.to_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindf.csv', index = False)
         return None
     
     def compute_dayi_past_data_assign_to_df(self):
@@ -1416,7 +1416,7 @@ class Compute_Engineered_Features_for_df:
         print("\n")
         print(self.simplifieddf)
         print("\n")
-        self.simplifieddf.to_csv('../data/train/all_data_merged/fr/traindf.csv')
+        self.simplifieddf.to_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindf.csv')
         return None
 
 if __name__ == '__main__':

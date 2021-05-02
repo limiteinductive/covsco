@@ -41,7 +41,7 @@ class process_cams_forecast_data:
 
     def process_cams(self):
 
-        self.filePath = '../data/train/cams/fr/forecast/'
+        self.filePath = '/home/ludo915/code/covsco/data/train/cams/fr/forecast/'
 
         start_date, end_date = [pd.to_datetime(self.findmostancientdateofcamsdata(self.filePath)), self.findmostrecentdateofcamsdata(self.filePath)]
         dates = pd.date_range(start_date, end_date, freq='D')
@@ -125,7 +125,7 @@ class process_cams_forecast_data:
         # interpolate CAMS data to lon/lat of departments
         print("\n")
         print("Interpolate CAMS data to lon/lat of departments ...")
-        self.population  = pd.read_csv('../data/train/pop/fr/population_2020.csv')
+        self.population  = pd.read_csv('/home/ludo915/code/covsco/data/train/pop/fr/population_2020.csv')
         lons = xr.DataArray(
             self.population['lon'],
             dims='numero',
@@ -142,7 +142,7 @@ class process_cams_forecast_data:
         print(self.cams)
         #self.cams.index = self.cams.index.to_timestamp()
         print(self.cams.columns)
-        self.file_name = '../data/train/covid/fr/Covid_data_history.csv'
+        self.file_name = '/home/ludo915/code/covsco/data/train/covid/fr/Covid_data_history.csv'
         self.covid = pd.read_csv(self.file_name, sep=',')
         self.covid = self.covid.reset_index()
         print(self.covid)
@@ -150,7 +150,7 @@ class process_cams_forecast_data:
         self.cams['date']=pd.to_datetime(self.cams['date'])
         self.covid = self.covid.merge(self.cams, how= 'outer', on = ['date','numero'])
         #self.covid.columns = self.covid.columns.droplevel()
-        self.covid.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
+        self.covid.to_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv", index = False)
         print(self.covid)
         print(self.covid.columns)
 

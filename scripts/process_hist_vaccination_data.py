@@ -47,9 +47,9 @@ class process_hist_vaccination_data:
 
         self.url = "https://www.data.gouv.fr/es/datasets/r/59aeab47-c364-462c-9087-ce233b6acbbc"
 
-        download_url(self.url, "../data/train/vaccination/fr/vaccination_hist_data.csv", chunk_size=128)
+        download_url(self.url, "/home/ludo915/code/covsco/data/train/vaccination/fr/vaccination_hist_data.csv", chunk_size=128)
 
-        self.df = pd.read_csv("../data/train/vaccination/fr/vaccination_hist_data.csv")
+        self.df = pd.read_csv("/home/ludo915/code/covsco/data/train/vaccination/fr/vaccination_hist_data.csv")
         print(self.df.columns)
         self.df['departement'] = self.df['departement'].replace({
             '2A': '201',
@@ -60,7 +60,7 @@ class process_hist_vaccination_data:
                                                 dayfirst=True)
 
         self.df2 = pd.read_csv(
-            "../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+            "/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
             sep=",")
         self.df2['vac1nb']=0
         self.df2['vac2nb']=0
@@ -81,7 +81,7 @@ class process_hist_vaccination_data:
 
         self.df2[['vac1nb','vac2nb' ]] = self.df2.apply(self.enriched_vaccin, axis=1).apply(pd.Series)
         print(self.df2)
-        self.df2.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+        self.df2.to_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
                 index=False)
 
 if __name__ == '__main__':

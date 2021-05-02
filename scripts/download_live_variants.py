@@ -16,7 +16,7 @@ class LiveVariant:
 
     def get_file(self):
         self.url = 'https://www.data.gouv.fr/fr/datasets/r/16f4fd03-797f-4616-bca9-78ff212d06e8'
-        self.file_name = '../data/prediction/live_variants.csv'
+        self.file_name = '/home/ludo915/code/covsco/data/prediction/live_variants.csv'
         download_url(self.url, self.file_name)
         return self
 
@@ -57,12 +57,12 @@ class LiveVariant:
 
     def process_variant(self):
         self.initial_data = pd.read_csv(
-            '../data/prediction/prediction_data.csv')
+            '/home/ludo915/code/covsco/data/prediction/prediction_data.csv')
         self.initial_data['variant_1'] = self.initial_data.apply(self.add_V1,
                                                                  axis=1)
         self.initial_data['variant_2'] = self.initial_data.apply(self.add_V2,
                                                                  axis=1)
-        self.initial_data.to_csv('../data/prediction/prediction_data.csv',
+        self.initial_data.to_csv('/home/ludo915/code/covsco/data/prediction/prediction_data.csv',
                                  index=False)
         return self
 

@@ -8,7 +8,7 @@ class InitialLive:
     def get_data(self):
 
         prediction_data = pd.read_csv(
-            '../data/train/pop/fr/departements-francais.csv', sep=';')
+            '/home/ludo915/code/covsco/data/train/pop/fr/departements-francais.csv', sep=';')
         prediction_data.columns = [
             'dep_num', 'name', 'region', 'capital', 'area', 'total', 'density'
         ]
@@ -18,7 +18,7 @@ class InitialLive:
             {'Ile-de-France': 'Île-de-France'})
         self.data = prediction_data
 
-        prediction_data.to_csv('../data/prediction/prediction_data.csv',
+        prediction_data.to_csv('/home/ludo915/code/covsco/data/prediction/prediction_data.csv',
                                index=False)
         return self
 
@@ -26,7 +26,7 @@ class InitialLive:
 if __name__ == '__main__':
     prediction = InitialLive()
     print(
-        'Getting the initial_prediction file in "../data/preidction/prediction_data.csv"'
+        'Getting the initial_prediction file in "/home/ludo915/code/covsco/data/prediction/prediction_data.csv"'
     )
     prediction.get_data()
     print('Done !')

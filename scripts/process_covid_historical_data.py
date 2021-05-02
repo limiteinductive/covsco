@@ -10,11 +10,11 @@ class process_covid_historical_data:
 
     def process_covid_hist_data(self):
         print('Processing Covid data ... ', flush=True, end='')
-        self.file_name = '../data/train/covid/fr/Covid_data_history.csv'
+        self.file_name = '/home/ludo915/code/covsco/data/train/covid/fr/Covid_data_history.csv'
         self.covid = pd.read_csv(self.file_name, sep=',').dropna()
         self.covid['date'] = pd.to_datetime(self.covid['date'])
         self.covid = self.covid[self.covid['numero']<203]
-        self.population  = pd.read_csv('../data/train/pop/fr/population_2020.csv')
+        self.population  = pd.read_csv('/home/ludo915/code/covsco/data/train/pop/fr/population_2020.csv')
         self.covid = self.covid.merge(self.population, how='inner', left_on='numero', right_on='dep_num')
         print('OK', flush=True)
         print("\n")

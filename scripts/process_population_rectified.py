@@ -16,16 +16,16 @@ class process_population_rectified:
 
     def process_population_rect(self):
         self.data = pd.read_csv(
-            '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
-        pop2020 = pd.read_excel('../data/train/pop/fr/popfr.xls', sheet_name='2020')
-        pop2021 = pd.read_excel('../data/train/pop/fr/popfr.xls', sheet_name='2021')
+            '/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+        pop2020 = pd.read_excel('/home/ludo915/code/covsco/data/train/pop/fr/popfr.xls', sheet_name='2020')
+        pop2021 = pd.read_excel('/home/ludo915/code/covsco/data/train/pop/fr/popfr.xls', sheet_name='2021')
 
         self.dic2020 = {k: v for k, v in zip(pop2020['depname'], pop2020['pop'])}
         self.dic2021 = {k: v for k, v in zip(pop2021['depname'], pop2021['pop'])}
         self.data['total'] = self.data.apply(self.rectify_pop, axis=1)
         self.data['idx'] = self.data.apply(self.rectify_pop, axis=1)
         self.data.to_csv(
-            '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv',
+            '/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv',
             index=False)
         print(self.data)
         return None

@@ -10,7 +10,7 @@ class process_low_income:
         return feature[row['nom']]
 
     def process_li(self):
-        self.df = pd.read_csv('../data/train/low_income/fr/low_income.csv', sep=';')
+        self.df = pd.read_csv('/home/ludo915/code/covsco/data/train/low_income/fr/low_income.csv', sep=';')
 
         self.df.rename(columns={
             'Corse du sud': 'Corse-du-Sud',
@@ -20,8 +20,8 @@ class process_low_income:
                 inplace=True)
 
         self.data = pd.read_csv(
-            '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
-        self.depts = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
+            '/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+        self.depts = pd.read_csv('/home/ludo915/code/covsco/data/train/pop/fr/departements-francais.csv', sep=';')
 
         depts_list = [element for element in self.depts['NOM']]
 
@@ -46,7 +46,7 @@ class process_low_income:
         self.data['ouvriers'] = self.data.apply(self.add_feature, axis=1, feature=ouvriers_dic)
 
         print(self.data)
-        self.data.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+        self.data.to_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
                 index=False)
 
 if __name__ == '__main__':

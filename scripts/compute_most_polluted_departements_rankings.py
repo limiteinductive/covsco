@@ -1,9 +1,9 @@
 import pandas as pd
 
-df = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+df = pd.read_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
 pollutantslist = ["o3","co","no2","pm25","pm10","so2"]
 
-with pd.ExcelWriter("../research/Pollution study by departement 1Y Max 1M-TMCs.xlsx") as writer:  
+with pd.ExcelWriter("/home/ludo915/code/covsco/research/Pollution study by departement 1Y Max 1M-TMCs.xlsx") as writer:  
     
     for pollutant in pollutantslist:
 
