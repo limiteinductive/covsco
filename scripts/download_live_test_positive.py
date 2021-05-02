@@ -44,10 +44,10 @@ class LiveTest:
 
     def process_positive_test(self):
         self.initial_data = pd.read_csv(
-            '../data/prediction/prediction_data.csv')
+            '/home/ludo915/code/covsco/data/prediction/prediction_data.csv')
         self.initial_data['positive_test'] = self.initial_data.apply(
             self.add_positive_test, axis=1)
-        self.initial_data.to_csv('../data/prediction/prediction_data.csv',
+        self.initial_data.to_csv('/home/ludo915/code/covsco/data/prediction/prediction_data.csv',
                                  index=False)
         return self
 

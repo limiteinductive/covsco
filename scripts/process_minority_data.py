@@ -12,7 +12,7 @@ class process_minority_data:
 
     def process_minority(self):
 
-        self.data = pd.read_csv('../data/train/minority/fr/minority.csv', sep=';')
+        self.data = pd.read_csv('/home/ludo915/code/covsco/data/train/minority/fr/minority.csv', sep=';')
         self.data.rename(columns={
             'Corse du sud': 'Corse-du-Sud',
             'Haute Corse': 'Haute-Corse',
@@ -20,8 +20,8 @@ class process_minority_data:
         },
                     inplace=True)
         self.df = pd.read_csv(
-            '../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
-        self.depts = pd.read_csv('../data/train/pop/fr/departements-francais.csv', sep=';')
+            '/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+        self.depts = pd.read_csv('/home/ludo915/code/covsco/data/train/pop/fr/departements-francais.csv', sep=';')
         depts_list = [element for element in self.depts['NOM']]
         self.dic = {
             k: ('Unknown' if self.data[k][0] == 'nd' else
@@ -31,7 +31,7 @@ class process_minority_data:
 
         self.df['minority'] = self.df.apply(self.add_minority, axis=1)
         print(self.df)
-        self.df.to_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
+        self.df.to_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv",
                 index=False)
         print(self.df)
 

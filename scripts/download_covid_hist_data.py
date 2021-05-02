@@ -14,7 +14,7 @@ class download_covid_hist_data:
 
     def GetData(self):
         print("Downloading Covid Numbers from coronavirusapi-france.now ...")
-        self.file_name = "../data/train/pop/fr/departements-francais.csv"
+        self.file_name = "/home/ludo915/code/covsco/data/train/pop/fr/departements-francais.csv"
         self.departements = pd.read_csv(self.file_name, sep = ";")
         self.url = "https://coronavirusapi-france.now.sh/AllDataByDepartement?Departement="
 
@@ -41,7 +41,7 @@ class download_covid_hist_data:
 
         dfcolumns = ['nom', 'numero','date','hospi','reanim','newhospi','newreanim','deces','gueris']
         self.data = pd.DataFrame(datapointlist, columns = dfcolumns)
-        self.data.to_csv('../data/train/covid/fr/Covid_data_history.csv', index = False)
+        self.data.to_csv('/home/ludo915/code/covsco/data/train/covid/fr/Covid_data_history.csv', index = False)
         print(self.data)
         return None
 

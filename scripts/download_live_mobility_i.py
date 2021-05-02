@@ -27,7 +27,7 @@ class LiveMobility:
         return self
 
     def get_file(self):
-        self.file_name = "../data/prediction/mvt_range.zip"
+        self.file_name = "/home/ludo915/code/covsco/data/prediction/mvt_range.zip"
         download_url(self.url, self.file_name)
         return self
 
@@ -89,7 +89,7 @@ class LiveMobility:
 
     def process_mobility(self):
         self.initial_data = pd.read_csv(
-            '../data/prediction/prediction_data.csv')
+            '/home/ludo915/code/covsco/data/prediction/prediction_data.csv')
 
         # self.initial_data['stay_put'] = 0.0
         # self.initial_data['go_out'] = 0.0
@@ -99,7 +99,7 @@ class LiveMobility:
         self.initial_data['stay_put'] = self.initial_data.apply(
             self.add_stay_put, axis=1)
 
-        self.initial_data.to_csv('../data/prediction/prediction_data.csv',
+        self.initial_data.to_csv('/home/ludo915/code/covsco/data/prediction/prediction_data.csv',
                                  index=False)
         return self
 

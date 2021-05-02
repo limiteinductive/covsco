@@ -81,7 +81,7 @@ class compute_covid_risk_heat_map:
     
 
     print('Population ... ', flush=True, end='')
-    pop         = pd.read_csv('../data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
+    pop         = pd.read_csv('/home/ludo915/code/covsco/data/pop/fr/pop.csv', usecols=[0,1,2,3,4,5,6,42])
     pop.columns = ['reg', 'dep', 'com', 'article', 'com_nom', 'lon', 'lat', 'total']
     popDEP          = pop.copy().groupby('dep').median()
     popDEP['total'] = pop.groupby('dep').sum()['total']
@@ -90,14 +90,14 @@ class compute_covid_risk_heat_map:
     print('OK', flush=True)
 
     print('Covid ... ', flush=True, end='')
-    filePath = '../data/train/covid/fr/'
+    filePath = '/home/ludo915/code/covsco/data/train/covid/fr/'
     fileName = 'Covid_data_history.csv'
     covid = pd.read_csv(filePath + fileName, sep=',').dropna()
 
-    dfpollution2 = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+    dfpollution2 = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
     dfpollution2= dfpollution2.dropna()
-    dfpollution = pd.read_csv("../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
-    dfpollution3 = pd.read_csv("../data/train/all_data_merged/fr/traindf.csv")
+    dfpollution = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv")
+    dfpollution3 = pd.read_csv("/home/ludo915/code/covsco/data/train/all_data_merged/fr/traindf.csv")
    
     dfpollution= dfpollution.dropna()
     dfpollution2 = dfpollution2.dropna()
@@ -178,7 +178,7 @@ class compute_covid_risk_heat_map:
     # print("CovidPosTest interpolated!")
 
     for j in tqdm(times):
-      filename = "../predictions/fr/" + currentDatestring + "_predictions_for_day_" + str(counter) +".csv"
+      filename = "/home/ludo915/code/covsco/predictions/fr/" + currentDatestring + "_predictions_for_day_" + str(counter) +".csv"
       newhospipredictionsdf = pd.read_csv(filename)
       print(filename + " Read!")
 
@@ -187,7 +187,7 @@ class compute_covid_risk_heat_map:
       print("newhospipred interpolated")
       print('OK', flush=True)
 
-      filePath = '../data/train/cams/fr/forecast/'
+      filePath = '/home/ludo915/code/covsco/data/train/cams/fr/forecast/'
       #latestfiledatestring = self.findlatestdateofcamsdata(filePath)[1].strftime('%Y-%m-%d')
       #latestfiledatestring = self.findlatestdateofcamsdata(filePath)[1].strftime('%Y-%m-%d')
       fileName = "cams-forecast-"+currentDatestring +".nc"
@@ -325,7 +325,7 @@ class compute_covid_risk_heat_map:
       counter += 1
 
     print('Create gif ...', flush=True, end='')
-    gifPath = '../forecast/fr/'
+    gifPath = '/home/ludo915/code/covsco/forecast/fr/'
     gifName = 'covid-risk-fc-{:}.gif'.format(currentDate)
     kargs = { 'duration': 1 }
     imageio.mimwrite(gifPath + gifName, images, 'GIF', **kargs)

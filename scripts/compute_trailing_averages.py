@@ -21,7 +21,7 @@ def simple_time_tracker(method):
     return timed
 
 print("Computing the engineered features: 7 trailing day averages of gas' concentrations ...")
-data = pd.read_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
+data = pd.read_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv')
 
 data["time"]=pd.to_datetime(data["time"])
 
@@ -33,6 +33,7 @@ o3tuple = (data['numero'], data['time'], data["o3"])
 pm10tuple = (data['numero'], data['time'], data["pm10"])
 cotuple = (data['numero'], data['time'], data["co"])
 tothospituple = (data['numero'], data['time'], data["hospi"])
+covidpostesttuple = (data['numero'], data['time'], data["'covidpostestprevday'"])
 
 dicpm25 = {(i, j) : k for (i, j, k) in zip(*pm25tuple)}
 dicno2 = {(i, j) : k for (i, j, k) in zip(*no2tuple)}
@@ -40,6 +41,7 @@ dico3 = {(i, j) : k for (i, j, k) in zip(*o3tuple)}
 dicpm10 = {(i, j) : k for (i, j, k) in zip(*pm10tuple)}
 dicco = {(i, j) : k for (i, j, k) in zip(*cotuple)}
 dictothospi = {(i, j) : k for (i, j, k) in zip(*tothospituple)}
+diccovidpostest = {(i, j) : k for (i, j, k) in zip(*covidpostesttuple)}
 
 referencedate = data["time"].min()
 
@@ -77,8 +79,10 @@ def compute_avg_conc(row):
 
     if (dateprevday < referencedate):
         prevdaytothospi = "NaN"
+        prevdaycovidpostest = "Nan"
     else:
         prevdaytothospi = dictothospi[(row['numero'], dateprevday)]
+        prevdaycovidpostest = diccovidpostest[(row['numero'], dateprevday)]
 
     cleanedList = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
     cleanedList2 = [(float(x),float(y),float(z),float(w),float(v)) for (x,y,z,w, v) in datalist2 if (str(x),str(y),str(z),str(w),str(v)) != ('NaN','NaN','NaN','NaN','NaN')]
@@ -109,6 +113,6 @@ print("\n")
 data = compute_trailing_avg_assign_to_df(data)
 print(data)
 
-data.to_csv('../data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
+data.to_csv('/home/ludo915/code/covsco/data/train/all_data_merged/fr/Enriched_Covid_history_data.csv', index = False)
 
     

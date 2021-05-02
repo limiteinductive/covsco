@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import datetime
-departements = pd.read_csv("data/pop/fr/departements-francais.csv", sep = ";")
+departements = pd.read_csv("/home/ludo915/code/covsco/data/pop/fr/departements-francais.csv", sep = ";")
 hospi = []
 url = "https://coronavirusapi-france.now.sh/AllLiveData"
 response = requests.get(url).json()

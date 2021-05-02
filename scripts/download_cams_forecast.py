@@ -20,7 +20,7 @@ class download_cams_forecast:
 
     def download(self):
         self.work_dir = os.path.dirname(os.path.abspath(__file__))
-        self.save_to = os.path.join(self.work_dir, '../data/train/cams/fr/forecast')
+        self.save_to = os.path.join(self.work_dir, '/home/ludo915/code/covsco/data/train/cams/fr/forecast')
 
         if not os.path.exists(self.save_to):
             os.makedirs(self.save_to)
@@ -42,7 +42,7 @@ class download_cams_forecast:
         with open(cams_api, 'r') as f:
             credentials = yaml.safe_load(f)
 
-        mypath = "../data/train/cams/fr/forecast/"
+        mypath = "/home/ludo915/code/covsco/data/train/cams/fr/forecast/"
 
         def findlatestdateofcamsdata(mypath):
             dates = []
@@ -89,7 +89,7 @@ class download_cams_forecast:
                                     'time': '00:00',
                                     'leadtime_hour': [
                                         '0', '24', '48',
-                                        '72', '96',
+                                        '72', '96'
                                     ],
                                     'area': area,
                                     'format': 'netcdf',
