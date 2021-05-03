@@ -1,4 +1,4 @@
-NUMÉRO;NOM;REGION;CHEF LIEU;SUPERFICIE (km²);POPULATION;DENSITE (habitants/km2)
+numero;NOM;REGION;CHEF LIEU;SUPERFICIE (km²);POPULATION;DENSITE (habitants/km2)
 1;Ain;Auvergne-Rhône-Alpes;Bourg-en-Bresse;5762;631877;109.7
 2;Aisne;Hauts-de-France;Laon;7369;538659;73.1
 3;Allier;Auvergne-Rhône-Alpes;Moulins;7340;341613;46.5
