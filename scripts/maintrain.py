@@ -133,38 +133,41 @@ class maintrain():
         
                                 
         self.modelday0features = ['idx',\
-        #'pm25', \
-            #  'no2',
-            #'o3',\
-            #'pm10',
-            #'co',\
-            #'so2',\
-            # 'pm257davg', \
-            #     'no27davg',\
-            #'o37davg',\
+        'pm25', \
+              'no2',
+            'o3',\
+            'pm10',
+            'co',\
+            'so2',\
+             'pm257davg', \
+                 'no27davg',\
+            'o37davg',\
                'co7davg', \
-            #'pm107davg','so27davg',\
-            #     'pm251Mavg',
-            #     'no21Mavg',
-            #     'o31Mavg',
-            #     'pm101Mavg',
+            'pm107davg','so27davg',\
+                 'pm251Mavg',
+                 'no21Mavg',
+                 'o31Mavg',
+                'pm101Mavg',
                  'co1Mavg',
-            #     'so21Mavg',\
+                 'so21Mavg',\
                     '1MMaxpm25',\
-                    #'1MMaxpm10',\
+                    '1MMaxpm10',\
                     '1MMaxo3',
-                    #'1MMaxno2',
+                    '1MMaxno2',
                     '1MMaxco',\
-                        #'1MMaxso2',\
-                        'hospi','newhospi','CovidPosTest',\
+                        '1MMaxso2',\
+                       # 'hospi','newhospi','CovidPosTest',\
                             'all_day_bing_tiles_visited_relative_change','all_day_ratio_single_tile_users',\
                                 'vac1nb', 'vac2nb',\
                                     'Insuffisance respiratoire chronique grave (ALD14)', \
                                         'Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves (ALD5)',\
                                             'Smokers',\
                                                 "minority","pauvrete","rsa","ouvriers",\
-                                                    "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3"\
-                                                        ]
+                                                    "Nb_susp_501Y_V1","Nb_susp_501Y_V2_3",\
+                                                        "pm252001","pm252002","pm252003","pm252004","pm252005","pm252006","pm252007","pm252008",\
+            "pm252009","pm252010","pm252011","pm252012","pm252013","pm252014","pm252015","pm252016","pm252017","pm252018"\
+                ]
+
         self.modelday1features = ['idx', "dateiminusonepm25dayiforecast","dateiminusoneno2dayiforecast","dateiminusoneo3dayiforecast",\
                                             "dateiminusonepm10dayiforecast","dateiminusonecodayiforecast","dateiminusoneso2dayiforecast",\
                                                 "dateiminusonepm25dayiforecast7davg","dateiminusoneno2dayiforecast7davg",\
@@ -487,7 +490,7 @@ class maintrain():
 
     def tpotregressor(self, i):
         print("TPOTRegressor")
-        tpot = TPOTRegressor(generations=50, population_size=10, verbosity=2, random_state=42)
+        tpot = TPOTRegressor(generations=50, population_size=50, verbosity=2, random_state=42)
         tpot.fit(self.X, self.y)
         #print(tpot.score(X, y_test2))
         tpot.export('tpot_covid_pipeline_day_' + str(i) + '.py')
@@ -683,7 +686,7 @@ class maintrain():
 
 if __name__ == '__main__':
 
-    TrainModel = maintrain(skipcrossval = "Y", skipimpute = "Y", skiptpot = "Y")
+    TrainModel = maintrain(skipcrossval = "Y", skipimpute = "Y", skiptpot = None)
     TrainModel.initdata()
     TrainModel.CurrentBestModel()
     TrainModel.predict()
